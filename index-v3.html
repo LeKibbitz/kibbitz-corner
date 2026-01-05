@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kibbitz' Corner | IA - Automatisation - Data</title>
+    <meta name="description" content="Solutions Intelligence Artificielle, Automatisation et Data.">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="alternate" type="application/rss+xml" title="Kibbitz' Corner RSS" href="/feed.xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{--bg:#0a0a0a;--bg-secondary:#111;--text:#fff;--text-muted:#888;--accent:#a855f7;--accent-secondary:#ec4899;--card-bg:#161616;--border:#222;--success:#22c55e;--error:#ef4444}
+        html{scroll-behavior:smooth}
+        body{font-family:"Inter",-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+
+        .container{max-width:1200px;margin:0 auto;padding:0 24px}
+
+        /* === PARTICLES === */
+        .particles-container{position:fixed;inset:0;pointer-events:none;z-index:-1;overflow:hidden}
+        .particle{position:absolute;width:6px;height:6px;border-radius:50%;opacity:.6;animation:floatParticle 15s infinite ease-in-out}
+        .particle:nth-child(odd){background:var(--accent)}
+        .particle:nth-child(even){background:var(--accent-secondary)}
+        .particle:nth-child(1){left:10%;top:20%;animation-delay:0s;animation-duration:12s}
+        .particle:nth-child(2){left:20%;top:80%;animation-delay:-2s;animation-duration:18s}
+        .particle:nth-child(3){left:30%;top:40%;animation-delay:-4s;animation-duration:14s}
+        .particle:nth-child(4){left:40%;top:60%;animation-delay:-6s;animation-duration:16s}
+        .particle:nth-child(5){left:50%;top:30%;animation-delay:-8s;animation-duration:20s}
+        .particle:nth-child(6){left:60%;top:70%;animation-delay:-10s;animation-duration:13s}
+        .particle:nth-child(7){left:70%;top:50%;animation-delay:-12s;animation-duration:17s}
+        .particle:nth-child(8){left:80%;top:25%;animation-delay:-14s;animation-duration:15s}
+        .particle:nth-child(9){left:90%;top:85%;animation-delay:-16s;animation-duration:19s}
+        .particle:nth-child(10){left:15%;top:55%;animation-delay:-1s;animation-duration:14s}
+        @keyframes floatParticle{0%,100%{transform:translate(0,0) scale(1);opacity:.6}25%{transform:translate(30px,-40px) scale(1.2);opacity:.8}50%{transform:translate(-20px,20px) scale(.8);opacity:.4}75%{transform:translate(40px,30px) scale(1.1);opacity:.7}}
+        .bg-grid{position:fixed;inset:0;background-image:linear-gradient(rgba(168,85,247,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(168,85,247,.03) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:-2}
+        .bg-glow{position:fixed;width:600px;height:600px;border-radius:50%;filter:blur(150px);opacity:.15;pointer-events:none;z-index:-3;transition:transform .3s ease-out}
+        .bg-glow-1{background:var(--accent);top:-200px;right:-200px}
+        .bg-glow-2{background:var(--accent-secondary);bottom:-200px;left:-200px}
+
+        /* === HEADER SIMPLE (logo only) === */
+        header{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 0;background:rgba(10,10,10,.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+        header .container{display:flex;align-items:center}
+        .logo-link{display:flex;align-items:center;gap:0;text-decoration:none;transition:transform .3s}
+        .logo-link:hover{transform:scale(1.02)}
+
+        /* Logo video container */
+        .logo-video-container{width:48px;height:48px;border-radius:10px;overflow:hidden;position:relative;flex-shrink:0;cursor:pointer}
+        .logo-video-container video{width:100%;height:100%;object-fit:cover;display:block}
+        .logo-video-container img{width:100%;height:100%;object-fit:cover;display:none;position:absolute;top:0;left:0}
+        .logo-video-container.ended video{display:none}
+        .logo-video-container.ended img{display:block}
+
+        /* Logo text */
+        .logo-text{font-size:1.3rem;font-weight:700;color:var(--text);display:flex;align-items:baseline;margin-left:2px}
+        .logo-text .k-letter{background:linear-gradient(135deg,#84cc16,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:800;font-size:1.5rem}
+        .logo-text .rest{color:#c084fc}
+        .logo-text .apostrophe{color:var(--accent)}
+        .logo-text .corner{color:var(--text-muted);margin-left:6px}
+
+        /* === SECTIONS === */
+        section{min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;padding:100px 0}
+
+        /* Section transitions */
+        section.hero{background:var(--bg)}
+        section.services{background:var(--bg-secondary)}
+        section.newsletter{background:linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg) 100%)}
+        section.contact{background:var(--bg)}
+
+        /* Section dividers */
+        .section-divider{width:100%;height:1px;background:linear-gradient(90deg, transparent, var(--accent), var(--accent-secondary), transparent);margin:0 auto;opacity:0.5}
+
+        /* === HERO === */
+        .hero-content{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+        .hero-text h1{font-size:4.5rem;font-weight:800;line-height:1.1;margin-bottom:24px;opacity:0;animation:fadeUp .8s ease forwards .3s}
+        .hero-text h1 .static{display:block}
+        .hero-text h1 .dynamic-wrapper{display:block;position:relative;height:1.1em;overflow:hidden}
+        .hero-text h1 .dynamic{position:absolute;left:0;background:linear-gradient(135deg,var(--accent),var(--accent-secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;opacity:0;transform:translateY(100%);transition:all .6s cubic-bezier(.4,0,.2,1)}
+        .hero-text h1 .dynamic.active{opacity:1;transform:translateY(0)}
+        .hero-text h1 .dynamic.exit{opacity:0;transform:translateY(-100%)}
+        .hero-subtitle{font-size:1.25rem;color:var(--text-muted);margin-bottom:32px;opacity:0;animation:fadeUp .8s ease forwards .5s}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+
+        .hero-visual{opacity:0;animation:fadeUp .8s ease forwards .7s}
+        .hero-cards{position:relative;height:380px}
+        .hero-card{position:absolute;width:100%;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:32px;opacity:0;transform:translateX(50px) scale(.95);transition:all .6s cubic-bezier(.4,0,.2,1)}
+        .hero-card.active{opacity:1;transform:translateX(0) scale(1)}
+        .hero-card.exit{opacity:0;transform:translateX(-50px) scale(.95)}
+        .hero-card h3{font-size:1.4rem;margin-bottom:12px}
+        .hero-card p{color:var(--text-muted);font-size:1rem;margin-bottom:16px;line-height:1.6}
+        .hero-card strong{color:var(--text)}
+        .card-logos{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+        .card-logos img{height:28px;border-radius:6px;background:#fff;padding:4px}
+        .card-logos .logo-dark{background:transparent;padding:0}
+
+        .neural-net{width:100%;height:120px;margin-bottom:16px;position:relative;overflow:hidden}
+        .neural-node{position:absolute;width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);animation:pulse 2s infinite}
+        .neural-line{position:absolute;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent-secondary));opacity:.3;transform-origin:left center}
+        @keyframes pulse{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.2)}}
+
+        .scroll-indicator{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0;animation:fadeUp .8s ease forwards 1s;cursor:pointer;transition:opacity .3s}
+        .scroll-indicator span{font-size:.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:2px}
+        .scroll-indicator .chevron{width:24px;height:24px;border-right:2px solid var(--accent);border-bottom:2px solid var(--accent);transform:rotate(45deg);animation:bounce 2s infinite}
+        @keyframes bounce{0%,20%,50%,80%,100%{transform:rotate(45deg) translateY(0)}40%{transform:rotate(45deg) translateY(10px)}60%{transform:rotate(45deg) translateY(5px)}}
+
+        /* === SERVICES === */
+        .section-header{text-align:center;margin-bottom:60px}
+        .section-label{color:var(--accent);font-size:.85rem;text-transform:uppercase;letter-spacing:2px;margin-bottom:16px}
+        .section-title{font-size:3rem;font-weight:800}
+        .reveal{opacity:0;transform:translateY(40px);transition:all .8s cubic-bezier(.4,0,.2,1)}
+        .reveal.active{opacity:1;transform:translateY(0)}
+        .services-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+        .service-card{background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:32px;transition:all .4s;opacity:0;transform:translateY(40px)}
+        .service-card.active{opacity:1;transform:translateY(0)}
+        .service-card:hover{border-color:var(--accent);transform:translateY(-8px);box-shadow:0 20px 40px rgba(168,85,247,.15)}
+        .service-card h3{font-size:1.2rem;margin-bottom:12px}
+        .service-card p{color:var(--text-muted);margin-bottom:16px;font-size:.95rem;line-height:1.6}
+        .service-logos{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+        .service-logos img{height:24px;border-radius:4px}
+
+        /* === NEWSLETTER === */
+        .newsletter-content{max-width:600px;margin:0 auto;text-align:center}
+        .newsletter-content h2{font-size:2.5rem;margin-bottom:16px}
+        .newsletter-content>p{color:var(--text-muted);margin-bottom:32px;font-size:1.1rem}
+        .newsletter-form{display:flex;gap:12px;max-width:450px;margin:0 auto}
+        .newsletter-form input{flex:1;padding:16px 20px;border:1px solid var(--border);border-radius:12px;background:var(--card-bg);color:var(--text);font-size:1rem;transition:border-color .3s}
+        .newsletter-form input:focus{outline:0;border-color:var(--accent)}
+        .newsletter-form button{padding:16px 32px;background:linear-gradient(135deg,var(--accent),var(--accent-secondary));border:none;border-radius:12px;color:#fff;font-weight:600;cursor:pointer;transition:all .3s}
+        .newsletter-form button:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(168,85,247,.3)}
+        .newsletter-form button:disabled{opacity:.6;cursor:not-allowed}
+        .newsletter-message{margin-top:20px;padding:12px 20px;border-radius:8px;font-size:.95rem;opacity:0;transition:opacity .3s}
+        .newsletter-message.show{opacity:1}
+        .newsletter-message.success{background:rgba(34,197,94,.1);color:var(--success);border:1px solid rgba(34,197,94,.3)}
+        .newsletter-message.error{background:rgba(239,68,68,.1);color:var(--error);border:1px solid rgba(239,68,68,.3)}
+        .newsletter-message.info{background:rgba(168,85,247,.1);color:var(--accent);border:1px solid rgba(168,85,247,.3)}
+        .newsletter-features{display:flex;gap:24px;justify-content:center;margin-top:24px;flex-wrap:wrap}
+        .newsletter-feature{display:flex;align-items:center;gap:8px;color:var(--text-muted);font-size:.9rem}
+        .newsletter-feature svg{width:16px;height:16px;color:var(--accent)}
+
+        /* === CONTACT === */
+        .contact-content{text-align:center}
+        .contact-title{font-size:3.5rem;font-weight:800;margin-bottom:20px}
+        .contact-subtitle{color:var(--text-muted);font-size:1.2rem;margin-bottom:40px;max-width:600px;margin-left:auto;margin-right:auto}
+        .contact-email{display:inline-flex;align-items:center;gap:12px;font-size:1.5rem;font-weight:600;color:var(--text);text-decoration:none;padding:20px 40px;background:var(--card-bg);border:1px solid var(--border);border-radius:16px;transition:all .3s}
+        .contact-email:hover{border-color:var(--accent);transform:translateY(-4px);box-shadow:0 15px 40px rgba(168,85,247,.2)}
+        .social-links{display:flex;gap:16px;justify-content:center;margin-top:40px}
+        .social-links a{display:flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:12px;background:var(--card-bg);border:1px solid var(--border);color:var(--text-muted);transition:all .3s}
+        .social-links a:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-4px)}
+        .social-links a svg{width:24px;height:24px}
+
+        /* === FOOTER === */
+        footer{padding:40px 0;border-top:1px solid var(--border);background:var(--bg-secondary)}
+        .footer-content{display:flex;justify-content:space-between;align-items:center}
+        .footer-content p{color:var(--text-muted);font-size:.9rem}
+        .footer-links{display:flex;gap:24px}
+        .footer-links a{color:var(--text-muted);text-decoration:none;font-size:.9rem;transition:color .3s}
+        .footer-links a:hover{color:var(--accent)}
+
+        /* === RESPONSIVE === */
+        @media (max-width:900px){
+            .hero-content{grid-template-columns:1fr;gap:40px}
+            .hero-text h1{font-size:3rem}
+            .services-grid{grid-template-columns:1fr}
+            .footer-content{flex-direction:column;gap:20px;text-align:center}
+        }
+        @media (max-width:600px){
+            .hero-text h1{font-size:2.5rem}
+            .section-title{font-size:2rem}
+            .newsletter-form{flex-direction:column}
+            .contact-email{font-size:1rem;padding:16px 24px}
+            .newsletter-features{flex-direction:column;align-items:center}
+            .logo-text{font-size:1rem}
+            .logo-text .k-letter{font-size:1.2rem}
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <div class="particles-container"><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div></div>
+
+    <!-- HEADER SIMPLE : Logo only -->
+    <header>
+        <div class="container">
+            <a href="/" class="logo-link" id="logoLink">
+                <div class="logo-video-container" id="logoContainer">
+                    <video id="logoVideo" muted playsinline loop>
+                        <source src="/assets/logo-animated.webm" type="video/webm">
+                        <source src="/assets/logo-animated.mp4" type="video/mp4">
+                    </video>
+                    <img src="/assets/logo-final-frame.png" alt="Kibbitz' Corner" id="logoStatic">
+                </div>
+                <span class="logo-text">
+                    <span class="k-letter">K</span><span class="rest">ibbitz</span><span class="apostrophe">'</span><span class="corner">Corner</span>
+                </span>
+            </a>
+        </div>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero" id="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1><span class="static">Kibbitz'</span><span class="dynamic-wrapper"><span class="dynamic active" data-index="0">Corner</span><span class="dynamic" data-index="1">IA</span><span class="dynamic" data-index="2">Automation</span><span class="dynamic" data-index="3">Voice</span><span class="dynamic" data-index="4">Discord</span><span class="dynamic" data-index="5">YouTube</span><span class="dynamic" data-index="6">WhatsApp</span></span></h1>
+                    <p class="hero-subtitle">Solutions sur-mesure en Intelligence Artificielle, Automatisation et Data pour transformer vos idees en systemes performants.</p>
+                </div>
+                <div class="hero-visual">
+                    <div class="hero-cards">
+                        <div class="hero-card active" data-index="0">
+                            <h3>Bienvenue</h3>
+                            <p>Solutions IA, automatisation et data sur-mesure pour <strong>liberer votre temps</strong> et creer de la valeur.</p>
+                            <div class="card-logos">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Anthropic_logo.svg/120px-Anthropic_logo.svg.png" alt="Claude" class="logo-dark" style="height:24px">
+                                <img src="https://n8n.io/favicon.ico" alt="n8n" style="height:28px">
+                                <img src="https://supabase.com/favicon/favicon-32x32.png" alt="Supabase" style="height:28px;background:transparent">
+                            </div>
+                        </div>
+                        <div class="hero-card" data-index="1">
+                            <div class="neural-net" id="neuralNet"></div>
+                            <h3>Intelligence Artificielle</h3>
+                            <p><strong>L'IA seulement ou vous en avez besoin.</strong> Pas de gadgets, que de la valeur ajoutee.</p>
+                            <div class="card-logos">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Anthropic_logo.svg/120px-Anthropic_logo.svg.png" alt="Claude" class="logo-dark" style="height:24px">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/OpenAI_Logo.svg/120px-OpenAI_Logo.svg.png" alt="OpenAI" class="logo-dark" style="height:24px">
+                                <img src="https://www.gstatic.com/lamda/images/gemini_favicon_f069958c85030f21.png" alt="Gemini" style="height:28px;background:transparent">
+                            </div>
+                        </div>
+                        <div class="hero-card" data-index="2">
+                            <h3>Automation</h3>
+                            <p>Workflows visuels qui connectent tous vos outils. <strong>Zero code, 100% efficacite.</strong></p>
+                            <div class="card-logos">
+                                <img src="https://n8n.io/favicon.ico" alt="n8n" style="height:28px">
+                                <img src="https://supabase.com/favicon/favicon-32x32.png" alt="Supabase" style="height:28px;background:transparent">
+                                <img src="https://www.docker.com/wp-content/uploads/2022/03/Moby-logo.png" alt="Docker" style="height:28px;background:transparent">
+                            </div>
+                        </div>
+                        <div class="hero-card" data-index="3">
+                            <h3>Voice Assistants</h3>
+                            <p>Appels <strong>entrants & sortants</strong> automatises. Votre <strong>Knowledge Base</strong>, votre <strong>CRM connecte</strong>.</p>
+                            <div class="card-logos">
+                                <img src="https://www.twilio.com/assets/icons/twilio-icon-512.png" alt="Twilio" style="height:28px;background:transparent">
+                                <img src="https://elevenlabs.io/favicon.ico" alt="ElevenLabs" style="height:28px">
+                                <img src="https://supabase.com/favicon/favicon-32x32.png" alt="Supabase" style="height:28px;background:transparent">
+                            </div>
+                        </div>
+                        <div class="hero-card" data-index="4">
+                            <h3>Discord Apps</h3>
+                            <p><strong>Application connectee</strong> a votre infrastructure. Bot communautaire + IA integree.</p>
+                            <div class="card-logos">
+                                <img src="https://assets-global.website-files.com/6257adef93867e50d84d30e2/6266bc493fb42d4e27bb8393_Discord-Logo-Color.png" alt="Discord" style="height:28px;background:transparent">
+                                <img src="https://n8n.io/favicon.ico" alt="n8n" style="height:28px">
+                            </div>
+                        </div>
+                        <div class="hero-card" data-index="5">
+                            <h3>YouTube</h3>
+                            <p><strong>Generation de videos</strong> automatisee. Scripts IA, voix synthetiques, montage auto.</p>
+                            <div class="card-logos">
+                                <img src="https://www.youtube.com/s/desktop/f506bd45/img/favicon_32x32.png" alt="YouTube" style="height:28px;background:transparent">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/OpenAI_Logo.svg/120px-OpenAI_Logo.svg.png" alt="OpenAI" class="logo-dark" style="height:24px">
+                            </div>
+                        </div>
+                        <div class="hero-card" data-index="6">
+                            <h3>WhatsApp Management</h3>
+                            <p>Gestion automatisee de vos conversations. <strong>Reponses IA</strong>, CRM integre.</p>
+                            <div class="card-logos">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/120px-WhatsApp.svg.png" alt="WhatsApp" style="height:28px;background:transparent">
+                                <img src="https://n8n.io/favicon.ico" alt="n8n" style="height:28px">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-indicator" onclick="document.querySelector('.services').scrollIntoView({behavior:'smooth'})"><span>Scroll</span><div class="chevron"></div></div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- SERVICES -->
+    <section class="services" id="services">
+        <div class="container">
+            <div class="section-header reveal">
+                <p class="section-label">Services</p>
+                <h2 class="section-title">Ce que je peux faire pour vous</h2>
+            </div>
+            <div class="services-grid">
+                <div class="service-card reveal"><h3>Automatisation</h3><p>Workflows intelligents connectant vos outils. Eliminez les taches repetitives.</p><div class="service-logos"><img src="https://n8n.io/favicon.ico" alt="n8n" style="height:24px"><img src="https://supabase.com/favicon/favicon-32x32.png" alt="Supabase" style="height:24px;background:transparent"></div></div>
+                <div class="service-card reveal"><h3>Assistants Vocaux</h3><p>Assistants IA pour reservations et support client 24/7.</p><div class="service-logos"><img src="https://www.twilio.com/assets/icons/twilio-icon-512.png" alt="Twilio" style="height:24px;background:transparent"><img src="https://elevenlabs.io/favicon.ico" alt="ElevenLabs" style="height:24px"></div></div>
+                <div class="service-card reveal"><h3>Newsletter IA</h3><p>Newsletters automatisees generees par IA, adaptees a votre audience.</p><div class="service-logos"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Anthropic_logo.svg/120px-Anthropic_logo.svg.png" alt="Claude" style="height:20px"></div></div>
+                <div class="service-card reveal"><h3>Apps Discord</h3><p>Bots et integrations Discord sur-mesure pour votre communaute.</p><div class="service-logos"><img src="https://assets-global.website-files.com/6257adef93867e50d84d30e2/6266bc493fb42d4e27bb8393_Discord-Logo-Color.png" alt="Discord" style="height:24px;background:transparent"><img src="https://n8n.io/favicon.ico" alt="n8n" style="height:24px"></div></div>
+                <div class="service-card reveal"><h3>YouTube</h3><p>Generation automatique de contenu video avec IA.</p><div class="service-logos"><img src="https://www.youtube.com/s/desktop/f506bd45/img/favicon_32x32.png" alt="YouTube" style="height:24px;background:transparent"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/OpenAI_Logo.svg/120px-OpenAI_Logo.svg.png" alt="OpenAI" style="height:20px"></div></div>
+                <div class="service-card reveal"><h3>WhatsApp</h3><p>Gestion automatisee de conversations professionnelles.</p><div class="service-logos"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/120px-WhatsApp.svg.png" alt="WhatsApp" style="height:24px;background:transparent"></div></div>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- NEWSLETTER -->
+    <section class="newsletter" id="newsletter">
+        <div class="container">
+            <div class="newsletter-content reveal">
+                <p class="section-label">Newsletter</p>
+                <h2>Votre Daily IA, personnalise</h2>
+                <p>Recevez chaque jour un resume IA des actus tech, configure selon VOS centres d'interet.</p>
+                <form class="newsletter-form" id="newsletterForm">
+                    <input type="email" name="email" placeholder="votre@email.com" required>
+                    <button type="submit" id="submitBtn">S'abonner</button>
+                </form>
+                <div class="newsletter-message" id="newsletterMessage"></div>
+                <div class="newsletter-features">
+                    <div class="newsletter-feature">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                        <span>100% personnalisable</span>
+                    </div>
+                    <div class="newsletter-feature">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                        <span>Livree chaque matin</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- CONTACT -->
+    <section class="contact" id="contact">
+        <div class="container">
+            <div class="contact-content reveal">
+                <p class="section-label">Contact</p>
+                <h2 class="contact-title">Un projet en tete ?</h2>
+                <p class="contact-subtitle">Discutons de vos besoins et voyons comment l'automatisation peut transformer votre activite.</p>
+                <a href="mailto:contact@lekibbitz.fr" class="contact-email">contact@lekibbitz.fr</a>
+
+                <!-- Social links moved here -->
+                <div class="social-links">
+                    <a href="https://www.youtube.com/@LeKibbitz" target="_blank" title="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+                    <a href="https://www.linkedin.com/in/thomas-joannes-music/" target="_blank" title="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+                    <a href="https://www.instagram.com/le.kibbitz/" target="_blank" title="Instagram"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+                    <a href="/feed.xml" target="_blank" title="RSS"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.18 15.64a2.18 2.18 0 0 1 2.18 2.18C8.36 19 7.38 20 6.18 20C5 20 4 19 4 17.82a2.18 2.18 0 0 1 2.18-2.18M4 4.44A15.56 15.56 0 0 1 19.56 20h-2.83A12.73 12.73 0 0 0 4 7.27V4.44m0 5.66a9.9 9.9 0 0 1 9.9 9.9h-2.83A7.07 7.07 0 0 0 4 12.93V10.1z"/></svg></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer><div class="container"><div class="footer-content"><p>2025 Kibbitz' Corner - Fort-de-France, Martinique</p><div class="footer-links"><a href="/feed.xml">RSS</a><a href="#newsletter">Newsletter</a><a href="mailto:contact@lekibbitz.fr">Contact</a></div></div></div></footer>
+
+    <script>
+    // === LOGO VIDEO (loop) ===
+    const logoVideo = document.getElementById('logoVideo');
+    const logoContainer = document.getElementById('logoContainer');
+
+    // Play video on page load (loops automatically with loop attribute)
+    logoVideo.play().catch(() => {
+        logoContainer.classList.add('ended');
+    });
+
+    // === NEURAL NET ===
+    function createNeuralNet(){
+        const c=document.getElementById('neuralNet');
+        if(!c)return;
+        c.innerHTML='';
+        const layers=[3,5,4,3];
+        const nodes=[];
+        const w=c.offsetWidth||300,h=c.offsetHeight||120;
+        layers.forEach((count,li)=>{
+            const layerNodes=[];
+            const x=w/(layers.length+1)*(li+1);
+            for(let i=0;i<count;i++){
+                const y=h/(count+1)*(i+1);
+                const node=document.createElement('div');
+                node.className='neural-node';
+                node.style.left=(x-5)+'px';
+                node.style.top=(y-5)+'px';
+                node.style.animationDelay=(li*0.2+i*0.1)+'s';
+                c.appendChild(node);
+                layerNodes.push({x,y})
+            }
+            nodes.push(layerNodes)
+        });
+        for(let i=0;i<nodes.length-1;i++){
+            nodes[i].forEach(n1=>{
+                nodes[i+1].forEach(n2=>{
+                    const line=document.createElement('div');
+                    line.className='neural-line';
+                    const dx=n2.x-n1.x,dy=n2.y-n1.y;
+                    const len=Math.sqrt(dx*dx+dy*dy);
+                    const angle=Math.atan2(dy,dx)*180/Math.PI;
+                    line.style.width=len+'px';
+                    line.style.left=n1.x+'px';
+                    line.style.top=n1.y+'px';
+                    line.style.transform='rotate('+angle+'deg)';
+                    c.appendChild(line)
+                })
+            })
+        }
+    }
+    setTimeout(createNeuralNet,500);
+
+    // === HERO ROTATION ===
+    const dynamicTexts=document.querySelectorAll(".hero-text .dynamic");
+    const heroCards=document.querySelectorAll(".hero-card");
+    let currentIndex=0;
+    const totalItems=dynamicTexts.length;
+
+    function rotate(){
+        const e=currentIndex;
+        currentIndex=(currentIndex+1)%totalItems;
+        dynamicTexts[e].classList.remove("active");
+        dynamicTexts[e].classList.add("exit");
+        dynamicTexts[currentIndex].classList.add("active");
+        heroCards[e].classList.remove("active");
+        heroCards[e].classList.add("exit");
+        heroCards[currentIndex].classList.add("active");
+        setTimeout(()=>{
+            dynamicTexts[e].classList.remove("exit");
+            heroCards[e].classList.remove("exit")
+        },600);
+        if(currentIndex===1)setTimeout(createNeuralNet,100)
+    }
+    setInterval(rotate,4000);
+
+    // === REVEAL ON SCROLL ===
+    const reveals=document.querySelectorAll(".reveal, .service-card");
+    const revealOnScroll=()=>{
+        reveals.forEach((e,t)=>{
+            e.getBoundingClientRect().top<window.innerHeight-100&&setTimeout(()=>e.classList.add("active"),e.classList.contains("service-card")?100*t:0)
+        })
+    };
+    window.addEventListener("scroll",revealOnScroll);
+    revealOnScroll();
+
+    // === PARALLAX GLOW ===
+    document.addEventListener("mousemove",e=>{
+        const t=(e.clientX/window.innerWidth-.5)*30;
+        const n=(e.clientY/window.innerHeight-.5)*30;
+        document.querySelectorAll(".bg-glow").forEach((el,o)=>{
+            const a=0===o?1:-1;
+            el.style.transform=`translate(${t*a}px, ${n*a}px)`
+        })
+    });
+
+    // === SCROLL INDICATOR FADE ===
+    const scrollIndicator=document.querySelector(".scroll-indicator");
+    window.addEventListener("scroll",()=>{
+        scrollIndicator.style.opacity=window.scrollY>100?"0":"1"
+    });
+
+    // === NEWSLETTER FORM ===
+    const form=document.getElementById("newsletterForm");
+    const msg=document.getElementById("newsletterMessage");
+    const btn=document.getElementById("submitBtn");
+
+    function showMessage(text,type){
+        msg.textContent=text;
+        msg.className="newsletter-message show "+type
+    }
+
+    const params=new URLSearchParams(window.location.search);
+    if(params.get("confirmed")==="1"){
+        showMessage("Email confirme ! Bienvenue dans la newsletter.","success");
+        document.getElementById("newsletter").scrollIntoView({behavior:"smooth"});
+        history.replaceState(null,"",window.location.pathname)
+    }
+    if(params.get("error")==="invalid_token"){
+        showMessage("Lien invalide ou expire.","error");
+        document.getElementById("newsletter").scrollIntoView({behavior:"smooth"});
+        history.replaceState(null,"",window.location.pathname)
+    }
+
+    form.addEventListener("submit",async function(e){
+        e.preventDefault();
+        const email=this.querySelector("input[name=email]").value;
+        btn.disabled=true;
+        btn.textContent="...";
+        try{
+            const res=await fetch("https://n8n.lekibbitz.fr/webhook/newsletter",{
+                method:"POST",
+                headers:{"Content-Type":"application/json"},
+                body:JSON.stringify({email:email,source:"website"})
+            });
+            const data=await res.json();
+            if(data.success){
+                if(data.already_subscribed){
+                    showMessage(data.message,"info")
+                }else{
+                    showMessage(data.message,"success");
+                    this.reset()
+                }
+            }else{
+                showMessage(data.message||"Erreur lors de l'inscription","error")
+            }
+        }catch(err){
+            showMessage("Erreur de connexion au serveur","error")
+        }
+        btn.disabled=false;
+        btn.textContent="S'abonner"
+    });
+    </script>
+</body>
+</html>
