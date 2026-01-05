@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bridge — Jouons Ensemble</title>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
+
+<style>
+
+/* ===========================
+   THEME ─ Moderne & Premium
+=========================== */
+:root {
+  --bg: #0B1220;
+  --bg-light: #11192B;
+  --card: #151F33;
+  --text: #ffffff;
+  --text-muted: #8CA0C3;
+  --accent: #FF7A45;
+  --accent-light: #ff9b74;
+  --radius: 14px;
+  --transition: .25s ease;
+}
+*{margin:0;padding:0;box-sizing:border-box;scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  font-family:'Poppins',sans-serif;
+  color:var(--text);
+  line-height:1.5;
+}
+
+/* ================= HERO ================= */
+header{
+  text-align:center;
+  padding:120px 20px;
+  background:linear-gradient(160deg,#0d162a,#11192b,#0b1220);
+  animation:fadeIn 1s ease forwards;
+}
+header h1{
+  font-size:2.9rem;
+  font-weight:600;
+}
+header p{
+  margin-top:15px;
+  font-size:1.2rem;
+  color:var(--text-muted);
+}
+.btn{
+  display:inline-block;
+  padding:14px 34px;
+  margin-top:30px;
+  border-radius:var(--radius);
+  background:var(--accent);
+  font-weight:600;
+  color:#fff;
+  font-size:1.1rem;
+  transition:var(--transition);
+}
+.btn:hover{transform:translateY(-3px) scale(1.04);background:var(--accent-light);}
+
+/* ============== SECTIONS ============== */
+section{
+  padding:80px 8%;
+  max-width:1200px;
+  margin:auto;
+}
+section h2{
+  font-size:2.2rem;
+  margin-bottom:30px;
+  font-weight:600;
+}
+.center{text-align:center;}
+
+p{color:var(--text-muted);max-width:800px;margin:auto;font-size:1.05rem;}
+
+/* ============== GRID OFFRES ============== */
+.cards{
+  margin-top:50px;
+  display:grid;
+  gap:40px;
+  grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+}
+.card{
+  background:var(--card);
+  padding:28px;
+  border-radius:var(--radius);
+  border:1px solid rgba(255,255,255,0.05);
+  transition:var(--transition);
+  position:relative;
+  overflow:hidden;
+}
+.card:hover{transform:translateY(-8px);}
+.card:hover::before{opacity:0.18;}
+.card::before{
+  content:"";
+  position:absolute;inset:0;
+  background:var(--accent);
+  mix-blend-mode:overlay;
+  opacity:.06;
+  transition:.4s;
+}
+.card h3{
+  font-size:1.4rem;
+  margin-bottom:12px;
+  font-weight:600;
+}
+
+/* ============== TESTIMONIALES ============== */
+.testimonial{
+  background:var(--bg-light);
+  margin:22px auto;
+  padding:18px 28px;
+  border-left:4px solid var(--accent);
+  border-radius:var(--radius);
+  max-width:750px;
+  font-size:1rem;
+  animation:fadeUp .8s ease forwards;
+  opacity:0;
+}
+.testimonial:nth-child(1){animation-delay:.2s;}
+.testimonial:nth-child(2){animation-delay:.4s;}
+.testimonial:nth-child(3){animation-delay:.6s;}
+.testimonial p{color:#fff;}
+
+/* ============== CONTACT ================= */
+.contact-box{text-align:center;margin-top:40px;}
+.contact-box p{margin:14px 0; font-size:1.1rem;}
+.contact-box .btn{margin-top:20px;}
+
+/* ANIMATIONS */
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:none;}}
+@keyframes fadeUp{to{opacity:1;transform:none;}}
+
+</style>
+</head>
+
+<body>
+
+<!-- ================= HERO ================= -->
+<header>
+  <h1>Bridge — progressons, jouons, construisons ensemble.</h1>
+  <p>Vous me connaissez déjà. Continuons l'aventure — en tournoi, en stage ou dans votre club.</p>
+  <a href="#offres" class="btn">Voir les disponibilités</a>
+</header>
+
+<!-- ================= ABOUT ================= -->
+<section id="about" class="center">
+  <h2>Un bridge humain. Technique mais simple. Avec plaisir.</h2>
+  <p>
+    Je vous propose un accompagnement personnalisé — sur table, en stage, ou en arbitrage.
+    Pour progresser sans pression, comprendre calmement, jouer avec confiance
+    et retrouver le plaisir du raisonnement, pas la frustration.
+  </p>
+</section>
+
+<!-- ================= OFFRES ================= -->
+<section id="offres">
+  <h2 class="center">📌 Mes prestations</h2>
+
+  <div class="cards">
+
+    <div class="card">
+      <h3>🎯 Jouer un tournoi ensemble</h3>
+      <p>La meilleure façon de progresser : la vraie table. Préparation + tournoi + débrief clair.</p><br>
+      <a href="#contact" class="btn">Réserver une session</a>
+    </div>
+
+    <div class="card">
+      <h3>🔥 Stages individuels ou en petits groupes</h3>
+      <p>Thèmes ciblés : enchères, plans de jeu, défense, signaux, jugement final. Ambiance conviviale.</p><br>
+      <a href="#contact" class="btn">Choisir un thème & une date</a>
+    </div>
+
+    <div class="card">
+      <h3>🏛 Arbitrage & organisation de tournois</h3>
+      <p>Pour clubs & associations. Arbitrage neutre, structuré, sécurisé + animation possible.</p><br>
+      <a href="#contact" class="btn">Réserver un arbitrage</a>
+    </div>
+
+  </div>
+</section>
+
+<!-- ================= TEMOIGNAGES ================= -->
+<section class="center">
+  <h2>Ils ont joué avec moi 👇</h2>
+
+  <div class="testimonial"><p>⭐ “J’ai fait un bond énorme en 2 soirées de tournoi.”</p></div>
+  <div class="testimonial"><p>⭐ “Pédagogie limpide, calme, structurée. On se sent épaulé.”</p></div>
+  <div class="testimonial"><p>⭐ “Arbitrage net, clair, juste — ça change tout pour un club.”</p></div>
+</section>
+
+<!-- ================= CONTACT ================= -->
+<section id="contact" class="center">
+  <h2>On joue quand ? 🙂</h2>
+  <div class="contact-box">
+    <p><strong>Téléphone :</strong> 06 58 51 58 34</p>
+    <p><strong>Email :</strong> thomas.joannes@lekibbitz.fr</p>
+    <a href="https://wa.me/33658515834" class="btn">Discuter sur WhatsApp</a>
+  </div>
+</section>
+
+<footer class="center" style="padding:40px;color:var(--text-muted);">
+  © 2025 — Kibbitz' Corner / Tous droits réservés.
+</footer>
+
+</body>
+</html>
