@@ -1,0 +1,21 @@
+{
+  "parameters": {
+    "operation": "executeQuery",
+    "query": "INSERT INTO newsletter_subscribers (email, source, status, subscribed_at, confirmation_token) VALUES ($1, $2, 'pending', NOW(), $3) RETURNING id, email, confirmation_token",
+    "additionalFields": {
+      "queryParameters": "={{ [$('Webhook Newsletter').item.json.email, $('Webhook Newsletter').item.json.source || 'website', $crypto.randomUUID().replace(/-/g, '')] }}"
+    },
+    "options": {}
+  },
+  "id": "b56918d9-5f40-48a2-957b-89d145847520",
+  "name": "Insert New Subscriber",
+  "type": "n8n-nodes-base.postgres",
+  "typeVersion": 2.6,
+  "position": [-16, 208],
+  "credentials": {
+    "postgres": {
+      "id": "o9ZHFV56HWz8w7cp",
+      "name": "Supabase Kibbitz Corner"
+    }
+  }
+}

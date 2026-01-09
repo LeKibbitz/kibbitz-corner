@@ -1,0 +1,91 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "newsletter",
+        "responseMode": "lastNode",
+        "options": {
+          "allowedOrigins": "https://lekibbitz.fr,https://www.lekibbitz.fr"
+        }
+      },
+      "id": "webhook",
+      "name": "Newsletter Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [256, 208],
+      "typeVersion": 2,
+      "webhookId": "newsletter-sub"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO newsletter_subscribers (email, source, metadata) VALUES ($1, $2, '{}') ON CONFLICT (email) DO UPDATE SET status = 'active', unsubscribed_at = NULL, metadata = newsletter_subscribers.metadata || '{\"resubscribed\": true}' RETURNING id, email, status;",
+        "additionalFields": {
+          "queryParameters": ["{{ $json.email }}", "{{ $json.source || 'website' }}"]
+        },
+        "options": {}
+      },
+      "id": "insert_db",
+      "name": "Save to Database",
+      "type": "n8n-nodes-base.postgres",
+      "position": [480, 208],
+      "typeVersion": 2.5,
+      "credentials": {
+        "postgres": {
+          "id": "o9ZHFV56HWz8w7cp",
+          "name": "Supabase Kibbitz Corner"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"success\": true, \"message\": \"Inscription réussie ! Vérifiez votre email.\"}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "success_response",
+      "name": "Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [704, 208],
+      "typeVersion": 1.1
+    }
+  ],
+  "connections": {
+    "Newsletter Webhook": {
+      "main": [
+        [
+          {
+            "node": "Save to Database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save to Database": {
+      "main": [
+        [
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "a0b359ae789d4b6649ae6913b4ad3c22a5524e8fe7cfa7d008c4b9648e830c47"
+  }
+}

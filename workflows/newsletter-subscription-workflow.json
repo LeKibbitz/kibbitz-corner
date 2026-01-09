@@ -1,0 +1,269 @@
+{
+  "name": "Newsletter Subscription",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "path": "newsletter",
+        "options": {}
+      },
+      "id": "webhook_trigger",
+      "name": "Webhook Newsletter",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [440, 240],
+      "webhookId": "newsletter"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.email }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {},
+        "onError": "continueErrorOutput"
+      },
+      "id": "validate_email",
+      "name": "Validate Email",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [660, 240]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT email FROM newsletter_subscribers WHERE email = $1 AND status != 'unsubscribed'",
+        "additionalFields": {
+          "queryParameters": "={{ [$json.email] }}"
+        },
+        "options": {},
+        "retryOnFail": true
+      },
+      "id": "check_existing",
+      "name": "Check Existing Subscriber",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [880, 140],
+      "credentials": {
+        "postgres": {
+          "id": "o9ZHFV56HWz8w7cp",
+          "name": "Supabase Kibbitz Corner"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {},
+        "onError": "continueErrorOutput"
+      },
+      "id": "check_exists",
+      "name": "Already Exists?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [1100, 140]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO newsletter_subscribers (email, source, status, subscribed_at, confirmation_token) VALUES ($1, $2, 'pending', NOW(), $3) RETURNING id, email, confirmation_token",
+        "additionalFields": {
+          "queryParameters": "={{ [$('Webhook Newsletter').item.json.email, $('Webhook Newsletter').item.json.source || 'website', $crypto.randomUUID().replace(/-/g, '')] }}"
+        },
+        "options": {},
+        "retryOnFail": true
+      },
+      "id": "insert_subscriber",
+      "name": "Insert New Subscriber",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [1320, 40],
+      "credentials": {
+        "postgres": {
+          "id": "o9ZHFV56HWz8w7cp",
+          "name": "Supabase Kibbitz Corner"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "newsletters@lekibbitz.fr",
+        "toEmail": "={{ $('Insert New Subscriber').item.json.email }}",
+        "subject": "Confirmez votre abonnement à Kibbitz' Corner 🎉",
+        "html": "=`<!DOCTYPE html><html lang=\"fr\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"></head><body style=\"margin:0;padding:0;background:#0a0a0a;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#fff;\"><div style=\"max-width:640px;margin:0 auto;padding:40px 20px;\"><div style=\"background:linear-gradient(135deg,#a855f7 0%,#ec4899 50%,#f76c5e 100%);border-radius:20px 20px 0 0;padding:48px 32px;text-align:center;\"><h1 style=\"margin:0;font-size:32px;font-weight:800;color:#fff;\">Presque terminé !</h1><p style=\"margin:12px 0 0;font-size:16px;color:rgba(255,255,255,0.9);\">Confirmez votre abonnement en un clic</p></div><div style=\"background:#161616;border:1px solid #333;border-top:none;padding:40px 32px;\"><p style=\"font-size:18px;line-height:1.7;color:#ccc;margin:0 0 24px;\">Salut <strong style=\"color:#fff;\">${$('Insert New Subscriber').item.json.email}</strong> !</p><p style=\"font-size:16px;line-height:1.7;color:#aaa;margin:0 0 32px;\">Merci de votre intérêt pour <strong style=\"color:#a855f7;\">Kibbitz' Corner</strong> ! Pour finaliser votre abonnement à ma newsletter IA, cliquez simplement sur le bouton ci-dessous.</p><div style=\"text-align:center;margin:32px 0;\"><a href=\"https://n8n.lekibbitz.fr/webhook/newsletter/confirm?token=${$('Insert New Subscriber').item.json.confirmation_token}&email=${encodeURIComponent($('Insert New Subscriber').item.json.email)}\" style=\"display:inline-block;background:linear-gradient(135deg,#a855f7,#ec4899);color:#fff;text-decoration:none;padding:16px 32px;border-radius:12px;font-weight:600;font-size:16px;\">Confirmer mon abonnement</a></div><p style=\"font-size:14px;color:#666;margin:32px 0 0;\">Si vous n'avez pas demandé cet abonnement, ignorez simplement cet email.</p></div><div style=\"background:#111;border:1px solid #222;border-top:none;border-radius:0 0 20px 20px;padding:32px;text-align:center;\"><p style=\"margin:0;font-size:13px;color:#444;\">Thomas - <a href=\"https://lekibbitz.fr\" style=\"color:#a855f7;text-decoration:none;\">Kibbitz' Corner</a></p></div></div></body></html>`",
+        "options": {},
+        "onError": "continueRegularOutput"
+      },
+      "id": "send_confirmation",
+      "name": "Send Confirmation Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [1540, 40],
+      "credentials": {
+        "smtp": {
+          "id": "T3bi8G1zGnTM0Yqa",
+          "name": "Hostinger SMTP - Newsletter"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseBody": "{\n  \"success\": true,\n  \"message\": \"Email de confirmation envoyé ! Vérifiez votre boîte mail.\",\n  \"already_subscribed\": false\n}"
+        }
+      },
+      "id": "respond_success",
+      "name": "Respond Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [1760, 40]
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseBody": "{\n  \"success\": true,\n  \"message\": \"Cet email est déjà abonné à la newsletter.\",\n  \"already_subscribed\": true\n}"
+        }
+      },
+      "id": "respond_exists",
+      "name": "Respond Already Exists",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [1320, 240]
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseBody": "{\n  \"success\": false,\n  \"message\": \"Email requis.\"\n}",
+          "responseCode": 400
+        }
+      },
+      "id": "respond_error",
+      "name": "Respond Error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [880, 340]
+    }
+  ],
+  "connections": {
+    "Webhook Newsletter": {
+      "main": [
+        [
+          {
+            "node": "Validate Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Email": {
+      "main": [
+        [
+          {
+            "node": "Check Existing Subscriber",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Existing Subscriber": {
+      "main": [
+        [
+          {
+            "node": "Already Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Already Exists?": {
+      "main": [
+        [
+          {
+            "node": "Respond Already Exists",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Insert New Subscriber",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert New Subscriber": {
+      "main": [
+        [
+          {
+            "node": "Send Confirmation Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Confirmation Email": {
+      "main": [
+        [
+          {
+            "node": "Respond Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": ["newsletter", "subscription"],
+  "triggerCount": 1,
+  "updatedAt": "2026-01-07T02:55:00.000Z",
+  "versionId": "1"
+}

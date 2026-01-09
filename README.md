@@ -9,10 +9,10 @@
 ## 🎯 What I Build
 
 - **⚡ Workflow Automation** - n8n workflows connecting your tools
-- **🎙️ Voice AI Assistants** - Vapi + Claude for 24/7 phone support
-- **📧 AI Newsletters** - Automated content generation with Claude
+- **🎙️ Voice AI Assistants** - Vapi + Claude for 24/7 personalized phone assistant (In&Out)
+- **📧 AI Newsletters** - Automated content generation with Claude, personalized newsletterS
 - **🎮 Discord Bots** - Custom integrations for communities
-- **🗄️ Data Infrastructure** - Supabase, PostgreSQL, APIs
+- **🗄️ Data Infrastructure** - Supabase, PostgreSQL, APIs, Docker, Cloud
 
 ## 📂 Repository Structure
 

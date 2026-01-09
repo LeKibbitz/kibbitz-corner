@@ -1,0 +1,310 @@
+{
+  "name": "Newsletter Confirmation",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "path": "newsletter/confirm",
+        "options": {}
+      },
+      "id": "webhook_confirm",
+      "name": "Webhook Confirmation",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [440, 240],
+      "webhookId": "newsletter-confirm"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.query.token }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            },
+            {
+              "leftValue": "={{ $json.query.email }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "validate_params",
+      "name": "Validate Parameters",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [660, 240]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, email, confirmation_token FROM newsletter_subscribers WHERE email = $1 AND confirmation_token = $2 AND status = 'pending'",
+        "additionalFields": {
+          "queryParameters": "={{ [$json.query.email, $json.query.token] }}"
+        },
+        "options": {}
+      },
+      "id": "check_token",
+      "name": "Check Token",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [880, 140],
+      "credentials": {
+        "postgres": {
+          "id": "o9ZHFV56HWz8w7cp",
+          "name": "Supabase Kibbitz Corner"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "valid_token",
+      "name": "Valid Token?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [1100, 140]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE newsletter_subscribers SET status = 'active', confirmed_at = NOW(), confirmation_token = NULL WHERE email = $1 AND confirmation_token = $2",
+        "additionalFields": {
+          "queryParameters": "={{ [$('Webhook Confirmation').item.json.query.email, $('Webhook Confirmation').item.json.query.token] }}"
+        },
+        "options": {}
+      },
+      "id": "confirm_subscriber",
+      "name": "Confirm Subscriber",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [1320, 40],
+      "credentials": {
+        "postgres": {
+          "id": "o9ZHFV56HWz8w7cp",
+          "name": "Supabase Kibbitz Corner"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, title, content_html FROM newsletters WHERE status = 'sent' ORDER BY sent_at DESC LIMIT 1",
+        "options": {}
+      },
+      "id": "get_last_newsletter",
+      "name": "Get Last Newsletter",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [1540, 40],
+      "credentials": {
+        "postgres": {
+          "id": "o9ZHFV56HWz8w7cp",
+          "name": "Supabase Kibbitz Corner"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "newsletters@lekibbitz.fr",
+        "toEmail": "={{ $('Webhook Confirmation').item.json.query.email }}",
+        "subject": "Bienvenue dans Kibbitz' Corner ! 🎉",
+        "html": "=`<!DOCTYPE html><html lang=\"fr\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"></head><body style=\"margin:0;padding:0;background:#0a0a0a;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#fff;\"><div style=\"max-width:640px;margin:0 auto;padding:40px 20px;\"><div style=\"background:linear-gradient(135deg,#a855f7 0%,#ec4899 50%,#f76c5e 100%);border-radius:20px 20px 0 0;padding:48px 32px;text-align:center;\"><img src=\"https://lekibbitz.fr/assets/logo-final-frame.png\" alt=\"Kibbitz' Corner\" style=\"width:120px;height:120px;margin-bottom:20px;border-radius:16px;\"><h1 style=\"margin:0;font-size:32px;font-weight:800;color:#fff;\">Bienvenue !</h1><p style=\"margin:12px 0 0;font-size:16px;color:rgba(255,255,255,0.9);\">Ta newsletter IA personnalisée t'attend</p></div><div style=\"background:#161616;border:1px solid #333;border-top:none;padding:40px 32px;\"><p style=\"font-size:18px;line-height:1.7;color:#ccc;margin:0 0 24px;\">Salut <strong style=\"color:#fff;\">${$('Webhook Confirmation').item.json.query.email}</strong> !</p><p style=\"font-size:16px;line-height:1.7;color:#aaa;margin:0 0 32px;\">Tu viens de rejoindre <strong style=\"color:#a855f7;\">Kibbitz' Corner</strong>, et je suis ravi de t'accueillir. Ici, c'est <strong style=\"color:#fff;\">TA</strong> newsletter - tu la configures exactement comme tu veux.</p><div style=\"background:linear-gradient(135deg,rgba(168,85,247,0.1),rgba(236,72,153,0.1));border:1px solid rgba(168,85,247,0.3);border-radius:16px;padding:24px;margin-bottom:32px;\"><h2 style=\"margin:0 0 12px;font-size:20px;color:#fff;\">Le concept</h2><p style=\"margin:0;font-size:15px;line-height:1.7;color:#bbb;\">Chaque jour, je scanne <strong style=\"color:#fff;\">15+ sources</strong> (RSS, Reddit, Google News...) et je génère un résumé IA des actus tech qui comptent. Mais la magie, c'est que <strong style=\"color:#a855f7;\">tu choisis ce qui t'intéresse</strong>.</p></div>${$('Get Last Newsletter').item?.json?.length > 0 ? `<div style=\"background:linear-gradient(135deg,rgba(34,197,94,0.1),rgba(132,204,22,0.1));border:1px solid rgba(34,197,94,0.3);border-radius:16px;padding:24px;text-align:center;\"><h3 style=\"margin:0 0 12px;font-size:18px;color:#22c55e;\">Ton premier Daily AI Report</h3><p style=\"margin:0 0 16px;font-size:14px;color:#aaa;\">Voici le dernier numéro pour te donner un aperçu :</p><a href=\"https://lekibbitz.fr/newsletter/${$('Get Last Newsletter').item.json[0].id}\" style=\"display:inline-block;background:#22c55e;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px;\">Lire le dernier Daily</a></div>` : ''}</div><div style=\"background:#111;border:1px solid #222;border-top:none;border-radius:0 0 20px 20px;padding:32px;text-align:center;\"><p style=\"margin:0 0 16px;font-size:14px;color:#666;\">À demain pour ton premier Daily !</p><p style=\"margin:0 0 16px;font-size:13px;color:#444;\">Thomas - <a href=\"https://lekibbitz.fr\" style=\"color:#a855f7;text-decoration:none;\">Kibbitz' Corner</a></p><p style=\"margin:0;font-size:12px;color:#444;\"><a href=\"https://n8n.lekibbitz.fr/webhook/newsletter/unsubscribe?email=${encodeURIComponent($('Webhook Confirmation').item.json.query.email)}\" style=\"color:#666;text-decoration:none;\">Se désabonner</a></p></div></div></body></html>`",
+        "options": {}
+      },
+      "id": "send_welcome",
+      "name": "Send Welcome Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [1760, 40],
+      "credentials": {
+        "smtp": {
+          "id": "T3bi8G1zGnTM0Yqa",
+          "name": "Hostinger SMTP - Newsletter"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseBody": "<!DOCTYPE html><html lang=\"fr\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"><title>Abonnement confirmé</title></head><body style=\"margin:0;padding:0;background:#0a0a0a;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;\"><div style=\"max-width:500px;text-align:center;padding:40px 20px;\"><div style=\"background:linear-gradient(135deg,#a855f7,#ec4899);width:80px;height:80px;border-radius:50%;margin:0 auto 24px;display:flex;align-items:center;justify-content:center;\"><svg width=\"40\" height=\"40\" fill=\"white\" viewBox=\"0 0 20 20\"><path d=\"M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z\"/></svg></div><h1 style=\"font-size:2rem;margin:0 0 16px;\">Abonnement confirmé !</h1><p style=\"color:#aaa;margin:0 0 32px;\">Vous recevrez bientôt votre première newsletter. Bienvenue dans Kibbitz' Corner !</p><a href=\"https://lekibbitz.fr\" style=\"display:inline-block;background:linear-gradient(135deg,#a855f7,#ec4899);color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;\">Retour au site</a></div><script>setTimeout(()=>{window.location.href='https://lekibbitz.fr?confirmed=1'},3000)</script></body></html>",
+          "responseHeaders": {
+            "Content-Type": "text/html"
+          }
+        }
+      },
+      "id": "respond_confirmed",
+      "name": "Respond Confirmed",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [1980, 40]
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseBody": "<!DOCTYPE html><html lang=\"fr\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"><title>Lien invalide</title></head><body style=\"margin:0;padding:0;background:#0a0a0a;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;\"><div style=\"max-width:500px;text-align:center;padding:40px 20px;\"><div style=\"background:#ef4444;width:80px;height:80px;border-radius:50%;margin:0 auto 24px;display:flex;align-items:center;justify-content:center;\"><svg width=\"40\" height=\"40\" fill=\"white\" viewBox=\"0 0 20 20\"><path d=\"M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z\"/></svg></div><h1 style=\"font-size:2rem;margin:0 0 16px;\">Lien invalide</h1><p style=\"color:#aaa;margin:0 0 32px;\">Ce lien de confirmation est invalide ou a expiré.</p><a href=\"https://lekibbitz.fr\" style=\"display:inline-block;background:linear-gradient(135deg,#a855f7,#ec4899);color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;\">Retour au site</a></div><script>setTimeout(()=>{window.location.href='https://lekibbitz.fr?error=invalid_token'},3000)</script></body></html>",
+          "responseHeaders": {
+            "Content-Type": "text/html"
+          }
+        }
+      },
+      "id": "respond_invalid",
+      "name": "Respond Invalid",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [1320, 240]
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseBody": "<!DOCTYPE html><html lang=\"fr\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"><title>Paramètres manquants</title></head><body style=\"margin:0;padding:0;background:#0a0a0a;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;\"><div style=\"max-width:500px;text-align:center;padding:40px 20px;\"><h1 style=\"font-size:2rem;margin:0 0 16px;\">Lien invalide</h1><p style=\"color:#aaa;margin:0 0 32px;\">Paramètres manquants dans le lien.</p><a href=\"https://lekibbitz.fr\" style=\"display:inline-block;background:linear-gradient(135deg,#a855f7,#ec4899);color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;\">Retour au site</a></div></body></html>",
+          "responseHeaders": {
+            "Content-Type": "text/html"
+          },
+          "responseCode": 400
+        }
+      },
+      "id": "respond_missing",
+      "name": "Respond Missing Params",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [880, 340]
+    }
+  ],
+  "connections": {
+    "Webhook Confirmation": {
+      "main": [
+        [
+          {
+            "node": "Validate Parameters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Parameters": {
+      "main": [
+        [
+          {
+            "node": "Check Token",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Missing Params",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Token": {
+      "main": [
+        [
+          {
+            "node": "Valid Token?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valid Token?": {
+      "main": [
+        [
+          {
+            "node": "Confirm Subscriber",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Invalid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirm Subscriber": {
+      "main": [
+        [
+          {
+            "node": "Get Last Newsletter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Last Newsletter": {
+      "main": [
+        [
+          {
+            "node": "Send Welcome Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Welcome Email": {
+      "main": [
+        [
+          {
+            "node": "Respond Confirmed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": ["newsletter", "confirmation"],
+  "triggerCount": 1,
+  "updatedAt": "2026-01-07T03:00:00.000Z",
+  "versionId": "1"
+}
