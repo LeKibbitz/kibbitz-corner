@@ -41,23 +41,23 @@
 
         /* === HEADER SIMPLE (logo only) === */
         header{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 0;background:rgba(10,10,10,.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
-        header .container{display:flex;align-items:center}
+        header .container{display:flex;align-items:center;justify-content:space-between}
         .logo-link{display:flex;align-items:center;gap:0;text-decoration:none;transition:transform .3s}
         .logo-link:hover{transform:scale(1.02)}
 
-        /* Logo video container */
-        .logo-video-container{width:48px;height:48px;border-radius:10px;overflow:hidden;position:relative;flex-shrink:0;cursor:pointer}
-        .logo-video-container video{width:100%;height:100%;object-fit:cover;display:block}
-        .logo-video-container img{width:100%;height:100%;object-fit:cover;display:none;position:absolute;top:0;left:0}
+        /* Logo video container - larger size as requested */
+        .logo-video-container{width:56px;height:56px;border-radius:14px;overflow:hidden;position:relative;flex-shrink:0;cursor:pointer}
+        .logo-video-container video{width:100%;height:100%;object-fit:cover;display:block;border-radius:14px}
+        .logo-video-container img{width:100%;height:100%;object-fit:cover;display:none;position:absolute;top:0;left:0;border-radius:14px}
         .logo-video-container.ended video{display:none}
         .logo-video-container.ended img{display:block}
 
-        /* Logo text */
-        .logo-text{font-size:1.3rem;font-weight:700;color:var(--text);display:flex;align-items:baseline;margin-left:2px}
-        .logo-text .k-letter{background:linear-gradient(135deg,#84cc16,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:800;font-size:1.5rem}
-        .logo-text .rest{color:#c084fc}
+        /* Logo text - K styled like favicon */
+        .logo-text{font-size:1.3rem;font-weight:700;color:var(--text);display:flex;align-items:baseline;margin-left:8px}
+        .logo-text .k-letter{background:linear-gradient(135deg,#a855f7,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:800;font-size:1.6rem;font-family:'Inter',sans-serif}
+        .logo-text .rest{color:var(--text);font-weight:600;letter-spacing:-0.02em}
         .logo-text .apostrophe{color:var(--accent)}
-        .logo-text .corner{color:var(--text-muted);margin-left:6px}
+        .logo-text .corner{color:var(--text-muted);margin-left:6px;font-weight:500}
 
         /* === SECTIONS === */
         section{min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;padding:100px 0}
@@ -148,6 +148,10 @@
         .social-links a{display:flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:12px;background:var(--card-bg);border:1px solid var(--border);color:var(--text-muted);transition:all .3s}
         .social-links a:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-4px)}
         .social-links a svg{width:24px;height:24px}
+        .header-social{display:flex;gap:12px;align-items:center}
+        .header-social a{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;background:var(--card-bg);border:1px solid var(--border);color:var(--text-muted);transition:all .3s;text-decoration:none}
+        .header-social a:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-2px)}
+        .header-social a svg{width:18px;height:18px}
 
         /* === FOOTER === */
         footer{padding:40px 0;border-top:1px solid var(--border);background:var(--bg-secondary)}
@@ -187,15 +191,37 @@
             <a href="/" class="logo-link" id="logoLink">
                 <div class="logo-video-container" id="logoContainer">
                     <video id="logoVideo" muted playsinline loop>
-                        <source src="/assets/logo-animated.webm" type="video/webm">
-                        <source src="/assets/logo-animated.mp4" type="video/mp4">
+                        <source src="/assets/logo-animated.webm?v=20260108" type="video/webm">
+                        <source src="/assets/logo-animated.mp4?v=20260108" type="video/mp4">
                     </video>
-                    <img src="/assets/logo-final-frame.png" alt="Kibbitz' Corner" id="logoStatic">
+                    <img src="/assets/logo-final-frame.png?v=20260108" alt="Kibbitz' Corner" id="logoStatic">
                 </div>
                 <span class="logo-text">
                     <span class="k-letter">K</span><span class="rest">ibbitz</span><span class="apostrophe">'</span><span class="corner">Corner</span>
                 </span>
             </a>
+
+            <!-- Header Social Icons -->
+            <div class="header-social">
+                <a href="https://www.linkedin.com/in/thomas-joannes-music/" target="_blank" title="LinkedIn">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                </a>
+                <a href="https://www.youtube.com/@LeKibbitz" target="_blank" title="YouTube">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                </a>
+                <a href="https://www.instagram.com/le.kibbitz/" target="_blank" title="Instagram">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                </a>
+                <a href="https://x.com/lekibbitz" target="_blank" title="X (Twitter)">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                </a>
+                <a href="https://www.tiktok.com/@le.kibbitz" target="_blank" title="TikTok">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+                </a>
+                <a href="/feed.xml" target="_blank" title="RSS">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.18 15.64a2.18 2.18 0 0 1 2.18 2.18C8.36 19 7.38 20 6.18 20C5 20 4 19 4 17.82a2.18 2.18 0 0 1 2.18-2.18M4 4.44A15.56 15.56 0 0 1 19.56 20h-2.83A12.73 12.73 0 0 0 4 7.27V4.44m0 5.66a9.9 9.9 0 0 1 9.9 9.9h-2.83A7.07 7.07 0 0 0 4 12.93V10.1z"/></svg>
+                </a>
+            </div>
         </div>
     </header>
 
@@ -223,8 +249,8 @@
                             <h3>Intelligence Artificielle</h3>
                             <p><strong>L'IA seulement ou vous en avez besoin.</strong> Pas de gadgets, que de la valeur ajoutee.</p>
                             <div class="card-logos">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Anthropic_logo.svg/120px-Anthropic_logo.svg.png" alt="Claude" class="logo-dark" style="height:24px">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/OpenAI_Logo.svg/120px-OpenAI_Logo.svg.png" alt="OpenAI" class="logo-dark" style="height:24px">
+                                <img src="/assets/logos/anthropic.svg" alt="Claude" class="logo-dark" style="height:24px;filter:invert(1)">
+                                <img src="/assets/logos/openai.svg" alt="OpenAI" class="logo-dark" style="height:24px;filter:invert(1)">
                                 <img src="https://www.gstatic.com/lamda/images/gemini_favicon_f069958c85030f21.png" alt="Gemini" style="height:28px;background:transparent">
                             </div>
                         </div>
@@ -241,7 +267,7 @@
                             <h3>Voice Assistants</h3>
                             <p>Appels <strong>entrants & sortants</strong> automatises. Votre <strong>Knowledge Base</strong>, votre <strong>CRM connecte</strong>.</p>
                             <div class="card-logos">
-                                <img src="https://www.twilio.com/assets/icons/twilio-icon-512.png" alt="Twilio" style="height:28px;background:transparent">
+                                <img src="/assets/logos/twilio.svg" alt="Twilio" style="height:28px;filter:invert(1)">
                                 <img src="https://elevenlabs.io/favicon.ico" alt="ElevenLabs" style="height:28px">
                                 <img src="https://supabase.com/favicon/favicon-32x32.png" alt="Supabase" style="height:28px;background:transparent">
                             </div>
@@ -259,7 +285,7 @@
                             <p><strong>Generation de videos</strong> automatisee. Scripts IA, voix synthetiques, montage auto.</p>
                             <div class="card-logos">
                                 <img src="https://www.youtube.com/s/desktop/f506bd45/img/favicon_32x32.png" alt="YouTube" style="height:28px;background:transparent">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/OpenAI_Logo.svg/120px-OpenAI_Logo.svg.png" alt="OpenAI" class="logo-dark" style="height:24px">
+                                <img src="/assets/logos/openai.svg" alt="OpenAI" class="logo-dark" style="height:24px;filter:invert(1)">
                             </div>
                         </div>
                         <div class="hero-card" data-index="6">
@@ -288,10 +314,10 @@
             </div>
             <div class="services-grid">
                 <div class="service-card reveal"><h3>Automatisation</h3><p>Workflows intelligents connectant vos outils. Eliminez les taches repetitives.</p><div class="service-logos"><img src="https://n8n.io/favicon.ico" alt="n8n" style="height:24px"><img src="https://supabase.com/favicon/favicon-32x32.png" alt="Supabase" style="height:24px;background:transparent"></div></div>
-                <div class="service-card reveal"><h3>Assistants Vocaux</h3><p>Assistants IA pour reservations et support client 24/7.</p><div class="service-logos"><img src="https://www.twilio.com/assets/icons/twilio-icon-512.png" alt="Twilio" style="height:24px;background:transparent"><img src="https://elevenlabs.io/favicon.ico" alt="ElevenLabs" style="height:24px"></div></div>
-                <div class="service-card reveal"><h3>Newsletter IA</h3><p>Newsletters automatisees generees par IA, adaptees a votre audience.</p><div class="service-logos"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Anthropic_logo.svg/120px-Anthropic_logo.svg.png" alt="Claude" style="height:20px"></div></div>
+                <div class="service-card reveal"><h3>Assistants Vocaux</h3><p>Assistants IA pour reservations et support client 24/7.</p><div class="service-logos"><img src="/assets/logos/twilio.svg" alt="Twilio" style="height:24px;filter:invert(1)"><img src="https://elevenlabs.io/favicon.ico" alt="ElevenLabs" style="height:24px"></div></div>
+                <div class="service-card reveal"><h3>Newsletter IA</h3><p>Newsletters automatisees generees par IA, adaptees a votre audience.</p><div class="service-logos"><img src="/assets/logos/anthropic.svg" alt="Claude" style="height:20px;filter:invert(1)"></div></div>
                 <div class="service-card reveal"><h3>Apps Discord</h3><p>Bots et integrations Discord sur-mesure pour votre communaute.</p><div class="service-logos"><img src="https://assets-global.website-files.com/6257adef93867e50d84d30e2/6266bc493fb42d4e27bb8393_Discord-Logo-Color.png" alt="Discord" style="height:24px;background:transparent"><img src="https://n8n.io/favicon.ico" alt="n8n" style="height:24px"></div></div>
-                <div class="service-card reveal"><h3>YouTube</h3><p>Generation automatique de contenu video avec IA.</p><div class="service-logos"><img src="https://www.youtube.com/s/desktop/f506bd45/img/favicon_32x32.png" alt="YouTube" style="height:24px;background:transparent"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/OpenAI_Logo.svg/120px-OpenAI_Logo.svg.png" alt="OpenAI" style="height:20px"></div></div>
+                <div class="service-card reveal"><h3>YouTube</h3><p>Generation automatique de contenu video avec IA.</p><div class="service-logos"><img src="https://www.youtube.com/s/desktop/f506bd45/img/favicon_32x32.png" alt="YouTube" style="height:24px;background:transparent"><img src="/assets/logos/openai.svg" alt="OpenAI" style="height:20px;filter:invert(1)"></div></div>
                 <div class="service-card reveal"><h3>WhatsApp</h3><p>Gestion automatisee de conversations professionnelles.</p><div class="service-logos"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/120px-WhatsApp.svg.png" alt="WhatsApp" style="height:24px;background:transparent"></div></div>
             </div>
         </div>
@@ -350,13 +376,34 @@
     <footer><div class="container"><div class="footer-content"><p>2025 Kibbitz' Corner - Fort-de-France, Martinique</p><div class="footer-links"><a href="/feed.xml">RSS</a><a href="#newsletter">Newsletter</a><a href="mailto:contact@lekibbitz.fr">Contact</a></div></div></div></footer>
 
     <script>
-    // === LOGO VIDEO (loop) ===
+    // === LOGO VIDEO (restart on scroll/refresh) ===
     const logoVideo = document.getElementById('logoVideo');
     const logoContainer = document.getElementById('logoContainer');
 
-    // Play video on page load (loops automatically with loop attribute)
-    logoVideo.play().catch(() => {
-        logoContainer.classList.add('ended');
+    function restartVideo() {
+        logoVideo.currentTime = 0;
+        logoVideo.play().catch(() => {
+            logoContainer.classList.add('ended');
+        });
+    }
+
+    // Play video on page load
+    restartVideo();
+
+    // Restart video on scroll (throttled)
+    let scrollTimeout;
+    window.addEventListener('scroll', () => {
+        if (scrollTimeout) clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+            restartVideo();
+        }, 100);
+    });
+
+    // Restart video on page visibility change (tab focus)
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+            restartVideo();
+        }
     });
 
     // === NEURAL NET ===
@@ -474,29 +521,47 @@
 
     form.addEventListener("submit",async function(e){
         e.preventDefault();
-        const email=this.querySelector("input[name=email]").value;
+        const email=this.querySelector("input[name=email]").value.trim();
+
+        // Basic email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            showMessage("Format d'email invalide", "error");
+            return;
+        }
+
         btn.disabled=true;
-        btn.textContent="...";
+        btn.textContent="Inscription...";
+
+        // Try webhook API
         try{
             const res=await fetch("https://n8n.lekibbitz.fr/webhook/newsletter",{
                 method:"POST",
-                headers:{"Content-Type":"application/json"},
+                headers:{
+                    "Content-Type":"application/json",
+                    "Accept": "application/json"
+                },
                 body:JSON.stringify({email:email,source:"website"})
             });
+
             const data=await res.json();
             if(data.success){
                 if(data.already_subscribed){
-                    showMessage(data.message,"info")
+                    showMessage(data.message||"Vous êtes déjà inscrit à la newsletter","info");
                 }else{
-                    showMessage(data.message,"success");
-                    this.reset()
+                    showMessage(data.message||"Inscription réussie ! Vérifiez votre email.","success");
+                    this.reset();
                 }
             }else{
-                showMessage(data.message||"Erreur lors de l'inscription","error")
+                // Show specific error from webhook
+                showMessage(data.message||"Erreur lors de l'inscription","error");
             }
         }catch(err){
-            showMessage("Erreur de connexion au serveur","error")
+            console.error("Newsletter subscription error:", err);
+            // Show network or server error
+            showMessage("Erreur de connexion. Réessayez ou contactez-nous à newsletters@lekibbitz.fr","error");
         }
+
         btn.disabled=false;
         btn.textContent="S'abonner"
     });

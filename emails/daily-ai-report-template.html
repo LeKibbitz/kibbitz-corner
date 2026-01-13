@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily AI Report - {{ date_fr }}</title>
+</head>
+<body style="margin:0;padding:0;background:#0a0a0a;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#fff;">
+    <div style="max-width:680px;margin:0 auto;padding:40px 20px;">
+
+        <!-- HEADER -->
+        <div style="background:linear-gradient(135deg,#a855f7 0%,#ec4899 50%,#f76c5e 100%);border-radius:20px 20px 0 0;padding:40px 32px;text-align:center;">
+            <table style="width:100%;" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td style="text-align:center;">
+                        <img src="https://lekibbitz.fr/assets/logo-final-frame.png" alt="Kibbitz' Corner" style="width:80px;height:80px;margin-bottom:16px;border-radius:12px;">
+                        <h1 style="margin:0;font-size:28px;font-weight:800;color:#fff;">Daily AI Report</h1>
+                        <p style="margin:8px 0 0;font-size:14px;color:rgba(255,255,255,0.85);letter-spacing:1px;">{{ date_fr }}</p>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- CONFIG BANNER -->
+        <div style="background:linear-gradient(90deg,rgba(168,85,247,0.15),rgba(236,72,153,0.15));border-left:3px solid #a855f7;padding:16px 20px;margin:0;">
+            <table style="width:100%;" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td style="font-size:14px;color:#ccc;line-height:1.5;">
+                        <strong style="color:#fff;">C'est TA newsletter !</strong>
+                        <a href="mailto:newsletters@lekibbitz.fr?subject=Config%20Newsletter&body=Mes%20preferences..." style="color:#a855f7;text-decoration:none;margin-left:8px;">
+                            Configure tes sujets et sources
+                        </a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- CONTENT -->
+        <div style="background:#161616;border:1px solid #333;border-top:none;padding:32px;">
+
+            <!-- TOP 3 -->
+            <div style="margin-bottom:32px;">
+                <h2 style="margin:0 0 20px;font-size:13px;text-transform:uppercase;letter-spacing:2px;color:#a855f7;font-weight:600;">
+                    Top 3 du jour
+                </h2>
+                {{ top3_articles }}
+            </div>
+
+            <!-- DIVIDER -->
+            <div style="height:1px;background:linear-gradient(90deg,transparent,#333,transparent);margin:24px 0;"></div>
+
+            <!-- FRANCE -->
+            <div style="margin-bottom:32px;">
+                <h2 style="margin:0 0 16px;font-size:18px;font-weight:700;color:#fff;display:flex;align-items:center;">
+                    France
+                </h2>
+                {{ france_section }}
+            </div>
+
+            <!-- DIVIDER -->
+            <div style="height:1px;background:linear-gradient(90deg,transparent,#333,transparent);margin:24px 0;"></div>
+
+            <!-- IA & LLM -->
+            <div style="margin-bottom:32px;">
+                <h2 style="margin:0 0 16px;font-size:18px;font-weight:700;color:#fff;">
+                    IA & LLM
+                </h2>
+                {{ ia_section }}
+            </div>
+
+            <!-- DIVIDER -->
+            <div style="height:1px;background:linear-gradient(90deg,transparent,#333,transparent);margin:24px 0;"></div>
+
+            <!-- DEV & OUTILS -->
+            <div style="margin-bottom:32px;">
+                <h2 style="margin:0 0 16px;font-size:18px;font-weight:700;color:#fff;">
+                    Dev & Outils
+                </h2>
+                {{ dev_section }}
+            </div>
+
+            <!-- DIVIDER -->
+            <div style="height:1px;background:linear-gradient(90deg,transparent,#333,transparent);margin:24px 0;"></div>
+
+            <!-- FINANCE TECH -->
+            <div style="margin-bottom:32px;">
+                <h2 style="margin:0 0 16px;font-size:18px;font-weight:700;color:#fff;">
+                    Finance Tech
+                </h2>
+                {{ finance_section }}
+            </div>
+
+            <!-- DIVIDER -->
+            <div style="height:1px;background:linear-gradient(90deg,transparent,#333,transparent);margin:24px 0;"></div>
+
+            <!-- LIENS -->
+            <div style="margin-bottom:24px;">
+                <h2 style="margin:0 0 16px;font-size:18px;font-weight:700;color:#fff;">
+                    Liens utiles
+                </h2>
+                {{ links_section }}
+            </div>
+
+        </div>
+
+        <!-- STATS BAR -->
+        <div style="background:#1a1a1a;border:1px solid #333;border-top:none;padding:16px 24px;">
+            <table style="width:100%;" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td style="font-size:12px;color:#666;">
+                        {{ articles_count }} articles | {{ duration_sec }}s | {{ tokens_total }} tokens | ${{ cost_estimate }}
+                    </td>
+                    <td style="text-align:right;">
+                        <span style="font-size:11px;color:#444;">Genere par Claude Haiku</span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- FOOTER -->
+        <div style="background:#111;border:1px solid #222;border-top:none;border-radius:0 0 20px 20px;padding:32px;text-align:center;">
+
+            <!-- FEEDBACK -->
+            <p style="margin:0 0 16px;font-size:14px;color:#888;">
+                Cette edition t'a plu ?
+            </p>
+            <table style="margin:0 auto 24px;" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td style="padding:0 8px;">
+                        <a href="mailto:newsletters@lekibbitz.fr?subject=Feedback%20Daily%20-%20Super%20!&body=J'ai%20ador%C3%A9%20!" style="text-decoration:none;font-size:24px;">
+
+                        </a>
+                    </td>
+                    <td style="padding:0 8px;">
+                        <a href="mailto:newsletters@lekibbitz.fr?subject=Feedback%20Daily%20-%20Bof&body=Voici%20ce%20qui%20pourrait%20%C3%AAtre%20am%C3%A9lior%C3%A9..." style="text-decoration:none;font-size:24px;">
+
+                        </a>
+                    </td>
+                    <td style="padding:0 8px;">
+                        <a href="mailto:newsletters@lekibbitz.fr?subject=Feedback%20Daily%20-%20Pas%20top&body=Ce%20qui%20ne%20m'a%20pas%20plu..." style="text-decoration:none;font-size:24px;">
+
+                        </a>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- CONFIG REMINDER -->
+            <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:16px;margin-bottom:24px;">
+                <p style="margin:0;font-size:13px;color:#888;line-height:1.6;">
+                    <strong style="color:#aaa;">Envie de changement ?</strong><br>
+                    Reponds a <a href="mailto:newsletters@lekibbitz.fr" style="color:#a855f7;text-decoration:none;">newsletters@lekibbitz.fr</a>
+                    pour ajuster tes sujets, sources ou horaires.
+                </p>
+            </div>
+
+            <!-- SOCIAL -->
+            <table style="margin:0 auto 24px;" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td style="padding:0 8px;">
+                        <a href="https://www.youtube.com/@LeKibbitz" style="color:#666;text-decoration:none;font-size:13px;">YouTube</a>
+                    </td>
+                    <td style="color:#333;">|</td>
+                    <td style="padding:0 8px;">
+                        <a href="https://www.linkedin.com/in/thomas-joannes-music/" style="color:#666;text-decoration:none;font-size:13px;">LinkedIn</a>
+                    </td>
+                    <td style="color:#333;">|</td>
+                    <td style="padding:0 8px;">
+                        <a href="https://lekibbitz.fr" style="color:#666;text-decoration:none;font-size:13px;">Site</a>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- CREDITS -->
+            <p style="margin:0 0 16px;font-size:13px;color:#444;">
+                Thomas - <a href="https://lekibbitz.fr" style="color:#a855f7;text-decoration:none;">Kibbitz' Corner</a>
+                <br>Fort-de-France, Martinique
+            </p>
+
+            <!-- UNSUBSCRIBE -->
+            <p style="margin:0;font-size:11px;color:#333;">
+                <a href="https://n8n.lekibbitz.fr/webhook/newsletter/unsubscribe?email={{ subscriber_email }}" style="color:#444;text-decoration:none;">
+                    Se desabonner
+                </a>
+            </p>
+        </div>
+
+    </div>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenue dans Kibbitz' Corner</title>
+</head>
+<body style="margin:0;padding:0;background:#0a0a0a;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#fff;">
+    <div style="max-width:640px;margin:0 auto;padding:40px 20px;">
+
+        <!-- HEADER -->
+        <div style="background:linear-gradient(135deg,#a855f7 0%,#ec4899 50%,#f76c5e 100%);border-radius:20px 20px 0 0;padding:48px 32px;text-align:center;">
+            <img src="https://lekibbitz.fr/assets/logo-final-frame.png" alt="Kibbitz' Corner" style="width:120px;height:120px;margin-bottom:20px;border-radius:16px;">
+            <h1 style="margin:0;font-size:32px;font-weight:800;color:#fff;">Bienvenue !</h1>
+            <p style="margin:12px 0 0;font-size:16px;color:rgba(255,255,255,0.9);">Ta newsletter IA personnalisee t'attend</p>
+        </div>
+
+        <!-- CONTENT -->
+        <div style="background:#161616;border:1px solid #333;border-top:none;padding:40px 32px;">
+
+            <!-- INTRO -->
+            <p style="font-size:18px;line-height:1.7;color:#ccc;margin:0 0 24px;">
+                Salut <strong style="color:#fff;">{{ subscriber_email }}</strong> !
+            </p>
+            <p style="font-size:16px;line-height:1.7;color:#aaa;margin:0 0 32px;">
+                Tu viens de rejoindre <strong style="color:#a855f7;">Kibbitz' Corner</strong>, et je suis ravi de t'accueillir.
+                Ici, c'est <strong style="color:#fff;">TA</strong> newsletter - tu la configures exactement comme tu veux.
+            </p>
+
+            <!-- CONCEPT BOX -->
+            <div style="background:linear-gradient(135deg,rgba(168,85,247,0.1),rgba(236,72,153,0.1));border:1px solid rgba(168,85,247,0.3);border-radius:16px;padding:24px;margin-bottom:32px;">
+                <h2 style="margin:0 0 12px;font-size:20px;color:#fff;">Le concept</h2>
+                <p style="margin:0;font-size:15px;line-height:1.7;color:#bbb;">
+                    Chaque jour, je scanne <strong style="color:#fff;">15+ sources</strong> (RSS, Reddit, Google News...)
+                    et je genere un resume IA des actus tech qui comptent. Mais la magie, c'est que
+                    <strong style="color:#a855f7;">tu choisis ce qui t'interesse</strong>.
+                </p>
+            </div>
+
+            <!-- DIVIDER -->
+            <div style="height:1px;background:linear-gradient(90deg,transparent,#333,transparent);margin:32px 0;"></div>
+
+            <!-- GAME INTRO -->
+            <h2 style="margin:0 0 16px;font-size:22px;color:#fff;text-align:center;">
+                Configure ta playlist
+            </h2>
+            <p style="text-align:center;font-size:15px;color:#888;margin:0 0 24px;">
+                Un mini-jeu interactif pour creer ta newsletter ideale
+            </p>
+
+            <!-- ADVENTURE BUTTONS -->
+            <div style="text-align:center;margin-bottom:32px;">
+                <a href="https://lekibbitz.fr/configure?email={{ subscriber_email }}&step=topics"
+                   style="display:inline-block;background:linear-gradient(135deg,#a855f7,#ec4899);color:#fff;text-decoration:none;padding:16px 32px;border-radius:12px;font-weight:600;font-size:16px;margin:8px;box-shadow:0 4px 20px rgba(168,85,247,0.4);">
+                    Commencer l'aventure
+                </a>
+            </div>
+
+            <p style="text-align:center;font-size:14px;color:#666;margin:0 0 32px;">
+                ou configure par email (voir ci-dessous)
+            </p>
+
+            <!-- DIVIDER -->
+            <div style="height:1px;background:linear-gradient(90deg,transparent,#333,transparent);margin:32px 0;"></div>
+
+            <!-- EMAIL CONFIG -->
+            <h3 style="margin:0 0 16px;font-size:18px;color:#fff;">
+                Preferes configurer par email ?
+            </h3>
+            <p style="font-size:14px;line-height:1.7;color:#aaa;margin:0 0 16px;">
+                Reponds simplement a <strong style="color:#a855f7;">newsletters@lekibbitz.fr</strong> avec tes preferences en langage naturel :
+            </p>
+
+            <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:20px;margin-bottom:24px;">
+                <p style="margin:0 0 12px;font-size:13px;color:#666;text-transform:uppercase;letter-spacing:1px;">Exemple de reponse :</p>
+                <p style="margin:0;font-size:14px;line-height:1.8;color:#ccc;font-style:italic;">
+                    "Je veux plus d'actus sur n8n et l'automatisation, moins de finance tech.
+                    Ajoute des sources sur le no-code et Supabase.
+                    Je prefere recevoir ma newsletter le matin vers 7h."
+                </p>
+            </div>
+
+            <a href="mailto:newsletters@lekibbitz.fr?subject=Configuration%20Newsletter&body=%F0%9F%93%8B%20MES%20PREFERENCES%0A%0A%E2%9C%85%20Sujets%20que%20je%20veux%20voir%20:%0A-%20%0A%0A%E2%9D%8C%20Sujets%20en%20trop%20:%0A-%20%0A%0A%F0%9F%94%97%20Sources%20%C3%A0%20ajouter%20:%0A-%20%0A%0A%E2%8F%B0%20Heure%20de%20livraison%20souhait%C3%A9e%20:%0A"
+               style="display:inline-block;background:#1a1a1a;border:1px solid #333;color:#a855f7;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:500;font-size:14px;">
+                Configurer par email
+            </a>
+
+            <!-- DIVIDER -->
+            <div style="height:1px;background:linear-gradient(90deg,transparent,#333,transparent);margin:32px 0;"></div>
+
+            <!-- SURVEY -->
+            <h3 style="margin:0 0 16px;font-size:18px;color:#fff;">
+                Nouvelles fonctionnalites en reflexion
+            </h3>
+            <p style="font-size:14px;line-height:1.7;color:#aaa;margin:0 0 20px;">
+                Dis-moi ce qui t'interesserait le plus :
+            </p>
+
+            <table style="width:100%;border-collapse:separate;border-spacing:0 8px;">
+                <tr>
+                    <td style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:16px;">
+                        <a href="mailto:newsletters@lekibbitz.fr?subject=Vote%20Feature%20-%20Resume%20Audio&body=Je%20vote%20pour%20le%20r%C3%A9sum%C3%A9%20audio%20!" style="text-decoration:none;color:#fff;display:block;">
+                            <strong style="font-size:15px;">Resume audio</strong>
+                            <p style="margin:8px 0 0;font-size:13px;color:#888;line-height:1.5;">
+                                Ecoute ta newsletter en podcast (dans le mail, sur Insta/YT, ou via SMS/WhatsApp)
+                            </p>
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:16px;">
+                        <a href="mailto:newsletters@lekibbitz.fr?subject=Vote%20Feature%20-%20Multi%20Playlists&body=Je%20vote%20pour%20les%20playlists%20multiples%20!" style="text-decoration:none;color:#fff;display:block;">
+                            <strong style="font-size:15px;">Playlists multiples</strong>
+                            <p style="margin:8px 0 0;font-size:13px;color:#888;line-height:1.5;">
+                                Une newsletter differente selon le jour (semaine/week-end/lundis...)
+                            </p>
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:16px;">
+                        <a href="mailto:newsletters@lekibbitz.fr?subject=Vote%20Feature%20-%20Appel%20Vocal&body=Je%20vote%20pour%20l'appel%20vocal%20!" style="text-decoration:none;color:#fff;display:block;">
+                            <strong style="font-size:15px;">Appel vocal IA</strong>
+                            <p style="margin:8px 0 0;font-size:13px;color:#888;line-height:1.5;">
+                                Un appel quotidien (messagerie ou live) pour discuter des actus avec l'IA
+                            </p>
+                        </a>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- DIVIDER -->
+            <div style="height:1px;background:linear-gradient(90deg,transparent,#333,transparent);margin:32px 0;"></div>
+
+            <!-- LAST NEWSLETTER -->
+            <div style="background:linear-gradient(135deg,rgba(34,197,94,0.1),rgba(132,204,22,0.1));border:1px solid rgba(34,197,94,0.3);border-radius:16px;padding:24px;text-align:center;">
+                <h3 style="margin:0 0 12px;font-size:18px;color:#22c55e;">
+                    Ton premier Daily AI Report
+                </h3>
+                <p style="margin:0 0 16px;font-size:14px;color:#aaa;">
+                    Pour te donner un apercu, voici le dernier numero :
+                </p>
+                <a href="{{ last_newsletter_url }}"
+                   style="display:inline-block;background:#22c55e;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px;">
+                    Lire le dernier Daily
+                </a>
+            </div>
+
+        </div>
+
+        <!-- FOOTER -->
+        <div style="background:#111;border:1px solid #222;border-top:none;border-radius:0 0 20px 20px;padding:32px;text-align:center;">
+            <p style="margin:0 0 16px;font-size:14px;color:#666;">
+                A demain pour ton premier Daily !
+            </p>
+            <p style="margin:0 0 16px;font-size:13px;color:#444;">
+                Thomas - <a href="https://lekibbitz.fr" style="color:#a855f7;text-decoration:none;">Kibbitz' Corner</a>
+            </p>
+            <p style="margin:0;font-size:12px;color:#444;">
+                <a href="https://n8n.lekibbitz.fr/webhook/newsletter/unsubscribe?email={{ subscriber_email }}" style="color:#666;text-decoration:none;">
+                    Se desabonner
+                </a>
+            </p>
+        </div>
+
+    </div>
+</body>
+</html>

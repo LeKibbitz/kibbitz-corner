@@ -1,0 +1,26 @@
+{
+  "name": "Test Webhook Minimal",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "test-minimal",
+        "responseMode": "onReceived",
+        "responseCode": 200,
+        "responseData": "{\n  \"success\": true,\n  \"message\": \"Minimal webhook works!\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\",\n  \"received\": {{ JSON.stringify($json) }}\n}",
+        "options": {}
+      },
+      "id": "minimal-webhook",
+      "name": "Minimal Webhook Test",
+      "type": "n8n-nodes-base.webhook",
+      "position": [300, 300],
+      "typeVersion": 2,
+      "webhookId": "test-minimal"
+    }
+  ],
+  "connections": {},
+  "pinData": {},
+  "meta": {
+    "instanceId": "minimal-test"
+  }
+}

@@ -1,0 +1,3410 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur de Sections Bridge - Mitchell</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: auto;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode {
+            background: #1a1a1a !important;
+            color: #e0e0e0 !important;
+        }
+
+        .dark-mode .player-name,
+        .dark-mode .table-header,
+        .dark-mode .section-title,
+        .dark-mode h1, .dark-mode h2, .dark-mode h3,
+        .dark-mode p, .dark-mode span:not(.constraint-indicator) {
+            color: #e0e0e0 !important;
+        }
+
+        .dark-mode .table-card {
+            background: #34495e;
+            border-color: #4a6741;
+        }
+
+        .dark-mode .position {
+            background: #2c3e50;
+            border-color: #4a6741;
+            color: #ecf0f1;
+        }
+
+        .dark-mode .player-name {
+            color: #ecf0f1;
+        }
+
+        .dark-mode .tournament-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        }
+
+        .dark-mode .section-title {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+        }
+
+        .dark-mode .global-headers {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            border-color: #4a6741;
+        }
+
+        .dark-mode .section-stats {
+            background: #34495e;
+            border-color: #4a6741;
+            color: #ecf0f1;
+        }
+
+        .setup-mode {
+            padding: 20px;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .display-mode {
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            overflow: auto;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .mitchell-display {
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .tournament-header {
+            background: linear-gradient(135deg, #8B5A96 0%, #E91E63 100%);
+            color: white;
+            padding: 12px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 100%;
+        }
+
+        .header-content span {
+            font-size: 1.3em;
+            font-weight: bold;
+            flex: 1;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .header-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(10px);
+            white-space: nowrap;
+            font-weight: 500;
+        }
+
+        .header-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-1px);
+        }
+
+        .sections-grid {
+            flex: 1;
+            display: flex;
+            gap: 40px;
+            padding: 10px;
+            padding-right: 10px;
+            justify-content: center;
+            align-items: flex-start;
+            overflow-y: auto;
+        }
+
+        .sections-grid.two-sections {
+            padding-right: 10px;
+        }
+
+        .sections-grid.three-sections {
+            padding-right: 10px;
+        }
+
+        .three-sections .section-container {
+            flex: 1;
+            max-width: 33%;
+        }
+
+        .section-container {
+            flex: 1;
+            max-width: 50%;
+        }
+
+        .section-title {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+            padding: 8px;
+            text-align: center;
+            font-weight: bold;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-name {
+            flex: 1;
+            text-align: center;
+        }
+
+        .section-ns-avg,
+        .section-eo-avg {
+            font-size: 0.9em;
+            font-weight: normal;
+            opacity: 0.9;
+        }
+
+        .section-ns-avg {
+            text-align: left;
+        }
+
+        .section-eo-avg {
+            text-align: right;
+        }
+
+        /* Section colors */
+        .section-a .section-title {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        }
+
+        .section-b .section-title {
+            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+        }
+
+        .section-c .section-title {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        }
+
+        .section-stats {
+            font-size: 0.9em;
+            text-align: center;
+            margin-bottom: 8px;
+            padding: 6px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+        }
+
+        .stat-line {
+            margin: 2px 0;
+        }
+
+        .relais-position {
+            background: #fff3cd !important;
+            border-color: #ffc107 !important;
+        }
+
+        .relais-position .empty-position {
+            color: #856404;
+            font-weight: bold;
+        }
+
+        .tables-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+
+        .table-card {
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef;
+            display: flex;
+            min-height: 50px;
+            margin-bottom: 4px;
+        }
+
+        /* Section-specific table colors */
+        .section-a .table-card {
+            border-left: 4px solid #007bff;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+        }
+
+        .section-b .table-card {
+            border-left: 4px solid #28a745;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fff9 100%);
+        }
+
+        .section-c .table-card {
+            border-left: 4px solid #dc3545;
+            background: linear-gradient(135deg, #ffffff 0%, #fff8f8 100%);
+        }
+
+        /* Dark mode section table colors */
+        .dark-mode .section-a .table-card {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            border-left-color: #3498db;
+        }
+
+        .dark-mode .section-b .table-card {
+            background: linear-gradient(135deg, #2c3e50 0%, #27ae60 100%);
+            border-left-color: #2ecc71;
+        }
+
+        .dark-mode .section-c .table-card {
+            background: linear-gradient(135deg, #2c3e50 0%, #e74c3c 100%);
+            border-left-color: #e74c3c;
+        }
+
+        .table-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            color: white;
+            padding: 6px 8px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.9em;
+            width: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+        }
+
+        .table-positions {
+            display: flex;
+            flex: 1;
+        }
+
+        .global-headers {
+            display: flex;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+
+        .global-header-spacer {
+            width: 60px;
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border-radius: 4px 0 0 4px;
+            font-size: 0.9em;
+        }
+
+        .global-header {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ns-header {
+            border-right: 1px solid #dee2e6;
+            color: #007bff;
+        }
+
+        .eo-header {
+            color: #dc3545;
+        }
+
+        .position {
+            flex: 1;
+            padding: 3px 5px;
+            border: 1px solid #e9ecef;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+            cursor: grab;
+            min-height: var(--position-height, 45px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            font-size: 0.9em;
+        }
+
+        .position:hover {
+            border-color: #8B5A96;
+            background: #f1f3f5;
+        }
+
+        .position.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+            transform: rotate(5deg);
+        }
+
+        .position.drop-target {
+            border-color: #28a745;
+            background: #d4edda;
+            border-style: dashed;
+        }
+
+        .position.similarity-green {
+            background: #d4edda;
+            border-color: #28a745;
+            animation: pulse-green 0.8s infinite;
+        }
+
+        .position.similarity-orange {
+            background: #fff3cd;
+            border-color: #ffc107;
+            animation: pulse-orange 0.8s infinite;
+        }
+
+        .position.similarity-red {
+            background: #f8d7da;
+            border-color: #dc3545;
+            animation: pulse-red 0.8s infinite;
+        }
+
+        @keyframes pulse-green {
+            0%, 100% { box-shadow: 0 0 5px rgba(40, 167, 69, 0.4); }
+            50% { box-shadow: 0 0 15px rgba(40, 167, 69, 0.8); }
+        }
+
+        @keyframes pulse-orange {
+            0%, 100% { box-shadow: 0 0 5px rgba(255, 193, 7, 0.4); }
+            50% { box-shadow: 0 0 15px rgba(255, 193, 7, 0.8); }
+        }
+
+        @keyframes pulse-red {
+            0%, 100% { box-shadow: 0 0 5px rgba(220, 53, 69, 0.4); }
+            50% { box-shadow: 0 0 15px rgba(220, 53, 69, 0.8); }
+        }
+
+
+        .ns-position {
+            border-right: 1px solid #dee2e6;
+        }
+
+        .eo-position {
+            border-left: 1px solid #dee2e6;
+        }
+
+        .pair-info {
+            display: flex;
+            align-items: center;
+            height: 100%;
+            padding: 2px;
+        }
+
+        .player-names {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            line-height: 1.1;
+        }
+
+        .player-name {
+            font-weight: bold;
+            color: #333;
+            font-size: 0.9em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .player-amount {
+            font-size: 0.75em;
+            color: #666;
+            margin-left: 4px;
+            flex-shrink: 0;
+        }
+
+        /* Payment status colors */
+        .payment-full {
+            /* Normal colors - fully paid */
+        }
+
+        .payment-partial {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%) !important;
+            border-color: #f39c12 !important;
+        }
+
+        .payment-partial .player-name {
+            color: #856404;
+        }
+
+        .payment-none {
+            background: linear-gradient(135deg, #f8d7da 0%, #fab1a0 100%) !important;
+            border-color: #e74c3c !important;
+        }
+
+        .payment-none .player-name {
+            color: #721c24;
+        }
+
+        /* Dark mode payment colors */
+        .dark-mode .payment-partial {
+            background: linear-gradient(135deg, #6c5700 0%, #8b6914 100%) !important;
+            border-color: #d68910 !important;
+        }
+
+        .dark-mode .payment-partial .player-name {
+            color: #f7dc6f;
+        }
+
+        .dark-mode .payment-none {
+            background: linear-gradient(135deg, #6b1f21 0%, #a93226 100%) !important;
+            border-color: #cd6155 !important;
+        }
+
+        .dark-mode .payment-none .player-name {
+            color: #f1948a;
+        }
+
+        .iv-total {
+            font-weight: bold;
+            color: #8B5A96;
+            font-size: 0.9em;
+            margin-left: 6px;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .ns-constraint .constraint-indicator {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #1976d2;
+            margin-right: 8px;
+            font-size: 0.7em;
+            min-width: 25px;
+            background: rgba(33, 150, 243, 0.1);
+            border-radius: 4px;
+            padding: 2px;
+        }
+
+        .dark-mode .ns-constraint .constraint-indicator {
+            color: #3498db;
+            background: rgba(52, 152, 219, 0.2);
+        }
+
+        .ns-constraint .pair-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .ns-constraint .lock-icon {
+            font-size: 1em;
+            margin-bottom: 1px;
+        }
+
+        .ns-constraint .ns-text {
+            font-size: 0.6em;
+            font-weight: bold;
+        }
+
+        .constraint-indicator {
+            display: none;
+        }
+
+        .lock-icon {
+            font-size: 1.2em;
+            margin-bottom: 2px;
+        }
+
+        .ns-text {
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .position:hover {
+            background: #fff3cd;
+            border-color: #ffc107;
+        }
+
+        .position.clickable {
+            cursor: pointer;
+        }
+
+        .constraint-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 15px;
+            z-index: 300;
+            display: none;
+            background: rgba(255,255,255,0.95);
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .page-controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 300;
+            display: none;
+            background: rgba(255,255,255,0.95);
+            padding: 8px 16px;
+            border-radius: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            font-weight: bold;
+        }
+
+        .page-indicator {
+            color: #8B5A96;
+            margin: 0 10px;
+        }
+
+        .tables-grid.paginated {
+            transition: transform 0.5s ease;
+        }
+
+        .dark-mode .constraint-controls,
+        .dark-mode .page-controls {
+            background: rgba(44, 62, 80, 0.95);
+            color: #ecf0f1;
+        }
+
+        .constraint-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin: 2px;
+        }
+
+        .constraint-btn:hover {
+            background: #218838;
+        }
+
+        .empty-position {
+            text-align: center;
+            color: #adb5bd;
+            font-style: italic;
+            padding: 8px 4px;
+            font-size: 0.75em;
+        }
+
+        /* Old controls styles removed - now in header */
+
+        .single-section .sections-grid {
+            justify-content: center;
+        }
+
+        .single-section .section-container {
+            max-width: 80%;
+        }
+
+        .single-section .tables-grid {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Two-column layout for single section with many tables */
+        .single-section.two-columns .tables-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            max-width: 1600px;
+            align-items: flex-start;
+        }
+
+        .single-section.two-columns .column-left,
+        .single-section.two-columns .column-right {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .single-section.two-columns .section-container {
+            max-width: 95%;
+        }
+
+        /* Responsive: Fall back to single column on small screens */
+        @media (max-width: 1200px) {
+            .single-section.two-columns .tables-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #8B5A96 0%, #E91E63 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .input-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 12px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #8B5A96;
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .section-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        select {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #8B5A96 0%, #E91E63 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .results {
+            margin-top: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, #8B5A96 0%, #E91E63 100%);
+            color: white;
+            padding: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .pairs-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .pairs-table th,
+        .pairs-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .pairs-table th {
+            background: #f8f9fa;
+            font-weight: bold;
+        }
+
+        .pairs-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .pairs-table tr:hover {
+            background: #e9ecef;
+        }
+
+        .player {
+            margin: 5px 0;
+        }
+
+        .player-name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .player-info {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .iv-score {
+            font-weight: bold;
+            color: #8B5A96;
+        }
+
+        .print-button {
+            margin-top: 20px;
+            background: #28a745;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .container {
+                box-shadow: none;
+                border-radius: 0;
+            }
+
+            .input-section,
+            .controls,
+            .print-button,
+            .controls-bar {
+                display: none !important;
+            }
+
+            .mitchell-display {
+                background: white;
+            }
+
+            .table-card {
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="setupView" class="setup-mode">
+        <div class="container">
+            <div class="header">
+                <h1>🃏 Générateur de Sections Bridge - Mitchell</h1>
+                <p>Équilibrage automatique par méthode serpentine</p>
+                <div style="margin-top: 15px;">
+                    <a href="bridge-section-generator-v2.html" style="background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 5px; color: white; text-decoration: none; font-weight: bold;">
+                        ✨ Version 2: Public Display Optimized
+                    </a>
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="input-section">
+                    <h3>1. Coller les données du tournoi</h3>
+                    <textarea id="tournamentData" placeholder="Collez ici les données copiées depuis ffbridge.fr..."></textarea>
+
+                    <div class="controls">
+                        <div class="section-selector">
+                            <label for="sectionCount">Nombre de sections:</label>
+                            <select id="sectionCount">
+                                <option value="1">1 section</option>
+                                <option value="2">2 sections</option>
+                                <option value="3">3 sections</option>
+                            </select>
+                        </div>
+
+                        <div class="section-selector">
+                            <label for="entryFee">Montant inscription:</label>
+                            <input type="number" id="entryFee" value="5.00" step="0.50" min="0" style="width: 80px; padding: 5px; text-align: center;">€
+                        </div>
+
+                        <button id="generateButton" onclick="generateSections()" type="button">
+                            Générer les sections
+                        </button>
+
+                        <button onclick="loadTestData()" style="background: #6c757d; margin-left: 10px;">
+                            📋 Test 35 paires
+                        </button>
+                        <button onclick="loadTestData80()" style="background: #17a2b8; margin-left: 10px;">
+                            📋 Test 80 paires
+                        </button>
+
+                        <button onclick="debugDisplay()" style="background: #dc3545; margin-left: 10px;">
+                            🐛 Debug
+                        </button>
+
+                        <button onclick="testJS()" style="background: #ffc107; margin-left: 10px;">
+                            ⚡ Test JS
+                        </button>
+                    </div>
+
+                    <div id="status" class="status" style="display: none;"></div>
+                </div>
+
+                <div id="results" class="results" style="display: none;">
+                    <h3>2. Mise en place des sections</h3>
+                    <div id="sectionsContainer"></div>
+                    <button class="print-button" onclick="window.print()">🖨️ Imprimer</button>
+                    <button onclick="showMitchellDisplay()" style="background: #28a745; margin-left: 10px;">
+                        📺 Affichage Mitchell
+                    </button>
+                    <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px; font-size: 0.9em;">
+                        <h5>🔗 Automatisation & Capture</h5>
+                        <p>Outils d'automatisation pour ffbridge.fr et capture d'écran :</p>
+                        <div style="margin: 10px 0;">
+                            <button onclick="showFFBExtractor()" style="background: #007bff; color: white; border: none; padding: 6px 12px; border-radius: 4px; margin-right: 8px;">
+                                📋 Extracteur FFB
+                            </button>
+                            <button onclick="initScreenCapture()" style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; margin-right: 8px;">
+                                📷 Capture Écran
+                            </button>
+                            <button onclick="setupN8NIntegration()" style="background: #6f42c1; color: white; border: none; padding: 6px 12px; border-radius: 4px;">
+                                🌐 Config n8n
+                            </button>
+                        </div>
+                        <div id="automationHelp" style="display: none; background: #fff; padding: 10px; border-radius: 4px; border: 1px solid #dee2e6; margin-top: 10px;">
+                            <!-- Dynamic help content -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="mitchellView" class="display-mode mitchell-display" style="display: none;">
+        <div class="tournament-header">
+            <div class="header-content">
+                <span id="tournamentTitle">Tournoi Bridge - Mouvement Mitchell</span>
+                <div class="header-controls">
+                    <button class="header-btn" onclick="toggleFullscreen()" id="fullscreenToggle">📺 Plein écran</button>
+                    <button class="header-btn" onclick="showSetupView()">⚙️ Config</button>
+                    <button class="header-btn" onclick="window.print()">🖨️ Imprimer</button>
+                    <button class="header-btn" onclick="showConstraintControls()">🔒 NS</button>
+                    <button class="header-btn" id="darkModeBtn" onclick="forceDarkMode()">🌙 Dark</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="constraint-controls" id="constraintControls">
+            <div style="margin-bottom: 8px; font-weight: bold; font-size: 0.9em;">Contraintes NS</div>
+            <div style="font-size: 0.8em; margin-bottom: 8px;" id="constraintCount">0 paire(s) marquée(s)</div>
+            <button class="constraint-btn" onclick="redistributeWithConstraints()">🔄 Redistribuer</button>
+            <button class="constraint-btn" onclick="clearConstraints()" style="background: #dc3545;">Effacer tout</button>
+        </div>
+
+        <div id="mitchellContainer" class="sections-grid">
+        </div>
+
+        <div class="page-controls" id="pageNavigation" style="display: none;">
+            <button onclick="prevPage()" style="background: #6c757d; color: white; border: none; padding: 5px 10px; border-radius: 4px;">◀</button>
+            <span class="page-indicator" id="pageIndicator">Page 1/1</span>
+            <button onclick="nextPage()" style="background: #6c757d; color: white; border: none; padding: 5px 10px; border-radius: 4px;">▶</button>
+        </div>
+
+    </div>
+
+    <script>
+        console.log('🔍 DEBUG: JavaScript is loading...');
+
+        let parsedPairs = [];
+        let mitchellData = [];
+        let draggedPair = null;
+        let currentSectionCount = 1;
+
+        // Test function to verify JS is working
+        function testJS() {
+            alert('JavaScript fonctionne !');
+            console.log('✓ JavaScript test successful');
+        }
+
+        function showStatus(message, type = 'info') {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+            statusEl.style.display = 'block';
+        }
+
+        function hideStatus() {
+            document.getElementById('status').style.display = 'none';
+        }
+
+        function parseTournamentData(data) {
+            const pairs = [];
+            const lines = data.split('\n');
+            let currentPair = null;
+            let pairNumber = 1;
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+
+                if (!line || line.includes('Inscription') || line.includes('Nouvelle équipe')) {
+                    continue;
+                }
+
+                if (line.match(/^\d{2}\/\d{2}\/\d{4}/)) {
+                    if (currentPair && currentPair.player1 && currentPair.player2) {
+                        pairs.push(currentPair);
+                    }
+                    currentPair = { number: pairNumber++, player1: null, player2: null };
+                    continue;
+                }
+
+                const playerMatch = line.match(/^(M\.|Mme)\s+(.+?)\s+\(\s*([\d.]+)\s*€\s*\)/);
+                if (playerMatch) {
+                    const fullName = playerMatch[2];
+                    const amount = parseFloat(playerMatch[3]);
+
+                    if (i + 1 < lines.length) {
+                        const nextLine = lines[i + 1].trim();
+                        const licenseMatch = nextLine.match(/(\d{8})\s*\(\s*IV\s*=\s*(\d+)\s*\)/);
+
+                        if (licenseMatch) {
+                            const license = licenseMatch[1];
+                            const iv = parseInt(licenseMatch[2]);
+
+                            const player = {
+                                name: fullName,
+                                license: license,
+                                iv: iv,
+                                amount: amount
+                            };
+
+                            if (!currentPair.player1) {
+                                currentPair.player1 = player;
+                            } else if (!currentPair.player2) {
+                                currentPair.player2 = player;
+                            }
+
+                            i++;
+                        }
+                    }
+                }
+            }
+
+            if (currentPair && currentPair.player1 && currentPair.player2) {
+                pairs.push(currentPair);
+            }
+
+            return pairs;
+        }
+
+        function calculateCombinedIV(pair) {
+            return (pair.player1?.iv || 0) + (pair.player2?.iv || 0);
+        }
+
+        let nsConstraints = new Set();
+        let currentPage = 1;
+        let totalPages = 1;
+        let tablesPerPage = 10;
+        let autoPageInterval = null;
+
+        function mitchellDistribution(pairs, sectionCount, useConstraints = false) {
+            console.log('🔍 MITCHELL: Starting with', pairs.length, 'pairs,', sectionCount, 'sections');
+
+            // Sort pairs by IV (têtes de série)
+            const sortedPairs = [...pairs].sort((a, b) => calculateCombinedIV(b) - calculateCombinedIV(a));
+
+            // Add pair IDs and constraint flags
+            sortedPairs.forEach((pair, i) => {
+                if (!pair.id) pair.id = `pair_${i}`;
+                pair.combinedIV = calculateCombinedIV(pair);
+                pair.nsConstraint = useConstraints && nsConstraints.has(pair.id);
+            });
+
+            // Calculate tables per section using Mitchell algorithm
+            const totalPairs = pairs.length;
+            const hasRelais = totalPairs % 2 === 1;
+            const totalTables = hasRelais ? (totalPairs + 1) / 2 : totalPairs / 2;
+
+            // Mitchell: distribute tables as evenly as possible
+            const tablesPerSection = Math.ceil(totalTables / sectionCount);
+
+            // Ensure we don't have more sections than tables
+            if (sectionCount > totalTables) {
+                console.warn('⚠️ MITCHELL: More sections than tables, adjusting...');
+                sectionCount = Math.min(sectionCount, totalTables);
+            }
+
+            console.log('🔍 MITCHELL: Total tables:', totalTables, 'Tables per section:', tablesPerSection);
+
+            // Initialize sections with table numbers 1 to N in EACH section
+            const sections = Array.from({ length: sectionCount }, (_, sectionIndex) => {
+                return Array.from({ length: tablesPerSection }, (_, i) => ({
+                    tableNumber: i + 1,  // Chaque section: 1, 2, 3, 4, 5...
+                    ns: null,
+                    eo: null
+                }));
+            });
+
+            // Mitchell Algorithm Implementation
+            try {
+                console.log('🔍 MITCHELL: Calling generateMitchellPlacement...');
+                const result = generateMitchellPlacement(sections, sortedPairs, sectionCount, useConstraints);
+
+                if (result !== true) {
+                    console.error('❌ MITCHELL: generateMitchellPlacement failed');
+                    throw new Error('Failed to generate Mitchell placement');
+                }
+
+                console.log('🔍 DEBUG: Returning sections:', sections);
+                console.log('🔍 DEBUG: Sections length:', sections.length);
+                return sections;
+
+            } catch (error) {
+                console.error('❌ MITCHELL: Error in mitchellDistribution:', error);
+                // Fallback to simple distribution
+                return generateSimpleFallback(sections, sortedPairs);
+            }
+        }
+
+        function generateSimpleFallback(sections, sortedPairs) {
+            console.log('🔄 SIMPLE FALLBACK: Using basic distribution');
+            let pairIndex = 0;
+
+            // Simple distribution: place pairs sequentially
+            for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
+                const section = sections[sectionIndex];
+
+                for (let tableIndex = 0; tableIndex < section.length; tableIndex++) {
+                    const table = section[tableIndex];
+
+                    // Place NS pair
+                    if (pairIndex < sortedPairs.length) {
+                        table.ns = sortedPairs[pairIndex];
+                        pairIndex++;
+                    }
+
+                    // Place EW pair
+                    if (pairIndex < sortedPairs.length) {
+                        table.eo = sortedPairs[pairIndex];
+                        pairIndex++;
+                    }
+                }
+            }
+
+            console.log('✅ SIMPLE FALLBACK: Distribution completed');
+            return sections;
+        }
+
+        function generateMitchellPlacement(sections, sortedPairs, sectionCount, useConstraints) {
+            console.log('🔍 MITCHELL: Placing', sortedPairs.length, 'pairs with true Mitchell algorithm');
+
+            // Si contraintes activées, utiliser la gestion des contraintes
+            if (useConstraints) {
+                return applyMitchellConstraints(sections, sortedPairs, sectionCount);
+            }
+
+            // Génération initiale : Vraie logique Mitchell selon les règles décrites
+            return generateTrueMitchellDistribution(sections, sortedPairs, sectionCount);
+        }
+
+        function generateTrueMitchellDistribution(sections, sortedPairs, sectionCount) {
+            console.log('🔄 TRUE MITCHELL: Génération selon règles Mitchell officielles');
+            console.log('🔍 Sections:', sectionCount, 'Paires:', sortedPairs.length);
+
+            // Debug: Afficher les 10 premières paires triées
+            console.log('🔍 DEBUG: Top 10 paires triées:');
+            for (let i = 0; i < Math.min(10, sortedPairs.length); i++) {
+                const pair = sortedPairs[i];
+                console.log(`  ${i+1}. ${pair.player1?.name}/${pair.player2?.name} (IV: ${pair.combinedIV})`);
+            }
+
+            // Calculer le nombre total de tables
+            const hasRelais = sortedPairs.length % 2 === 1;
+            const totalTables = Math.ceil(sortedPairs.length / 2);
+
+            console.log('🔍 Total tables:', totalTables, 'Relais:', hasRelais);
+
+            // Initialiser toutes les positions à null
+            for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
+                for (let tableIndex = 0; tableIndex < sections[sectionIndex].length; tableIndex++) {
+                    sections[sectionIndex][tableIndex].ns = null;
+                    sections[sectionIndex][tableIndex].eo = null;
+                }
+            }
+
+            let pairIndex = 0;
+
+            // Générer la séquence complète des tables Mitchell (saut de 3)
+            const mitchellSequence = generateMitchellSequence(totalTables);
+            console.log('🔍 Mitchell sequence:', mitchellSequence.join(','));
+
+            // Parcourir toutes les tables dans l'ordre Mitchell
+            for (let i = 0; i < mitchellSequence.length && pairIndex < sortedPairs.length; i++) {
+                const currentTable = mitchellSequence[i];
+
+                // Trouver la section et table correspondante au numéro de table actuel
+                const {sectionIndex, tableIndex} = findTablePosition(sections, currentTable);
+
+                if (sectionIndex !== -1 && tableIndex !== -1) {
+                    const table = sections[sectionIndex][tableIndex];
+
+                    if (sectionCount === 1) {
+                        // 1 section: NS puis EO alternés sur même table
+                        if (!table.ns && pairIndex < sortedPairs.length) {
+                            table.ns = sortedPairs[pairIndex];
+                            console.log(`🔍 T${currentTable} NS: ${sortedPairs[pairIndex].player1?.name}`);
+                            pairIndex++;
+                        }
+                        if (!table.eo && pairIndex < sortedPairs.length) {
+                            table.eo = sortedPairs[pairIndex];
+                            console.log(`🔍 T${currentTable} EO: ${sortedPairs[pairIndex].player1?.name}`);
+                            pairIndex++;
+                        }
+                    } else if (sectionCount === 2) {
+                        // 2 sections: NS A, NS B, EO B, EO A (serpentin sur toutes les sections)
+                        const allTablesForThisNumber = findAllTablesWithNumber(sections, currentTable);
+
+                        // Assurer l'ordre A, B pour les sections
+                        allTablesForThisNumber.sort((a, b) => a.sectionIndex - b.sectionIndex);
+
+                        // Placer NS A
+                        if (allTablesForThisNumber[0] && !allTablesForThisNumber[0].table.ns && pairIndex < sortedPairs.length) {
+                            allTablesForThisNumber[0].table.ns = sortedPairs[pairIndex];
+                            console.log(`🔍 T${currentTable}A NS: Paire ${pairIndex+1} ${sortedPairs[pairIndex].player1?.name}/${sortedPairs[pairIndex].player2?.name} (IV: ${sortedPairs[pairIndex].combinedIV})`);
+                            pairIndex++;
+                        }
+                        // Placer NS B
+                        if (allTablesForThisNumber[1] && !allTablesForThisNumber[1].table.ns && pairIndex < sortedPairs.length) {
+                            allTablesForThisNumber[1].table.ns = sortedPairs[pairIndex];
+                            console.log(`🔍 T${currentTable}B NS: Paire ${pairIndex+1} ${sortedPairs[pairIndex].player1?.name}/${sortedPairs[pairIndex].player2?.name} (IV: ${sortedPairs[pairIndex].combinedIV})`);
+                            pairIndex++;
+                        }
+                        // Placer EO B
+                        if (allTablesForThisNumber[1] && !allTablesForThisNumber[1].table.eo && pairIndex < sortedPairs.length) {
+                            allTablesForThisNumber[1].table.eo = sortedPairs[pairIndex];
+                            console.log(`🔍 T${currentTable}B EO: Paire ${pairIndex+1} ${sortedPairs[pairIndex].player1?.name}/${sortedPairs[pairIndex].player2?.name} (IV: ${sortedPairs[pairIndex].combinedIV})`);
+                            pairIndex++;
+                        }
+                        // Placer EO A
+                        if (allTablesForThisNumber[0] && !allTablesForThisNumber[0].table.eo && pairIndex < sortedPairs.length) {
+                            allTablesForThisNumber[0].table.eo = sortedPairs[pairIndex];
+                            console.log(`🔍 T${currentTable}A EO: Paire ${pairIndex+1} ${sortedPairs[pairIndex].player1?.name}/${sortedPairs[pairIndex].player2?.name} (IV: ${sortedPairs[pairIndex].combinedIV})`);
+                            pairIndex++;
+                        }
+                    } else if (sectionCount === 3) {
+                        // 3 sections: NS A, NS B, NS C, EO C, EO B, EO A (serpentin sur toutes les sections)
+                        const allTablesForThisNumber = findAllTablesWithNumber(sections, currentTable);
+
+                        // Assurer l'ordre A, B, C pour les sections
+                        allTablesForThisNumber.sort((a, b) => a.sectionIndex - b.sectionIndex);
+
+                        // Placer NS A
+                        if (allTablesForThisNumber[0] && !allTablesForThisNumber[0].table.ns && pairIndex < sortedPairs.length) {
+                            allTablesForThisNumber[0].table.ns = sortedPairs[pairIndex];
+                            console.log(`🔍 T${currentTable}A NS: ${sortedPairs[pairIndex].player1?.name}`);
+                            pairIndex++;
+                        }
+                        // Placer NS B
+                        if (allTablesForThisNumber[1] && !allTablesForThisNumber[1].table.ns && pairIndex < sortedPairs.length) {
+                            allTablesForThisNumber[1].table.ns = sortedPairs[pairIndex];
+                            console.log(`🔍 T${currentTable}B NS: ${sortedPairs[pairIndex].player1?.name}`);
+                            pairIndex++;
+                        }
+                        // Placer NS C
+                        if (allTablesForThisNumber[2] && !allTablesForThisNumber[2].table.ns && pairIndex < sortedPairs.length) {
+                            allTablesForThisNumber[2].table.ns = sortedPairs[pairIndex];
+                            console.log(`🔍 T${currentTable}C NS: ${sortedPairs[pairIndex].player1?.name}`);
+                            pairIndex++;
+                        }
+                        // Placer EO C
+                        if (allTablesForThisNumber[2] && !allTablesForThisNumber[2].table.eo && pairIndex < sortedPairs.length) {
+                            allTablesForThisNumber[2].table.eo = sortedPairs[pairIndex];
+                            console.log(`🔍 T${currentTable}C EO: ${sortedPairs[pairIndex].player1?.name}`);
+                            pairIndex++;
+                        }
+                        // Placer EO B
+                        if (allTablesForThisNumber[1] && !allTablesForThisNumber[1].table.eo && pairIndex < sortedPairs.length) {
+                            allTablesForThisNumber[1].table.eo = sortedPairs[pairIndex];
+                            console.log(`🔍 T${currentTable}B EO: ${sortedPairs[pairIndex].player1?.name}`);
+                            pairIndex++;
+                        }
+                        // Placer EO A
+                        if (allTablesForThisNumber[0] && !allTablesForThisNumber[0].table.eo && pairIndex < sortedPairs.length) {
+                            allTablesForThisNumber[0].table.eo = sortedPairs[pairIndex];
+                            console.log(`🔍 T${currentTable}A EO: ${sortedPairs[pairIndex].player1?.name}`);
+                            pairIndex++;
+                        }
+                    }
+                }
+            }
+
+            console.log('✅ TRUE MITCHELL: Distribution terminée');
+            return true;
+        }
+
+        function generateMitchellSequence(totalTables) {
+            // Générer la séquence Mitchell : 1,4,7,10... puis 2,5,8,11... puis 3,6,9,12...
+            const sequence = [];
+
+            for (let series = 1; series <= 3; series++) {
+                for (let table = series; table <= totalTables; table += 3) {
+                    sequence.push(table);
+                }
+            }
+
+            return sequence;
+        }
+
+        function findTablePosition(sections, tableNumber) {
+            // Trouver la section et l'index de table correspondant à un numéro de table
+            for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
+                for (let tableIndex = 0; tableIndex < sections[sectionIndex].length; tableIndex++) {
+                    if (sections[sectionIndex][tableIndex].tableNumber === tableNumber) {
+                        return {sectionIndex, tableIndex};
+                    }
+                }
+            }
+            return {sectionIndex: -1, tableIndex: -1};
+        }
+
+        function findTableInOtherSection(sections, tableNumber, currentSectionIndex) {
+            // Trouver la table avec le même numéro dans une autre section
+            for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
+                if (sectionIndex !== currentSectionIndex) {
+                    for (let tableIndex = 0; tableIndex < sections[sectionIndex].length; tableIndex++) {
+                        if (sections[sectionIndex][tableIndex].tableNumber === tableNumber) {
+                            return sections[sectionIndex][tableIndex];
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        function findAllTablesWithNumber(sections, tableNumber) {
+            // Trouver toutes les tables avec le même numéro dans toutes les sections
+            const tables = [];
+            for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
+                for (let tableIndex = 0; tableIndex < sections[sectionIndex].length; tableIndex++) {
+                    if (sections[sectionIndex][tableIndex].tableNumber === tableNumber) {
+                        tables.push({
+                            sectionIndex,
+                            tableIndex,
+                            table: sections[sectionIndex][tableIndex]
+                        });
+                    }
+                }
+            }
+            return tables;
+        }
+
+        function getNextMitchellTable(currentTable, totalTables) {
+            // Logique de saut de 3 tables Mitchell: 1,4,7,10... puis 2,5,8,11... puis 3,6,9,12...
+            let nextTable = currentTable + 3;
+
+            if (nextTable > totalTables) {
+                // Si on dépasse, passer à la série suivante
+                const currentSeries = ((currentTable - 1) % 3) + 1; // 1, 2, ou 3
+                const nextSeries = (currentSeries % 3) + 1;
+
+                // Prendre directement la première table de la série suivante
+                nextTable = nextSeries;
+
+                // Si la série suivante dépasse aussi, on a terminé
+                if (nextTable > totalTables) {
+                    return null; // Plus de tables
+                }
+            }
+
+            console.log(`🔍 Mitchell table sequence: ${currentTable} → ${nextTable} (total: ${totalTables})`);
+            return nextTable;
+        }
+
+        function applyMitchellConstraints(sections, sortedPairs, sectionCount) {
+            console.log('🔒 CONTRAINTES MITCHELL: Application des contraintes NS avec mémorisation EO');
+
+            // Calculer le nombre total de tables
+            const hasRelais = sortedPairs.length % 2 === 1;
+            const totalTables = Math.ceil(sortedPairs.length / 2);
+
+            // Initialiser toutes les positions à null
+            for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
+                for (let tableIndex = 0; tableIndex < sections[sectionIndex].length; tableIndex++) {
+                    sections[sectionIndex][tableIndex].ns = null;
+                    sections[sectionIndex][tableIndex].eo = null;
+                }
+            }
+
+            let pairIndex = 0;
+            let memorizedEOPair = null; // Mémoire pour paire EO déplacée
+
+            // Générer la séquence Mitchell
+            const mitchellSequence = generateMitchellSequence(totalTables);
+            console.log('🔍 Mitchell sequence with constraints:', mitchellSequence.join(','));
+
+            // Parcourir toutes les tables dans l'ordre Mitchell
+            for (let i = 0; i < mitchellSequence.length && pairIndex < sortedPairs.length; i++) {
+                const currentTable = mitchellSequence[i];
+                const {sectionIndex, tableIndex} = findTablePosition(sections, currentTable);
+
+                if (sectionIndex !== -1 && tableIndex !== -1) {
+                    const table = sections[sectionIndex][tableIndex];
+
+                    if (sectionCount === 1) {
+                        // 1 section avec contraintes
+                        // Placer NS (avec gestion contraintes)
+                        if (!table.ns && pairIndex < sortedPairs.length) {
+                            const currentPair = sortedPairs[pairIndex];
+
+                            // Si paire mémorisée en attente et position NS disponible
+                            if (memorizedEOPair) {
+                                table.ns = memorizedEOPair;
+                                memorizedEOPair = null;
+                                console.log(`🔍 T${currentTable} NS: ${table.ns.player1?.name} (récupérée de mémoire)`);
+                            } else {
+                                table.ns = currentPair;
+                                pairIndex++;
+                                console.log(`🔍 T${currentTable} NS: ${currentPair.player1?.name} ${currentPair.nsConstraint ? '(NS FIXE)' : ''}`);
+                            }
+                        }
+
+                        // Placer EO (avec gestion contraintes)
+                        if (!table.eo && pairIndex < sortedPairs.length) {
+                            const currentPair = sortedPairs[pairIndex];
+
+                            // Si la paire suivante a une contrainte NS fixe
+                            if (currentPair.nsConstraint) {
+                                // Mémoriser la paire actuelle pour plus tard et passer à la suivante
+                                if (memorizedEOPair) {
+                                    // S'il y a déjà une paire mémorisée, la placer
+                                    table.eo = memorizedEOPair;
+                                    memorizedEOPair = currentPair;
+                                    console.log(`🔍 T${currentTable} EO: ${table.eo.player1?.name} (mémorisée précédemment)`);
+                                } else {
+                                    memorizedEOPair = currentPair;
+                                    console.log(`🔒 Paire ${currentPair.player1?.name} mémorisée (NS fixe)`);
+                                }
+                                pairIndex++;
+
+                                // Essayer la paire suivante pour EO
+                                if (pairIndex < sortedPairs.length && !sortedPairs[pairIndex].nsConstraint) {
+                                    table.eo = sortedPairs[pairIndex];
+                                    pairIndex++;
+                                    console.log(`🔍 T${currentTable} EO: ${table.eo.player1?.name}`);
+                                }
+                            } else {
+                                table.eo = currentPair;
+                                pairIndex++;
+                                console.log(`🔍 T${currentTable} EO: ${currentPair.player1?.name}`);
+                            }
+                        }
+                    }
+                    // TODO: Implémenter pour 2 et 3 sections si besoin
+                }
+            }
+
+            console.log('✅ CONTRAINTES MITCHELL: Distribution avec contraintes terminée');
+            return true;
+        }
+
+        function generateMitchellPlacementFallback(sections, sortedPairs, sectionCount) {
+            console.log('🔄 MITCHELL FALLBACK: Using traditional Mitchell placement');
+
+            // Step 1: Handle NS constraints first (fixed positioning)
+            const constraintPairs = [];
+            const regularPairs = [];
+
+            sortedPairs.forEach(pair => {
+                if (pair.nsConstraint) {
+                    constraintPairs.push(pair);
+                } else {
+                    regularPairs.push(pair);
+                }
+            });
+
+            console.log('🔍 MITCHELL FALLBACK: Constraint pairs:', constraintPairs.length, 'Regular pairs:', regularPairs.length);
+
+            // Step 2: Place constraint pairs in optimal NS positions (équilibrage)
+            constraintPairs.forEach(pair => {
+                const bestNSPosition = findBestNSPositionForEquilibrage(sections, pair, sectionCount);
+                if (bestNSPosition) {
+                    sections[bestNSPosition.section][bestNSPosition.table].ns = pair;
+                    console.log('🔒 MITCHELL FALLBACK: Placed constraint pair optimally at section', bestNSPosition.section, 'table', bestNSPosition.table + 1);
+                }
+            });
+
+            // Step 3: Mitchell placement for remaining pairs
+            // NS fixes par table : table i reçoit paire i en NS (si libre)
+            // EO mobiles : ordre croissant des indices
+            let pairIndex = 0;
+
+            for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
+                const section = sections[sectionIndex];
+
+                for (let tableIndex = 0; tableIndex < section.length; tableIndex++) {
+                    const table = section[tableIndex];
+
+                    // Place NS if not already occupied by constraint
+                    if (!table.ns && pairIndex < regularPairs.length) {
+                        table.ns = regularPairs[pairIndex];
+                        pairIndex++;
+                    }
+
+                    // Place EO (mobile pairs)
+                    if (!table.eo && pairIndex < regularPairs.length) {
+                        table.eo = regularPairs[pairIndex];
+                        pairIndex++;
+                    }
+                }
+            }
+
+            // Handle any remaining pairs (edge case)
+            while (pairIndex < regularPairs.length) {
+                const placed = placeInNextAvailable(sections, regularPairs[pairIndex], sectionCount);
+                if (!placed) break;
+                pairIndex++;
+            }
+
+            console.log('🔍 MITCHELL: Placement completed');
+            return sections;
+        }
+
+        function equilibrageMitchellMultiSections(pairesNS, pairesEW, nbSections = 1, targetEcart = 20) {
+            /**
+             * Algorithme équilibrage Mitchell pour 1-3 sections (A/B/C).
+             * - Divise paires en sections égales (ou quasi).
+             * - Équilibre chaque section indépendamment.
+             * - Option : équilibrage global entre sections pour simultanés.
+             */
+            console.log('🎯 EQUILIBRAGE MULTI-SECTIONS: Starting with', pairesNS.length, 'NS pairs and', pairesEW.length, 'EW pairs');
+
+            // Validation des données d'entrée
+            if (!pairesNS || !pairesEW || pairesNS.length === 0 || pairesEW.length === 0) {
+                throw new Error('Données d\'entrée invalides pour l\'équilibrage');
+            }
+
+            if (nbSections < 1 || nbSections > 3) {
+                throw new Error('Nombre de sections invalide (doit être entre 1 et 3)');
+            }
+
+            function forceMoyenne(paire) {
+                if (!paire) return 100;
+                return paire.force || paire.combinedIV || (paire.iv || 100); // Utilise la force, combinedIV ou IV par défaut
+            }
+
+            const forcesNS = pairesNS.map(forceMoyenne);
+            const forcesEW = pairesEW.map(forceMoyenne);
+            const totalPairesNS = pairesNS.length;
+            const lignesParSection = Math.floor(totalPairesNS / nbSections);
+
+            if (totalPairesNS % nbSections !== 0) {
+                console.warn('⚠️ EQUILIBRAGE: Nombre de paires NS non divisible par nb_sections');
+            }
+
+            // Diviser en sections (tri fort/faible alterné pour fair-play)
+            const nsTrieIdx = Array.from({length: totalPairesNS}, (_, i) => i)
+                .sort((a, b) => forcesNS[b] - forcesNS[a]); // Plus fort vers plus faible
+
+            const sectionsNSIdx = [];
+            for (let i = 0; i < nbSections; i++) {
+                sectionsNSIdx.push([]);
+                for (let j = i; j < nsTrieIdx.length; j += nbSections) {
+                    if (sectionsNSIdx[i].length < lignesParSection) {
+                        sectionsNSIdx[i].push(nsTrieIdx[j]);
+                    }
+                }
+            }
+
+            const sectionsEWIdx = [];
+            const resultatsSection = [];
+
+            for (let sec = 0; sec < nbSections; sec++) {
+                const secNSIdx = sectionsNSIdx[sec];
+                const secNS = secNSIdx.map(i => pairesNS[i]);
+                const secForcesNS = secNSIdx.map(i => forcesNS[i]);
+
+                // Candidats EW : reste après assignations précédentes
+                const ewDispoIdx = [];
+                for (let i = 0; i < pairesEW.length; i++) {
+                    const dejaAssigne = sectionsEWIdx.some(section => section.includes(i));
+                    if (!dejaAssigne) {
+                        ewDispoIdx.push(i);
+                    }
+                }
+
+                const secForcesEW = ewDispoIdx.map(i => forcesEW[i]);
+
+                // Optimiser assign EW pour cette section
+                const totalSecNS = secForcesNS.reduce((a, b) => a + b, 0);
+
+                // Optimisation simplifiée : assignment direct avec tri par force
+                const indices = Array.from({length: Math.min(secForcesEW.length, lignesParSection)}, (_, i) => i);
+
+                // Trier les indices EW par force pour un assignment optimal simple (plus fort vers plus faible)
+                indices.sort((a, b) => secForcesEW[b] - secForcesEW[a]);
+
+                // Assignment direct des premiers lignesParSection
+                const meilleurAssign = indices.slice(0, lignesParSection);
+                const totalPerm = meilleurAssign.reduce((sum, i) => sum + secForcesEW[i], 0);
+                const meilleurEcart = Math.abs(totalSecNS - totalPerm);
+
+                console.log('🎯 EQUILIBRAGE: Section', sec, 'écart:', meilleurEcart.toFixed(1));
+
+                const secEWIdx = meilleurAssign ? meilleurAssign.map(i => ewDispoIdx[i]) : [];
+                sectionsEWIdx.push(secEWIdx);
+
+                // Écarts lignes
+                const ecartsLignes = [];
+                if (meilleurAssign && meilleurAssign.length > 0) {
+                    for (let j = 0; j < lignesParSection && j < secForcesNS.length && j < meilleurAssign.length; j++) {
+                        const ecartLigne = Math.abs(secForcesNS[j] - secForcesEW[meilleurAssign[j]]);
+                        ecartsLignes.push(ecartLigne);
+                    }
+                }
+
+                const lignesNS = [];
+                for (let j = 0; j < Math.min(lignesParSection, secNS.length, secEWIdx.length); j++) {
+                    lignesNS.push([secNS[j], pairesEW[secEWIdx[j]]]);
+                }
+
+                resultatsSection.push({
+                    section: String.fromCharCode(65 + sec), // A, B, C
+                    lignesNS: lignesNS,
+                    ecartTotal: meilleurEcart,
+                    ecartsLignes: ecartsLignes
+                });
+            }
+
+            // Équilibrage global optionnel (moyennes sections)
+            const moyennesSection = resultatsSection.map(res => {
+                const sommeForces = res.lignesNS.reduce((sum, ligne) => sum + forceMoyenne(ligne[0]), 0);
+                return sommeForces / res.lignesNS.length;
+            });
+
+            const ecartGlobalSections = Math.max(...moyennesSection) - Math.min(...moyennesSection);
+
+            console.log('🎯 EQUILIBRAGE: Sections générées avec écart global:', ecartGlobalSections);
+
+            // Optimisation supplémentaire désactivée pour éviter le moulinement
+            // if (ecartGlobalSections > targetEcart && nbSections > 1) {
+            //     console.log('⚠️ EQUILIBRAGE: Écart global trop important, tentative d\'optimisation inter-sections');
+            //     const optimisedResult = optimiseEquilibrageGlobal(resultatsSection, pairesNS, pairesEW, targetEcart);
+            //     if (optimisedResult) {
+            //         return optimisedResult;
+            //     }
+            // }
+
+            return {
+                sections: resultatsSection,
+                ecartGlobalSections: ecartGlobalSections,
+                moyennesSection: moyennesSection
+            };
+        }
+
+        function optimiseEquilibrageGlobal(resultatsSection, pairesNS, pairesEW, targetEcart) {
+            /**
+             * Optimise l'équilibrage global en échangeant des paires entre sections
+             * pour réduire l'écart de moyennes entre les sections
+             */
+            console.log('🔄 OPTIMISATION: Tentative d\'amélioration de l\'équilibrage inter-sections');
+
+            function forceMoyenne(paire) {
+                return paire.force || (paire.iv || 100);
+            }
+
+            const sections = [...resultatsSection]; // Copie pour manipulation
+            const maxIterations = 10;
+            let iteration = 0;
+            let meilleurEcart = Infinity;
+
+            // Calculer l'écart initial
+            const moyennesInitiales = sections.map(section => {
+                const sommeForces = section.lignesNS.reduce((sum, ligne) => sum + forceMoyenne(ligne[0]), 0);
+                return sommeForces / section.lignesNS.length;
+            });
+            meilleurEcart = Math.max(...moyennesInitiales) - Math.min(...moyennesInitiales);
+
+            console.log('🔄 OPTIMISATION: Écart initial:', meilleurEcart, 'Moyennes:', moyennesInitiales);
+
+            while (iteration < maxIterations && meilleurEcart > targetEcart) {
+                // Identifier la section la plus forte et la plus faible
+                const moyennes = sections.map(section => {
+                    const sommeForces = section.lignesNS.reduce((sum, ligne) => sum + forceMoyenne(ligne[0]), 0);
+                    return sommeForces / section.lignesNS.length;
+                });
+
+                const indexSectionForte = moyennes.indexOf(Math.max(...moyennes));
+                const indexSectionFaible = moyennes.indexOf(Math.min(...moyennes));
+
+                if (indexSectionForte === indexSectionFaible) {
+                    break; // Équilibrage parfait atteint
+                }
+
+                // Trouver les meilleures paires à échanger
+                const sectionForte = sections[indexSectionForte];
+                const sectionFaible = sections[indexSectionFaible];
+
+                let meilleurEchange = null;
+                let meilleurGain = 0;
+
+                // Tester tous les échanges possibles de paires NS
+                for (let i = 0; i < sectionForte.lignesNS.length; i++) {
+                    for (let j = 0; j < sectionFaible.lignesNS.length; j++) {
+                        const paireForteDeLaSectionForte = sectionForte.lignesNS[i][0];
+                        const paireFaibleDeLaSectionFaible = sectionFaible.lignesNS[j][0];
+
+                        const forceForte = forceMoyenne(paireForteDeLaSectionForte);
+                        const forceFaible = forceMoyenne(paireFaibleDeLaSectionFaible);
+
+                        if (forceForte > forceFaible) {
+                            // Calculer le gain potentiel de l'échange
+                            const gain = (forceForte - forceFaible) / 2; // Gain approximatif
+                            if (gain > meilleurGain) {
+                                meilleurGain = gain;
+                                meilleurEchange = {
+                                    sectionForte: indexSectionForte,
+                                    tableForte: i,
+                                    sectionFaible: indexSectionFaible,
+                                    tableFaible: j
+                                };
+                            }
+                        }
+                    }
+                }
+
+                if (meilleurEchange && meilleurGain > 0.5) {
+                    // Effectuer l'échange
+                    const tempPaireNS = sections[meilleurEchange.sectionForte].lignesNS[meilleurEchange.tableForte][0];
+                    sections[meilleurEchange.sectionForte].lignesNS[meilleurEchange.tableForte][0] =
+                        sections[meilleurEchange.sectionFaible].lignesNS[meilleurEchange.tableFaible][0];
+                    sections[meilleurEchange.sectionFaible].lignesNS[meilleurEchange.tableFaible][0] = tempPaireNS;
+
+                    // Recalculer l'écart
+                    const nouvellesMoyennes = sections.map(section => {
+                        const sommeForces = section.lignesNS.reduce((sum, ligne) => sum + forceMoyenne(ligne[0]), 0);
+                        return sommeForces / section.lignesNS.length;
+                    });
+                    const nouvelEcart = Math.max(...nouvellesMoyennes) - Math.min(...nouvellesMoyennes);
+
+                    console.log('🔄 OPTIMISATION: Échange effectué, nouvel écart:', nouvelEcart);
+
+                    if (nouvelEcart < meilleurEcart) {
+                        meilleurEcart = nouvelEcart;
+                    } else {
+                        // Annuler l'échange si pas d'amélioration
+                        const tempPaireNS2 = sections[meilleurEchange.sectionForte].lignesNS[meilleurEchange.tableForte][0];
+                        sections[meilleurEchange.sectionForte].lignesNS[meilleurEchange.tableForte][0] =
+                            sections[meilleurEchange.sectionFaible].lignesNS[meilleurEchange.tableFaible][0];
+                        sections[meilleurEchange.sectionFaible].lignesNS[meilleurEchange.tableFaible][0] = tempPaireNS2;
+                    }
+                } else {
+                    break; // Aucun échange bénéfique trouvé
+                }
+
+                iteration++;
+            }
+
+            if (meilleurEcart < Math.max(...moyennesInitiales) - Math.min(...moyennesInitiales)) {
+                console.log('✅ OPTIMISATION: Amélioration réalisée, écart final:', meilleurEcart);
+
+                // Recalculer les moyennes finales
+                const moyennesFinales = sections.map(section => {
+                    const sommeForces = section.lignesNS.reduce((sum, ligne) => sum + forceMoyenne(ligne[0]), 0);
+                    return sommeForces / section.lignesNS.length;
+                });
+
+                return {
+                    sections: sections,
+                    ecartGlobalSections: meilleurEcart,
+                    moyennesSection: moyennesFinales
+                };
+            }
+
+            console.log('❌ OPTIMISATION: Aucune amélioration possible');
+            return null;
+        }
+
+        function applyConstraintsToExistingPlacement(sections, sortedPairs, sectionCount) {
+            console.log('🔒 CONTRAINTES: Application des contraintes NS sur placement existant');
+
+            // Identifier les paires avec contraintes NS et les autres
+            const constraintPairs = sortedPairs.filter(pair => pair.nsConstraint);
+            const nonConstraintPairs = sortedPairs.filter(pair => !pair.nsConstraint);
+
+            console.log('🔒 CONTRAINTES: Found', constraintPairs.length, 'constraint pairs,', nonConstraintPairs.length, 'free pairs');
+
+            if (constraintPairs.length === 0) {
+                console.log('🔒 CONTRAINTES: No constraints to apply');
+                return true;
+            }
+
+            // Créer une nouvelle distribution en conservant l'équilibrage global
+            // 1. Retirer toutes les paires des sections
+            const allExistingPairs = [];
+            for (let s = 0; s < sections.length; s++) {
+                for (let t = 0; t < sections[s].length; t++) {
+                    if (sections[s][t].ns) allExistingPairs.push(sections[s][t].ns);
+                    if (sections[s][t].ew) allExistingPairs.push(sections[s][t].ew);
+                    sections[s][t].ns = null;
+                    sections[s][t].ew = null;
+                }
+            }
+
+            // 2. Placer d'abord les contraintes NS aux meilleures positions
+            const usedNSPositions = [];
+            constraintPairs.forEach(pair => {
+                const bestPosition = findBestNSPositionForEquilibrage(sections, pair, sectionCount, usedNSPositions);
+                if (bestPosition) {
+                    sections[bestPosition.section][bestPosition.table].ns = pair;
+                    usedNSPositions.push({section: bestPosition.section, table: bestPosition.table});
+                    console.log('🔒 CONTRAINTES: Placed constraint pair at section', bestPosition.section, 'table', bestPosition.table + 1);
+                }
+            });
+
+            // 3. Redistribuer les paires restantes en utilisant l'algorithme d'équilibrage
+            const remainingPairs = allExistingPairs.filter(pair => !pair.nsConstraint);
+
+            if (remainingPairs.length > 0) {
+                try {
+                    // Calculer les paires NS et EW restantes nécessaires
+                    const availableNSPositions = [];
+                    const availableEWPositions = [];
+
+                    for (let s = 0; s < sections.length; s++) {
+                        for (let t = 0; t < sections[s].length; t++) {
+                            if (!sections[s][t].ns) {
+                                availableNSPositions.push({section: s, table: t});
+                            }
+                            if (!sections[s][t].ew) {
+                                availableEWPositions.push({section: s, table: t});
+                            }
+                        }
+                    }
+
+                    console.log('🔒 CONTRAINTES: Available NS positions:', availableNSPositions.length, 'EW positions:', availableEWPositions.length);
+
+                    // Équilibrer les paires restantes avec l'algorithme multi-sections modifié
+                    const pairesNSRestantes = remainingPairs.slice(0, availableNSPositions.length);
+                    const pairesEWRestantes = remainingPairs.slice(availableNSPositions.length);
+
+                    // Placer les paires NS restantes
+                    pairesNSRestantes.forEach((pair, index) => {
+                        if (index < availableNSPositions.length) {
+                            const pos = availableNSPositions[index];
+                            sections[pos.section][pos.table].ns = pair;
+                        }
+                    });
+
+                    // Placer les paires EW restantes
+                    pairesEWRestantes.forEach((pair, index) => {
+                        if (index < availableEWPositions.length) {
+                            const pos = availableEWPositions[index];
+                            sections[pos.section][pos.table].ew = pair;
+                        }
+                    });
+
+                    console.log('✅ CONTRAINTES: Redistribution completed with constraints preserved');
+
+                } catch (error) {
+                    console.error('❌ CONTRAINTES: Error during redistribution:', error);
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        function findBestNSPositionForEquilibrage(sections, pair, sectionCount, usedPositions = []) {
+            // Find the NS position that maintains best equilibrage
+            let bestPosition = null;
+            let bestScore = -1;
+
+            function isPositionUsed(sectionIndex, tableIndex) {
+                return usedPositions.some(pos => pos.section === sectionIndex && pos.table === tableIndex);
+            }
+
+            for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
+                const section = sections[sectionIndex];
+
+                for (let tableIndex = 0; tableIndex < section.length; tableIndex++) {
+                    const table = section[tableIndex];
+
+                    // Position disponible si pas de paire NS ET pas dans les positions utilisées
+                    if (!table.ns && !isPositionUsed(sectionIndex, tableIndex)) {
+                        // Calculate equilibrage score for this position
+                        const score = calculateEquilibrageScore(sections, sectionIndex, tableIndex, pair);
+
+                        if (score > bestScore) {
+                            bestScore = score;
+                            bestPosition = { section: sectionIndex, table: tableIndex };
+                        }
+                    }
+                }
+            }
+
+            console.log('🔍 EQUILIBRAGE: Found best position for pair', pair.names, 'at score', bestScore, 'position', bestPosition);
+            return bestPosition;
+        }
+
+        function calculateEquilibrageScore(sections, sectionIndex, tableIndex, pair) {
+            // Simple equilibrage: prefer positions that balance section strengths
+            const currentSectionStrength = calculateSectionStrength(sections[sectionIndex]);
+            const pairStrength = pair.combinedIV;
+
+            // Lower current strength = better position for strong pair
+            return 1000 - currentSectionStrength - (tableIndex * 10); // Slight preference for lower tables
+        }
+
+        function calculateSectionStrength(section) {
+            let totalStrength = 0;
+            let pairCount = 0;
+
+            section.forEach(table => {
+                if (table.ns) {
+                    totalStrength += table.ns.combinedIV;
+                    pairCount++;
+                }
+                if (table.eo) {
+                    totalStrength += table.eo.combinedIV;
+                    pairCount++;
+                }
+            });
+
+            return pairCount > 0 ? totalStrength / pairCount : 0;
+        }
+
+        function generateSerpentinePattern(sectionCount, tablesPerSection) {
+            const pattern = [];
+            let tableGroup = 0;
+
+            while (pattern.length < 200) { // Safety limit
+                const baseTable = tableGroup * 3; // Tables 1,4,7... or 2,5,8... etc.
+
+                for (let offset = 0; offset < 3; offset++) {
+                    const tableIndex = baseTable + offset;
+
+                    // For each table, place in order: A NS, B NS, B EO, A EO (2 sections)
+                    // For 3 sections: A NS, B NS, C NS, C EO, B EO, A EO
+                    if (sectionCount === 2) {
+                        pattern.push({ section: 0, table: tableIndex, position: 'ns' }); // A NS
+                        pattern.push({ section: 1, table: tableIndex, position: 'ns' }); // B NS
+                        pattern.push({ section: 1, table: tableIndex, position: 'eo' }); // B EO
+                        pattern.push({ section: 0, table: tableIndex, position: 'eo' }); // A EO
+                    } else if (sectionCount === 3) {
+                        pattern.push({ section: 0, table: tableIndex, position: 'ns' }); // A NS
+                        pattern.push({ section: 1, table: tableIndex, position: 'ns' }); // B NS
+                        pattern.push({ section: 2, table: tableIndex, position: 'ns' }); // C NS
+                        pattern.push({ section: 2, table: tableIndex, position: 'eo' }); // C EO
+                        pattern.push({ section: 1, table: tableIndex, position: 'eo' }); // B EO
+                        pattern.push({ section: 0, table: tableIndex, position: 'eo' }); // A EO
+                    }
+                }
+                tableGroup++;
+
+                if (tableGroup > tablesPerSection) break;
+            }
+
+            return pattern;
+        }
+
+        function generateSerpentinePatternWithConstraints(sectionCount, tablesPerSection, sections) {
+            const pattern = [];
+            let tableGroup = 0;
+
+            while (pattern.length < 200) { // Safety limit
+                const baseTable = tableGroup * 3; // Tables 1,4,7... or 2,5,8... etc.
+
+                for (let offset = 0; offset < 3; offset++) {
+                    const tableIndex = baseTable + offset;
+
+                    // Check if positions are available before adding to pattern
+                    if (sectionCount === 2) {
+                        // A NS
+                        if (!sections[0][tableIndex]?.ns) {
+                            pattern.push({ section: 0, table: tableIndex, position: 'ns' });
+                        }
+                        // B NS
+                        if (sections[1] && !sections[1][tableIndex]?.ns) {
+                            pattern.push({ section: 1, table: tableIndex, position: 'ns' });
+                        }
+                        // B EO
+                        if (sections[1] && !sections[1][tableIndex]?.eo) {
+                            pattern.push({ section: 1, table: tableIndex, position: 'eo' });
+                        }
+                        // A EO
+                        if (!sections[0][tableIndex]?.eo) {
+                            pattern.push({ section: 0, table: tableIndex, position: 'eo' });
+                        }
+                    } else if (sectionCount === 3) {
+                        // A NS
+                        if (!sections[0][tableIndex]?.ns) {
+                            pattern.push({ section: 0, table: tableIndex, position: 'ns' });
+                        }
+                        // B NS
+                        if (sections[1] && !sections[1][tableIndex]?.ns) {
+                            pattern.push({ section: 1, table: tableIndex, position: 'ns' });
+                        }
+                        // C NS
+                        if (sections[2] && !sections[2][tableIndex]?.ns) {
+                            pattern.push({ section: 2, table: tableIndex, position: 'ns' });
+                        }
+                        // C EO
+                        if (sections[2] && !sections[2][tableIndex]?.eo) {
+                            pattern.push({ section: 2, table: tableIndex, position: 'eo' });
+                        }
+                        // B EO
+                        if (sections[1] && !sections[1][tableIndex]?.eo) {
+                            pattern.push({ section: 1, table: tableIndex, position: 'eo' });
+                        }
+                        // A EO
+                        if (!sections[0][tableIndex]?.eo) {
+                            pattern.push({ section: 0, table: tableIndex, position: 'eo' });
+                        }
+                    }
+                }
+                tableGroup++;
+
+                if (tableGroup > tablesPerSection) break;
+            }
+
+            return pattern;
+        }
+
+        function placeInNextAvailable(sections, pair, sectionCount) {
+            // Find next available position
+            for (let s = 0; s < sectionCount; s++) {
+                for (let t = 0; t < sections[s].length; t++) {
+                    if (!sections[s][t].ns) {
+                        sections[s][t].ns = pair;
+                        return;
+                    } else if (!sections[s][t].eo) {
+                        sections[s][t].eo = pair;
+                        return;
+                    }
+                }
+            }
+        }
+
+        function getNextAvailableNSTable(sections, sectionCount) {
+            for (let s = 0; s < sectionCount; s++) {
+                for (let t = 0; t < sections[s].length; t++) {
+                    if (!sections[s][t].ns) {
+                        return { section: s, table: t };
+                    }
+                }
+            }
+            return -1;
+        }
+
+        function redistributeWithConstraints() {
+            // Force regeneration with current constraints
+            if (parsedPairs && parsedPairs.length > 0) {
+                // Update constraint status for all pairs
+                parsedPairs.forEach((pair, index) => {
+                    if (!pair.id) pair.id = `pair_${index}`;
+                    pair.nsConstraint = nsConstraints.has(pair.id);
+                });
+
+                // Regenerate the distribution
+                const useConstraints = nsConstraints.size > 0;
+                mitchellData = mitchellDistribution(parsedPairs, currentSectionCount, useConstraints);
+                renderMitchellDisplay();
+            }
+
+            hideConstraintControls();
+        }
+
+        function generateSections() {
+            console.log('🔍 DEBUG: generateSections() appelée');
+
+            // Vérifier que les éléments existent
+            const tournamentDataEl = document.getElementById('tournamentData');
+            const sectionCountEl = document.getElementById('sectionCount');
+            const entryFeeEl = document.getElementById('entryFee');
+
+            if (!tournamentDataEl) {
+                console.error('❌ ERROR: Element tournamentData not found');
+                alert('Erreur: Zone de texte des données non trouvée');
+                return;
+            }
+
+            if (!sectionCountEl) {
+                console.error('❌ ERROR: Element sectionCount not found');
+                alert('Erreur: Sélecteur de sections non trouvé');
+                return;
+            }
+
+            const data = tournamentDataEl.value.trim();
+            currentSectionCount = parseInt(sectionCountEl.value);
+            const entryFee = parseFloat(entryFeeEl.value) || 5.0;
+
+            console.log('🔍 DEBUG: Data length:', data.length);
+            console.log('🔍 DEBUG: Section count:', currentSectionCount);
+
+            if (!data) {
+                showStatus('Veuillez coller les données du tournoi.', 'error');
+                return;
+            }
+
+            try {
+                console.log('🔍 DEBUG: Parsing tournament data...');
+                parsedPairs = parseTournamentData(data);
+                console.log('🔍 DEBUG: Parsed pairs:', parsedPairs);
+
+                // Validation robuste des données parsées
+                if (!parsedPairs || parsedPairs.length === 0) {
+                    showStatus('Aucune paire valide trouvée dans les données.', 'error');
+                    return;
+                }
+
+                // Vérifier que chaque paire a les champs requis
+                for (let i = 0; i < parsedPairs.length; i++) {
+                    const pair = parsedPairs[i];
+                    if (!pair.player1 || !pair.player2 ||
+                        !pair.player1.name || !pair.player2.name ||
+                        typeof pair.player1.iv !== 'number' || typeof pair.player2.iv !== 'number') {
+                        console.error('❌ ERROR: Invalid pair at index', i, pair);
+                        showStatus(`Erreur: Paire ${i + 1} incomplète ou mal formatée.`, 'error');
+                        return;
+                    }
+                }
+
+                showStatus(`${parsedPairs.length} paires trouvées et analysées.`, 'success');
+
+                console.log('🔍 DEBUG: Creating mitchell distribution...');
+                // Add payment status to pairs
+                parsedPairs.forEach(pair => {
+                    const totalPaid = (pair.player1?.amount || 0) + (pair.player2?.amount || 0);
+                    const expectedTotal = entryFee * 2;
+
+                    if (totalPaid >= expectedTotal) {
+                        pair.paymentStatus = 'full';
+                    } else if (totalPaid > 0) {
+                        pair.paymentStatus = 'partial';
+                    } else {
+                        pair.paymentStatus = 'none';
+                    }
+                    pair.totalPaid = totalPaid;
+                    pair.expectedTotal = expectedTotal;
+                });
+
+                console.log('🔍 DEBUG: Input parsedPairs:', parsedPairs);
+                console.log('🔍 DEBUG: Input currentSectionCount:', currentSectionCount);
+                console.log('🔍 DEBUG: Entry fee:', entryFee);
+                mitchellData = mitchellDistribution(parsedPairs, currentSectionCount);
+                console.log('🔍 DEBUG: Mitchell data created:', mitchellData);
+                console.log('🔍 DEBUG: Mitchell data length:', mitchellData.length);
+                if (mitchellData.length > 0) {
+                    console.log('🔍 DEBUG: First section tables:', mitchellData[0].length);
+                    console.log('🔍 DEBUG: Sample table:', mitchellData[0][0]);
+                }
+
+                // Generate simple summary for setup view
+                let html = '<h4>Résumé de la répartition:</h4>';
+                mitchellData.forEach((section, index) => {
+                    const sectionName = currentSectionCount === 1 ? 'Section Unique' : `Section ${index + 1}`;
+                    html += `<p><strong>${sectionName}:</strong> ${section.length} tables</p>`;
+                });
+
+                document.getElementById('sectionsContainer').innerHTML = html;
+                document.getElementById('results').style.display = 'block';
+
+                const totalIV = parsedPairs.reduce((sum, pair) => sum + calculateCombinedIV(pair), 0);
+                const avgIV = (totalIV / parsedPairs.length).toFixed(1);
+
+                showStatus(
+                    `Sections générées avec succès! ${parsedPairs.length} paires réparties. IV moyen: ${avgIV}`,
+                    'success'
+                );
+
+                // Auto-show Mitchell display after generation
+                setTimeout(() => {
+                    console.log('🔍 DEBUG: Auto-showing Mitchell display...');
+                    console.log('🔍 DEBUG: mitchellData before display:', mitchellData);
+                    showMitchellDisplay();
+                }, 500);
+
+            } catch (error) {
+                console.error('❌ ERROR in generateSections:', error);
+                showStatus('Erreur lors de l\'analyse des données. Vérifiez le format.', 'error');
+            }
+        }
+
+        function showMitchellDisplay() {
+            console.log('🔍 DEBUG: showMitchellDisplay called, mitchellData length:', mitchellData.length);
+
+            if (mitchellData.length === 0) {
+                console.error('❌ ERROR: No mitchell data available');
+                showStatus('Veuillez d\'abord générer les sections.', 'error');
+                return;
+            }
+
+            console.log('🔍 DEBUG: Switching to Mitchell view...');
+            document.getElementById('setupView').style.display = 'none';
+            document.getElementById('mitchellView').style.display = 'block';
+
+            const container = document.getElementById('mitchellContainer');
+            container.className = currentSectionCount === 1 ? 'sections-grid single-section' : 'sections-grid';
+
+            console.log('🔍 DEBUG: Calling renderMitchellDisplay...');
+            renderMitchellDisplay();
+        }
+
+        function showSetupView() {
+            document.getElementById('setupView').style.display = 'block';
+            document.getElementById('mitchellView').style.display = 'none';
+            // Reset all constraints when returning to config
+            nsConstraints.clear();
+            currentPage = 1;
+            stopAutoPage();
+        }
+
+        function renderMitchellDisplay() {
+            console.log('🔍 DEBUG: renderMitchellDisplay() appelée');
+
+            const container = document.getElementById('mitchellContainer');
+            console.log('🔍 DEBUG: Container element:', container);
+
+            let html = '';
+
+            // Update tournament title
+            const today = new Date().toLocaleDateString('fr-FR');
+            const totalPairs = parsedPairs.length;
+            console.log('🔍 DEBUG: Total pairs:', totalPairs);
+
+            if (totalPairs === 0) {
+                console.error('❌ ERROR: No parsed pairs available');
+                return;
+            }
+
+            // Calculate global IV average for header (suppression des moyennes NS/EO)
+            const totalIV = parsedPairs.reduce((sum, pair) => sum + calculateCombinedIV(pair), 0);
+            const avgIV = (totalIV / parsedPairs.length).toFixed(1);
+
+            document.getElementById('tournamentTitle').textContent =
+                `Bon tournoi au BCNJ - ${today} - ${totalPairs} paires, IV moyen ${avgIV}`;
+
+            // Calculate pagination for single section with many tables
+            const tableCount = Math.ceil(totalPairs / 2);
+            const availableHeight = window.innerHeight - 140;
+
+            // Determine display mode for single section
+            const useTwoColumns = currentSectionCount === 1 && tableCount > 10;
+            const needsPagination = false; // Disable pagination - use CSS height management instead
+
+            if (needsPagination) {
+                tablesPerPage = 10; // Show 10 tables per page
+                totalPages = Math.ceil(tableCount / tablesPerPage);
+                document.getElementById('pageNavigation').style.display = 'block';
+                // Stop auto-page when in constraint mode
+                if (!document.getElementById('constraintControls').style.display ||
+                    document.getElementById('constraintControls').style.display === 'none') {
+                    startAutoPage();
+                } else {
+                    stopAutoPage();
+                }
+            } else {
+                totalPages = 1;
+                currentPage = 1;
+                document.getElementById('pageNavigation').style.display = 'none';
+                stopAutoPage();
+            }
+
+            const maxTableHeight = needsPagination ?
+                Math.floor(availableHeight / tablesPerPage) - 4 :
+                Math.floor(availableHeight / Math.min(tableCount, 12)) - 4;
+            const positionHeight = Math.max(32, Math.min(50, maxTableHeight - 12));
+
+            document.documentElement.style.setProperty('--position-height', `${positionHeight}px`);
+
+            // Update layout classes
+            const sectionsGrid = container;
+            const mitchellView = document.getElementById('mitchellView');
+
+            // Reset all classes
+            mitchellView.classList.remove('single-section', 'two-columns');
+            sectionsGrid.classList.remove('two-sections', 'three-sections');
+
+            if (currentSectionCount === 1) {
+                mitchellView.classList.add('single-section');
+                if (useTwoColumns) {
+                    mitchellView.classList.add('two-columns');
+                }
+            } else if (currentSectionCount === 2) {
+                sectionsGrid.classList.add('two-sections');
+            } else if (currentSectionCount === 3) {
+                sectionsGrid.classList.add('three-sections');
+            }
+
+            mitchellData.forEach((section, sectionIndex) => {
+                const sectionName = currentSectionCount === 1 ? 'Section Unique' :
+                    `Section ${String.fromCharCode(65 + sectionIndex)}`; // A, B, C...
+
+                const sectionClass = currentSectionCount === 1 ? '' :
+                    `section-${String.fromCharCode(97 + sectionIndex)}`; // section-a, section-b, section-c
+
+                // Calculate section statistics
+                const nsPairs = section.filter(table => table.ns).map(table => table.ns);
+                const eoPairs = section.filter(table => table.eo).map(table => table.eo);
+
+                const nsAvgIV = nsPairs.length > 0 ?
+                    (nsPairs.reduce((sum, pair) => sum + pair.combinedIV, 0) / nsPairs.length).toFixed(1) : '0';
+                const eoAvgIV = eoPairs.length > 0 ?
+                    (eoPairs.reduce((sum, pair) => sum + pair.combinedIV, 0) / eoPairs.length).toFixed(1) : '0';
+
+                // Format du titre avec IV moyens harmonieusement répartis
+                const sectionTitleWithStats = currentSectionCount > 1 ?
+                    `<div class="section-title">
+                        <span class="section-ns-avg">NS IV Moy. : ${nsAvgIV}</span>
+                        <span class="section-name">${sectionName}</span>
+                        <span class="section-eo-avg">EO IV Moy. : ${eoAvgIV}</span>
+                     </div>` : '';
+
+                html += `
+                    <div class="section-container ${sectionClass}">
+                        ${sectionTitleWithStats}
+                        <div class="tables-grid ${needsPagination ? 'paginated' : ''}">
+                `;
+
+                // Filter tables for current page if pagination is active
+                let tablesToShow = section;
+                if (needsPagination) {
+                    const startIndex = (currentPage - 1) * tablesPerPage;
+                    const endIndex = startIndex + tablesPerPage;
+                    tablesToShow = section.slice(startIndex, endIndex);
+                }
+
+                // For multiple sections, filter out empty tables
+                if (currentSectionCount > 1) {
+                    tablesToShow = tablesToShow.filter(table => table.ns || table.eo);
+                }
+
+                // Handle two-column layout for single section
+                if (currentSectionCount === 1 && useTwoColumns) {
+                    const halfPoint = Math.ceil(tablesToShow.length / 2);
+                    const leftTables = tablesToShow.slice(0, halfPoint);
+                    const rightTables = tablesToShow.slice(halfPoint);
+
+                    // Left column
+                    html += '<div class="column-left">';
+                    leftTables.forEach(table => {
+                        html += `
+                            <div class="table-card">
+                                <div class="table-header">T${table.tableNumber}</div>
+                                <div class="table-positions">
+                                    ${renderPosition(table.ns, 'ns', sectionIndex, table.tableNumber)}
+                                    ${renderPosition(table.eo, 'eo', sectionIndex, table.tableNumber)}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+
+                    // Right column
+                    html += '<div class="column-right">';
+                    rightTables.forEach(table => {
+                        html += `
+                            <div class="table-card">
+                                <div class="table-header">T${table.tableNumber}</div>
+                                <div class="table-positions">
+                                    ${renderPosition(table.ns, 'ns', sectionIndex, table.tableNumber)}
+                                    ${renderPosition(table.eo, 'eo', sectionIndex, table.tableNumber)}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                } else {
+                    // Normal single column layout
+                    tablesToShow.forEach(table => {
+                        html += `
+                            <div class="table-card">
+                                <div class="table-header">T${table.tableNumber}</div>
+                                <div class="table-positions">
+                                    ${renderPosition(table.ns, 'ns', sectionIndex, table.tableNumber)}
+                                    ${renderPosition(table.eo, 'eo', sectionIndex, table.tableNumber)}
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            console.log('🔍 DEBUG: Generated HTML length:', html.length);
+            console.log('🔍 DEBUG: First 500 chars of HTML:', html.substring(0, 500));
+
+            if (container) {
+                container.innerHTML = html;
+                console.log('🔍 DEBUG: Container innerHTML set');
+                console.log('🔍 DEBUG: Container children count:', container.children.length);
+            } else {
+                console.error('❌ ERROR: Container not found!');
+                return;
+            }
+
+            updatePageIndicator();
+            initializeDragAndDrop();
+            initializeConstraintSystem();
+
+            // Restore dark mode if it was active
+            setTimeout(() => {
+                if (isDarkMode) {
+                    console.log('🌙 Restoring dark mode after render');
+                    const body = document.body;
+                    body.style.cssText = 'background-color: #1a1a1a !important; color: #e0e0e0 !important;';
+                    body.className = 'dark-mode';
+                }
+            }, 100);
+        }
+
+        function renderPosition(pair, position, sectionIndex, tableNumber) {
+            const positionClass = position === 'ns' ? 'ns-position' : 'eo-position';
+            const positionId = `pos_${sectionIndex}_${tableNumber}_${position}`;
+
+            if (!pair) {
+                // Check if this should be RELAIS position
+                const isRelais = position === 'eo' &&
+                    mitchellData[sectionIndex] &&
+                    tableNumber === mitchellData[sectionIndex].length &&
+                    parsedPairs.length % 2 === 1;
+
+                const relaisClass = isRelais ? 'relais-position' : '';
+                const displayText = isRelais ? 'RELAIS' : 'Position libre';
+
+                return `
+                    <div class="position ${positionClass} ${relaisClass}" data-position="${positionId}" data-section="${sectionIndex}" data-table="${tableNumber}" data-pos="${position}">
+                        <div class="empty-position">${displayText}</div>
+                    </div>
+                `;
+            }
+
+            // Shorten names if too long
+            const name1 = pair.player1?.name?.split(' ').slice(-2).join(' ') || 'N/A';
+            const name2 = pair.player2?.name?.split(' ').slice(-2).join(' ') || 'N/A';
+
+            const amount1 = pair.player1?.amount || 0;
+            const amount2 = pair.player2?.amount || 0;
+
+            const constraintClass = nsConstraints.has(pair.id) ? 'ns-constraint' : '';
+            const paymentClass = `payment-${pair.paymentStatus || 'full'}`;
+
+            return `
+                <div class="position ${positionClass} ${constraintClass} ${paymentClass} clickable"
+                     data-position="${positionId}"
+                     data-section="${sectionIndex}"
+                     data-table="${tableNumber}"
+                     data-pos="${position}"
+                     data-pair-id="${pair.id}"
+                     onclick="toggleNSConstraint('${pair.id}')">
+                    <div class="pair-info">
+                        <div class="constraint-indicator">
+                            <div class="lock-icon">🔒</div>
+                            <div class="ns-text">NS</div>
+                        </div>
+                        <div class="player-names">
+                            <div class="player-name">
+                                <span>${name1}</span>
+                                <span class="player-amount">${amount1.toFixed(2)}€</span>
+                            </div>
+                            <div class="player-name">
+                                <span>${name2}</span>
+                                <span class="player-amount">${amount2.toFixed(2)}€</span>
+                            </div>
+                        </div>
+                        <div class="iv-total">${pair.combinedIV}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function initializeDragAndDrop() {
+            const positions = document.querySelectorAll('.position');
+
+            positions.forEach(position => {
+                position.draggable = true;
+
+                position.addEventListener('dragstart', function(e) {
+                    const pairId = this.dataset.pairId;
+                    if (pairId) {
+                        draggedPair = findPairById(pairId);
+                        this.classList.add('dragging');
+                        highlightSimilarIVPositions(draggedPair.combinedIV);
+                        e.dataTransfer.setData('text/plain', pairId);
+                    } else {
+                        e.preventDefault();
+                    }
+                });
+
+                position.addEventListener('dragend', function(e) {
+                    this.classList.remove('dragging');
+                    clearIVHighlights();
+                    draggedPair = null;
+                });
+
+                position.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.classList.add('drop-target');
+                });
+
+                position.addEventListener('dragleave', function(e) {
+                    this.classList.remove('drop-target');
+                });
+
+                position.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('drop-target');
+
+                    const pairId = e.dataTransfer.getData('text/plain');
+                    if (pairId && draggedPair) {
+                        handlePairDrop(draggedPair, this);
+                    }
+                });
+            });
+        }
+
+        function findPairById(pairId) {
+            for (let sectionIndex = 0; sectionIndex < mitchellData.length; sectionIndex++) {
+                for (let tableIndex = 0; tableIndex < mitchellData[sectionIndex].length; tableIndex++) {
+                    const table = mitchellData[sectionIndex][tableIndex];
+                    if (table.ns && table.ns.id === pairId) return table.ns;
+                    if (table.eo && table.eo.id === pairId) return table.eo;
+                }
+            }
+            return null;
+        }
+
+        function handlePairDrop(pair, targetPosition) {
+            const targetSection = parseInt(targetPosition.dataset.section);
+            const targetTable = parseInt(targetPosition.dataset.table);
+            const targetPos = targetPosition.dataset.pos;
+
+            // Find and remove pair from current position
+            for (let sectionIndex = 0; sectionIndex < mitchellData.length; sectionIndex++) {
+                for (let tableIndex = 0; tableIndex < mitchellData[sectionIndex].length; tableIndex++) {
+                    const table = mitchellData[sectionIndex][tableIndex];
+                    if (table.ns && table.ns.id === pair.id) table.ns = null;
+                    if (table.eo && table.eo.id === pair.id) table.eo = null;
+                }
+            }
+
+            // Move existing pair if target position is occupied
+            const targetTableData = mitchellData[targetSection][targetTable - 1];
+            const existingPair = targetTableData[targetPos];
+
+            if (existingPair) {
+                // Find first empty position for the displaced pair
+                let placed = false;
+                for (let sectionIndex = 0; sectionIndex < mitchellData.length && !placed; sectionIndex++) {
+                    for (let tableIndex = 0; tableIndex < mitchellData[sectionIndex].length && !placed; tableIndex++) {
+                        const table = mitchellData[sectionIndex][tableIndex];
+                        if (!table.ns) {
+                            table.ns = existingPair;
+                            placed = true;
+                        } else if (!table.eo) {
+                            table.eo = existingPair;
+                            placed = true;
+                        }
+                    }
+                }
+            }
+
+            // Place dragged pair in target position
+            targetTableData[targetPos] = pair;
+
+            // Recalculate IV averages after movement and re-render
+            renderMitchellDisplay();
+        }
+
+        function highlightSimilarIVPositions(draggedIV) {
+            const positions = document.querySelectorAll('.position[data-pair-id]');
+            const otherPairs = [];
+
+            // Collect all other pairs with their IV differences
+            positions.forEach(position => {
+                const pairId = position.dataset.pairId;
+                const pair = findPairById(pairId);
+
+                if (pair && pair.id !== draggedPair.id) {
+                    const ivDiff = Math.abs(pair.combinedIV - draggedIV);
+                    otherPairs.push({ position, pair, ivDiff });
+                }
+            });
+
+            if (otherPairs.length === 0) return;
+
+            // Sort by IV difference (smallest first)
+            otherPairs.sort((a, b) => a.ivDiff - b.ivDiff);
+
+            // Assign colors based on relative differences
+            const totalPairs = otherPairs.length;
+
+            otherPairs.forEach((item, index) => {
+                let colorClass;
+
+                if (totalPairs === 1) {
+                    colorClass = 'similarity-green';
+                } else if (totalPairs === 2) {
+                    colorClass = index === 0 ? 'similarity-green' : 'similarity-red';
+                } else {
+                    // For 3+ pairs: best third = green, middle third = orange, worst third = red
+                    const greenThreshold = Math.ceil(totalPairs / 3);
+                    const orangeThreshold = Math.ceil((totalPairs * 2) / 3);
+
+                    if (index < greenThreshold) {
+                        colorClass = 'similarity-green';
+                    } else if (index < orangeThreshold) {
+                        colorClass = 'similarity-orange';
+                    } else {
+                        colorClass = 'similarity-red';
+                    }
+                }
+
+                item.position.classList.add(colorClass);
+            });
+        }
+
+        function clearIVHighlights() {
+            const positions = document.querySelectorAll('.position');
+            positions.forEach(position => {
+                position.classList.remove('similarity-green', 'similarity-orange', 'similarity-red');
+            });
+        }
+
+        // Fullscreen functionality
+        function toggleFullscreen() {
+            const elem = document.documentElement;
+            const toggleBtn = document.getElementById('fullscreenToggle');
+
+            if (!document.fullscreenElement) {
+                elem.requestFullscreen().then(() => {
+                    toggleBtn.textContent = '📱 Quitter plein écran';
+                }).catch(err => {
+                    console.error('Error entering fullscreen:', err);
+                });
+            } else {
+                document.exitFullscreen().then(() => {
+                    toggleBtn.textContent = '📺 Plein écran';
+                }).catch(err => {
+                    console.error('Error exiting fullscreen:', err);
+                });
+            }
+        }
+
+        // Listen for fullscreen changes
+        document.addEventListener('fullscreenchange', function() {
+            const toggleBtn = document.getElementById('fullscreenToggle');
+            if (document.fullscreenElement) {
+                toggleBtn.textContent = '📱 Quitter plein écran';
+            } else {
+                toggleBtn.textContent = '📺 Plein écran';
+            }
+        });
+
+        // Constraint system functions
+        function initializeConstraintSystem() {
+            // Enable click-to-constraint functionality
+            updateConstraintDisplay();
+        }
+
+        function toggleNSConstraint(pairId) {
+            // Allow toggle for any pair - NS or EO
+            if (nsConstraints.has(pairId)) {
+                nsConstraints.delete(pairId);
+                console.log('🔒 DEBUG: Removed constraint from pair:', pairId);
+            } else {
+                nsConstraints.add(pairId);
+                console.log('🔒 DEBUG: Added constraint to pair:', pairId);
+            }
+
+            updateConstraintDisplay();
+            renderMitchellDisplay(); // Re-render to show visual changes
+        }
+
+        function updateConstraintDisplay() {
+            const countEl = document.getElementById('constraintCount');
+            if (countEl) {
+                countEl.textContent = `${nsConstraints.size} paire(s) marquée(s)`;
+            }
+        }
+
+        function showConstraintControls() {
+            document.getElementById('constraintControls').style.display = 'block';
+            stopAutoPage(); // Stop auto-pagination when in constraint mode
+        }
+
+        function hideConstraintControls() {
+            document.getElementById('constraintControls').style.display = 'none';
+        }
+
+        function clearConstraints() {
+            nsConstraints.clear();
+            // Refaire la distribution initiale comme au début
+            if (parsedPairs && parsedPairs.length > 0) {
+                // Reset constraint status for all pairs
+                parsedPairs.forEach(pair => {
+                    pair.nsConstraint = false;
+                    pair.mustBeNS = false;
+                });
+
+                // Generate fresh distribution without any constraints
+                mitchellData = mitchellDistribution(parsedPairs, currentSectionCount, false);
+                renderMitchellDisplay();
+            }
+        }
+
+        // Allow redistribution even without constraints (useful for rebalancing)
+        function redistributeAll() {
+            redistributeWithConstraints(); // The function now handles both cases automatically
+        }
+
+        // Generate test data for 35 pairs
+        function generateTestData() {
+            const names = [
+                'MARTIN Pierre', 'BERNARD Marie', 'THOMAS Jean', 'DUBOIS Anne',
+                'ROBERT Paul', 'PETIT Claire', 'RICHARD Michel', 'MOREAU Sophie',
+                'SIMON Philippe', 'LAURENT Christine', 'LEFEVRE Alain', 'MICHEL Brigitte',
+                'GARCIA Carlos', 'DAVID Francine', 'BERTRAND Luc', 'ROUX Monique',
+                'FOURNIER Henri', 'GIRARD Nicole', 'BONNET Andre', 'DUPONT Jacqueline',
+                'LAMBERT Denis', 'FONTAINE Sylvie', 'ROUSSEAU Gerard', 'VINCENT Martine',
+                'MULLER Hans', 'LEROY Danielle', 'FABRE Claude', 'ANDRE Catherine',
+                'MERCIER Roger', 'BLANC Isabelle', 'GUERIN Marcel', 'BOYER Yvette',
+                'CLEMENT Francis', 'CHEVALIER Odette', 'FRANCOIS Raymond', 'GAUTHIER Helene',
+                'PERRIN Yves', 'MOREL Simone', 'ROBIN Fernand', 'COLIN Jeanne',
+                'LECLERC Maurice', 'BARBIER Suzanne', 'ARNAUD Robert', 'MARTINEZ Carmen',
+                'GAILLARD Henri', 'BRUN Marguerite', 'GARNIER Louis', 'FAURE Marie-Claire',
+                'LEMAIRE Antoine', 'ROUSSEL Georgette', 'GIRAUD Pierre', 'HENRY Solange',
+                'REY Jean-Claude', 'PEREZ Dolores', 'MOULIN Bernard', 'HUBERT Denise',
+                'LUCAS Serge', 'DUFOUR Madeleine', 'BRUNET Charles', 'MARTIN Colette',
+                'SCHMITT Fritz', 'RODRIGUEZ Maria', 'COLIN Patrick', 'LEROUX Paulette',
+                'AUBRY Christian', 'PICARD Therese', 'GUYOT Rene', 'MEUNIER Lucette',
+                'BARRE Emile', 'CHARLES Raymonde', 'RENAUD Albert', 'PHILIPPE Andree'
+            ];
+
+            let testData = 'Tournoi Bridge Club Nancy - Test 35 paires du 13/01/2026 à 14:15\n';
+            testData += '35 équipe(s)\n';
+            testData += 'Nouvelle équipe\n';
+            testData += 'Inscription    Joueur 1    Joueur 2    Actions\n';
+
+            // DONNÉES FIXES - Plus jamais de Math.random() !
+            testData += '13/01/2026 14:15\nM. MARTIN Pierre ( 5.00 € )\n00000001 ( IV = 190 )\nMme BERNARD Marie ( 5.00 € )\n00000002 ( IV = 187 )\nInscription\n';
+            testData += '13/01/2026 14:20\nM. THOMAS Jean ( 5.00 € )\n00000003 ( IV = 185 )\nMme DUBOIS Anne ( 5.00 € )\n00000004 ( IV = 183 )\nInscription\n';
+            testData += '13/01/2026 14:25\nM. ROBERT Paul ( 5.00 € )\n00000005 ( IV = 180 )\nMme PETIT Claire ( 5.00 € )\n00000006 ( IV = 178 )\nInscription\n';
+            testData += '13/01/2026 14:30\nM. RICHARD Michel ( 5.00 € )\n00000007 ( IV = 175 )\nMme MOREAU Sophie ( 5.00 € )\n00000008 ( IV = 173 )\nInscription\n';
+            testData += '13/01/2026 14:35\nM. SIMON Philippe ( 5.00 € )\n00000009 ( IV = 170 )\nMme LAURENT Christine ( 5.00 € )\n00000010 ( IV = 168 )\nInscription\n';
+            testData += '13/01/2026 14:40\nM. LEFEVRE Alain ( 5.00 € )\n00000011 ( IV = 165 )\nMme MICHEL Brigitte ( 5.00 € )\n00000012 ( IV = 163 )\n';
+            testData += '13/01/2026 14:45\nM. GARCIA Carlos ( 5.00 € )\n00000013 ( IV = 160 )\nMme DAVID Francine ( 5.00 € )\n00000014 ( IV = 158 )\n';
+            testData += '13/01/2026 14:50\nM. BERTRAND Luc ( 5.00 € )\n00000015 ( IV = 155 )\nMme ROUX Monique ( 5.00 € )\n00000016 ( IV = 153 )\n';
+            testData += '13/01/2026 14:55\nM. FOURNIER Henri ( 5.00 € )\n00000017 ( IV = 150 )\nMme GIRARD Nicole ( 5.00 € )\n00000018 ( IV = 148 )\n';
+            testData += '13/01/2026 15:00\nM. BONNET Andre ( 5.00 € )\n00000019 ( IV = 145 )\nMme DUPONT Jacqueline ( 5.00 € )\n00000020 ( IV = 143 )\n';
+            testData += '13/01/2026 15:05\nM. LAMBERT Denis ( 5.00 € )\n00000021 ( IV = 140 )\nMme FONTAINE Sylvie ( 5.00 € )\n00000022 ( IV = 138 )\n';
+            testData += '13/01/2026 15:10\nM. ROUSSEAU Gerard ( 5.00 € )\n00000023 ( IV = 135 )\nMme VINCENT Martine ( 5.00 € )\n00000024 ( IV = 133 )\n';
+            testData += '13/01/2026 15:15\nM. MULLER Hans ( 5.00 € )\n00000025 ( IV = 130 )\nMme LEROY Danielle ( 5.00 € )\n00000026 ( IV = 128 )\n';
+            testData += '13/01/2026 15:20\nM. FABRE Claude ( 5.00 € )\n00000027 ( IV = 125 )\nMme ANDRE Catherine ( 5.00 € )\n00000028 ( IV = 123 )\n';
+            testData += '13/01/2026 15:25\nM. MERCIER Roger ( 5.00 € )\n00000029 ( IV = 120 )\nMme BLANC Isabelle ( 5.00 € )\n00000030 ( IV = 118 )\n';
+            testData += '13/01/2026 15:30\nM. GUERIN Marcel ( 5.00 € )\n00000031 ( IV = 115 )\nMme BOYER Yvette ( 5.00 € )\n00000032 ( IV = 113 )\n';
+            testData += '13/01/2026 15:35\nM. CLEMENT Francis ( 5.00 € )\n00000033 ( IV = 110 )\nMme CHEVALIER Odette ( 5.00 € )\n00000034 ( IV = 108 )\n';
+            testData += '13/01/2026 15:40\nM. FRANCOIS Raymond ( 5.00 € )\n00000035 ( IV = 105 )\nMme GAUTHIER Helene ( 5.00 € )\n00000036 ( IV = 103 )\n';
+            testData += '13/01/2026 15:45\nM. PERRIN Yves ( 5.00 € )\n00000037 ( IV = 100 )\nMme MOREL Simone ( 5.00 € )\n00000038 ( IV = 98 )\n';
+            testData += '13/01/2026 15:50\nM. ROBIN Fernand ( 5.00 € )\n00000039 ( IV = 95 )\nMme COLIN Jeanne ( 5.00 € )\n00000040 ( IV = 93 )\n';
+            testData += '13/01/2026 15:55\nM. LECLERC Maurice ( 5.00 € )\n00000041 ( IV = 90 )\nMme BARBIER Suzanne ( 5.00 € )\n00000042 ( IV = 88 )\n';
+            testData += '13/01/2026 16:00\nM. ARNAUD Robert ( 5.00 € )\n00000043 ( IV = 85 )\nMme MARTINEZ Carmen ( 5.00 € )\n00000044 ( IV = 83 )\n';
+            testData += '13/01/2026 16:05\nM. GAILLARD Henri ( 5.00 € )\n00000045 ( IV = 80 )\nMme BRUN Marguerite ( 5.00 € )\n00000046 ( IV = 78 )\n';
+            testData += '13/01/2026 16:10\nM. GARNIER Louis ( 5.00 € )\n00000047 ( IV = 75 )\nMme FAURE Marie-Claire ( 5.00 € )\n00000048 ( IV = 73 )\n';
+            testData += '13/01/2026 16:15\nM. LEMAIRE Antoine ( 5.00 € )\n00000049 ( IV = 70 )\nMme ROUSSEL Georgette ( 5.00 € )\n00000050 ( IV = 68 )\n';
+            testData += '13/01/2026 16:20\nM. GIRAUD Pierre ( 5.00 € )\n00000051 ( IV = 65 )\nMme HENRY Solange ( 5.00 € )\n00000052 ( IV = 63 )\n';
+            testData += '13/01/2026 16:25\nM. REY Jean-Claude ( 5.00 € )\n00000053 ( IV = 60 )\nMme PEREZ Dolores ( 5.00 € )\n00000054 ( IV = 58 )\n';
+            testData += '13/01/2026 16:30\nM. MOULIN Bernard ( 2.50 € )\n00000055 ( IV = 55 )\nMme HUBERT Denise ( 5.00 € )\n00000056 ( IV = 53 )\n';
+            testData += '13/01/2026 16:35\nM. LUCAS Serge ( 5.00 € )\n00000057 ( IV = 50 )\nMme DUFOUR Madeleine ( 5.00 € )\n00000058 ( IV = 48 )\n';
+            testData += '13/01/2026 16:40\nM. BRUNET Charles ( 5.00 € )\n00000059 ( IV = 45 )\nMme MARTIN Colette ( 5.00 € )\n00000060 ( IV = 43 )\n';
+            testData += '13/01/2026 16:45\nM. SCHMITT Fritz ( 5.00 € )\n00000061 ( IV = 40 )\nMme RODRIGUEZ Maria ( 5.00 € )\n00000062 ( IV = 38 )\n';
+            testData += '13/01/2026 16:50\nM. COLIN Patrick ( 2.50 € )\n00000063 ( IV = 35 )\nMme LEROUX Paulette ( 5.00 € )\n00000064 ( IV = 33 )\n';
+            testData += '13/01/2026 16:55\nM. AUBRY Christian ( 5.00 € )\n00000065 ( IV = 30 )\nMme PICARD Therese ( 0.00 € )\n00000066 ( IV = 28 )\n';
+            testData += '13/01/2026 17:00\nM. GUYOT Rene ( 5.00 € )\n00000067 ( IV = 25 )\nMme MEUNIER Lucette ( 5.00 € )\n00000068 ( IV = 23 )\n';
+            testData += '13/01/2026 17:05\nM. BARRE Emile ( 2.50 € )\n00000069 ( IV = 20 )\nMme CHARLES Raymonde ( 2.50 € )\n00000070 ( IV = 18 )\nInscription\n';
+
+            return testData;
+        }
+
+        function generateTestData80() {
+            const names = [
+                'MARTIN Pierre', 'BERNARD Marie', 'THOMAS Jean', 'DUBOIS Anne',
+                'ROBERT Paul', 'PETIT Claire', 'RICHARD Michel', 'MOREAU Sophie',
+                'SIMON Philippe', 'LAURENT Christine', 'LEFEVRE Alain', 'MICHEL Brigitte',
+                'GARCIA Carlos', 'DAVID Francine', 'BERTRAND Luc', 'ROUX Monique',
+                'FOURNIER Henri', 'GIRARD Nicole', 'BONNET Andre', 'DUPONT Jacqueline',
+                'LAMBERT Denis', 'FONTAINE Sylvie', 'ROUSSEAU Gerard', 'VINCENT Martine',
+                'MULLER Hans', 'LEROY Danielle', 'FABRE Claude', 'ANDRE Catherine',
+                'MERCIER Roger', 'BLANC Isabelle', 'GUERIN Marcel', 'BOYER Yvette',
+                'CLEMENT Francis', 'CHEVALIER Odette', 'FRANCOIS Raymond', 'GAUTHIER Helene',
+                'PERRIN Yves', 'MOREL Simone', 'ROBIN Fernand', 'COLIN Jeanne',
+                'LECLERC Maurice', 'BARBIER Suzanne', 'ARNAUD Robert', 'MARTINEZ Carmen',
+                'GAILLARD Henri', 'BRUN Marguerite', 'GARNIER Louis', 'FAURE Marie-Claire',
+                'LEMAIRE Antoine', 'ROUSSEL Georgette', 'GIRAUD Pierre', 'HENRY Solange',
+                'REY Jean-Claude', 'PEREZ Dolores', 'MOULIN Bernard', 'HUBERT Denise',
+                'LUCAS Serge', 'DUFOUR Madeleine', 'BRUNET Charles', 'MARTIN Colette',
+                'SCHMITT Fritz', 'RODRIGUEZ Maria', 'COLIN Patrick', 'LEROUX Paulette',
+                'AUBRY Christian', 'PICARD Therese', 'GUYOT Rene', 'MEUNIER Lucette',
+                'BARRE Emile', 'CHARLES Raymonde', 'RENAUD Albert', 'PHILIPPE Andree',
+                'DURAND Michel', 'MOREAU Elisabeth', 'LEBLANC Jean-Pierre', 'DUBOIS Francoise',
+                'BONNET Laurent', 'ROUX Catherine', 'CLAUDE Pierre', 'MARTIN Sophie',
+                'BERNARD Jacques', 'PETIT Nicole', 'ROBERT Antoine', 'GIRARD Sylvie',
+                'THOMAS Philippe', 'DUBOIS Monique', 'RICHARD Jean', 'MOREAU Brigitte',
+                'SIMON Claude', 'LAURENT Danielle', 'LEFEVRE Paul', 'MICHEL Christine',
+                'GARCIA Jean-Luc', 'DAVID Marie-Claire', 'BERTRAND Henri', 'ROUX Isabelle',
+                'FOURNIER Louis', 'GIRARD Martine', 'BONNET Christian', 'DUPONT Suzanne',
+                'LAMBERT Pierre', 'FONTAINE Marie', 'ROUSSEAU Michel', 'VINCENT Anne',
+                'MULLER Paul', 'LEROY Christine', 'FABRE Jacques', 'ANDRE Sylvie',
+                'MERCIER Jean', 'BLANC Marie-France', 'GUERIN Pierre', 'BOYER Catherine',
+                'CLEMENT Jean-Claude', 'CHEVALIER Marie', 'FRANCOIS Paul', 'GAUTHIER Sophie',
+                'PERRIN Michel', 'MOREL Danielle', 'ROBIN Jean-Pierre', 'COLIN Marie-Claire',
+                'LECLERC Paul', 'BARBIER Nicole', 'ARNAUD Michel', 'MARTINEZ Francoise',
+                'GAILLARD Jean', 'BRUN Catherine', 'GARNIER Pierre', 'FAURE Elisabeth',
+                'LEMAIRE Michel', 'ROUSSEL Marie', 'GIRAUD Jean-Luc', 'HENRY Brigitte',
+                'REY Pierre', 'PEREZ Marie-Carmen', 'MOULIN Jean', 'HUBERT Sophie',
+                'LUCAS Michel', 'DUFOUR Catherine', 'BRUNET Jean-Pierre', 'MARTIN Marie-France',
+                'SCHMITT Jean', 'RODRIGUEZ Carmen', 'COLIN Michel', 'LEROUX Marie-Claire',
+                'AUBRY Jean-Luc', 'PICARD Nicole', 'GUYOT Pierre', 'MEUNIER Sylvie',
+                'BARRE Jean', 'CHARLES Marie', 'RENAUD Michel', 'PHILIPPE Catherine',
+                'MARCEL Antoine', 'LEBRUN Sophie', 'NICOLAS Pierre', 'MERCIER Marie',
+                'PAULIN Jean', 'ROYER Catherine', 'JEAN Michel', 'LAURENT Marie-Francoise'
+            ];
+
+            let testData = 'Tournoi Bridge Club Nancy - Test 80 paires du ' + new Date().toLocaleDateString('fr-FR') + ' à 14:15\n';
+            testData += '80 équipe(s)\n';
+            testData += 'Nouvelle équipe\n';
+            testData += 'Inscription    Joueur 1    Joueur 2    Actions\n';
+
+            for (let i = 0; i < 80; i++) {
+                const date = new Date();
+                date.setDate(date.getDate() - Math.floor(Math.random() * 7));
+                const dateStr = date.toLocaleDateString('fr-FR').replace(/\//g, '/') + ' ' +
+                    String(Math.floor(Math.random() * 24)).padStart(2, '0') + ':' +
+                    String(Math.floor(Math.random() * 60)).padStart(2, '0');
+
+                const player1Name = names[i * 2] || `Joueur${i * 2 + 1}`;
+                const player2Name = names[i * 2 + 1] || `Joueur${i * 2 + 2}`;
+
+                const player1IV = Math.floor(200 - (i * 1.2)) + Math.floor(Math.random() * 15) - 7;
+                const player2IV = Math.floor(195 - (i * 1.2)) + Math.floor(Math.random() * 15) - 7;
+
+                const player1Amount = Math.random() > 0.1 ? '5.00' : (Math.random() > 0.5 ? '2.50' : '0.00');
+                const player2Amount = Math.random() > 0.1 ? '5.00' : (Math.random() > 0.5 ? '2.50' : '0.00');
+
+                const license1 = `000${String(i * 2 + 1).padStart(5, '0')}`;
+                const license2 = `000${String(i * 2 + 2).padStart(5, '0')}`;
+
+                const prefix1 = Math.random() > 0.5 ? 'M.' : 'Mme';
+                const prefix2 = Math.random() > 0.5 ? 'M.' : 'Mme';
+
+                testData += `${dateStr}\n`;
+                testData += `${prefix1} ${player1Name} ( ${player1Amount} € )\n`;
+                testData += `${license1} ( IV = ${player1IV} )\n`;
+                testData += `${prefix2} ${player2Name} ( ${player2Amount} € )\n`;
+                testData += `${license2} ( IV = ${player2IV} )\n`;
+                testData += 'Inscription\n';
+            }
+
+            return testData;
+        }
+
+        // DARK MODE - Version définitive
+        let isDarkMode = false;
+
+        function forceDarkMode() {
+            console.log('🌙 DARK MODE CALLED, current state:', isDarkMode);
+
+            const body = document.body;
+            const btn = document.getElementById('darkModeBtn');
+
+            isDarkMode = !isDarkMode;
+
+            if (isDarkMode) {
+                console.log('🌙 Switching to DARK');
+                body.style.cssText = 'background-color: #1a1a1a !important; color: #e0e0e0 !important;';
+                body.className = 'dark-mode';
+                localStorage.setItem('darkMode', 'true');
+                if (btn) btn.textContent = '☀️ Light';
+            } else {
+                console.log('🌙 Switching to LIGHT');
+                body.style.cssText = 'background-color: #ffffff !important; color: #000000 !important;';
+                body.className = '';
+                localStorage.setItem('darkMode', 'false');
+                if (btn) btn.textContent = '🌙 Dark';
+            }
+
+            console.log('🌙 New state:', isDarkMode);
+            console.log('🌙 Body background:', body.style.backgroundColor);
+        }
+
+        function updateButtonText(text) {
+            const btn = document.getElementById('darkModeBtn');
+            if (btn) {
+                btn.textContent = text;
+                console.log('🌙 Button updated to:', text);
+            }
+        }
+
+        function updateDarkModeButton(isDark) {
+            const darkBtn = document.getElementById('darkModeBtn') ||
+                           document.querySelector('button[onclick="toggleDarkMode()"]');
+            if (darkBtn) {
+                darkBtn.textContent = isDark ? '☀️ Light' : '🌙 Dark';
+                console.log('🌙 DEBUG: Button text updated to:', darkBtn.textContent);
+            } else {
+                console.error('🌙 ERROR: Dark mode button not found');
+            }
+        }
+
+        // Page navigation functions
+        function nextPage() {
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderMitchellDisplay();
+            }
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderMitchellDisplay();
+            }
+        }
+
+        function updatePageIndicator() {
+            const indicator = document.getElementById('pageIndicator');
+            if (indicator && totalPages > 1) {
+                indicator.textContent = `Page ${currentPage}/${totalPages}`;
+            }
+        }
+
+        function startAutoPage() {
+            stopAutoPage(); // Clear any existing interval
+            if (totalPages > 1) {
+                autoPageInterval = setInterval(() => {
+                    if (currentPage >= totalPages) {
+                        currentPage = 1;
+                    } else {
+                        currentPage++;
+                    }
+                    renderMitchellDisplay();
+                }, 3000); // Change page every 3 seconds
+            }
+        }
+
+        function stopAutoPage() {
+            if (autoPageInterval) {
+                clearInterval(autoPageInterval);
+                autoPageInterval = null;
+            }
+        }
+
+        function toggleAutoPage() {
+            if (autoPageInterval) {
+                stopAutoPage();
+            } else {
+                startAutoPage();
+            }
+        }
+
+        // FFB Extraction and Automation Functions
+        function showFFBExtractor() {
+            const helpDiv = document.getElementById('automationHelp');
+            helpDiv.style.display = 'block';
+            helpDiv.innerHTML = `
+                <h6>📋 Extracteur FFB - Bookmarklet</h6>
+                <p>1. <strong>Créer le favori :</strong> Faites glisser ce lien vers votre barre de favoris :</p>
+                <div style="background: #f8f9fa; padding: 8px; border-radius: 4px; font-family: monospace; font-size: 0.8em; margin: 8px 0;">
+                    <a href="javascript:(function(){${generateBookmarklet()}})()"
+                       style="color: #007bff; text-decoration: none;">
+                       📋 FFB Extractor
+                    </a>
+                </div>
+                <p>2. <strong>Utilisation :</strong> Sur ffbridge.fr, page tournoi, cliquez sur le favori</p>
+                <p>3. <strong>Résultat :</strong> Les données sont automatiquement importées ici</p>
+            `;
+        }
+
+        function initScreenCapture() {
+            const helpDiv = document.getElementById('automationHelp');
+            helpDiv.style.display = 'block';
+            helpDiv.innerHTML = `
+                <h6>📷 Capture d'Écran Automatisée</h6>
+                <div style="margin: 10px 0;">
+                    <label><input type="radio" name="captureType" value="fixed" checked> Zone fixe (dimensions définies)</label><br>
+                    <label><input type="radio" name="captureType" value="scroll"> Page complète (scroll automatique)</label>
+                </div>
+                <div style="margin: 10px 0;">
+                    <label>Largeur: <input type="number" id="captureWidth" value="1200" style="width: 80px;"> px</label>
+                    <label style="margin-left: 10px;">Hauteur: <input type="number" id="captureHeight" value="800" style="width: 80px;"> px</label>
+                </div>
+                <div style="margin: 10px 0;">
+                    <label>Webhook n8n: <input type="url" id="n8nWebhook" placeholder="https://votre-n8n.fr/webhook/capture" style="width: 250px;"></label>
+                </div>
+                <button onclick="triggerCapture()" style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px;">
+                    🚀 Lancer Capture
+                </button>
+            `;
+        }
+
+        function setupN8NIntegration() {
+            const helpDiv = document.getElementById('automationHelp');
+            helpDiv.style.display = 'block';
+            helpDiv.innerHTML = `
+                <h6>🌐 Intégration n8n</h6>
+                <p><strong>Webhook de configuration :</strong></p>
+                <input type="url" id="configWebhook" placeholder="https://votre-n8n.fr/webhook/bridge-config" style="width: 100%; margin: 5px 0;">
+                <p><strong>Paramètres disponibles :</strong></p>
+                <textarea id="configParams" style="width: 100%; height: 120px; font-family: monospace; font-size: 0.8em;" placeholder="{
+  &quot;tournament_name&quot;: &quot;Tournoi BCNJ&quot;,
+  &quot;sections&quot;: 1,
+  &quot;auto_capture&quot;: true,
+  &quot;capture_interval&quot;: 30,
+  &quot;display_config&quot;: {
+    &quot;dark_mode&quot;: false,
+    &quot;font_size&quot;: 1.0,
+    &quot;show_constraints&quot;: true
+  }
+}"></textarea>
+                <button onclick="sendConfigToN8N()" style="background: #6f42c1; color: white; border: none; padding: 6px 12px; border-radius: 4px; margin-top: 8px;">
+                    📤 Envoyer Config
+                </button>
+                <button onclick="receiveConfigFromN8N()" style="background: #17a2b8; color: white; border: none; padding: 6px 12px; border-radius: 4px; margin-left: 8px;">
+                    📥 Récupérer Config
+                </button>
+            `;
+        }
+
+        function triggerCapture() {
+            const captureType = document.querySelector('input[name="captureType"]:checked').value;
+            const width = document.getElementById('captureWidth').value;
+            const height = document.getElementById('captureHeight').value;
+            const webhook = document.getElementById('n8nWebhook').value;
+
+            const captureConfig = {
+                type: captureType,
+                width: parseInt(width),
+                height: parseInt(height),
+                url: window.location.href,
+                timestamp: new Date().toISOString(),
+                tournament_data: {
+                    pairs: parsedPairs.length,
+                    sections: currentSectionCount,
+                    constraints: Array.from(nsConstraints)
+                }
+            };
+
+            if (webhook) {
+                fetch(webhook, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(captureConfig)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert('✓ Capture déclenchée via n8n!');
+                })
+                .catch(error => {
+                    console.error('Erreur webhook:', error);
+                    alert('✗ Erreur webhook - utilisation locale');
+                    captureScreenLocal(captureConfig);
+                });
+            } else {
+                captureScreenLocal(captureConfig);
+            }
+        }
+
+        function captureScreenLocal(config) {
+            // Interface de capture locale via API browser
+            if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
+                navigator.mediaDevices.getDisplayMedia({
+                    video: {
+                        width: config.width,
+                        height: config.height
+                    }
+                })
+                .then(stream => {
+                    const video = document.createElement('video');
+                    video.srcObject = stream;
+                    video.play();
+
+                    video.addEventListener('loadedmetadata', () => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = config.width;
+                        canvas.height = config.height;
+                        const ctx = canvas.getContext('2d');
+
+                        ctx.drawImage(video, 0, 0, config.width, config.height);
+
+                        canvas.toBlob(blob => {
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `bridge-capture-${new Date().toISOString().slice(0,19)}.png`;
+                            a.click();
+
+                            stream.getTracks().forEach(track => track.stop());
+                        }, 'image/png');
+                    });
+                })
+                .catch(err => {
+                    console.error('Erreur capture:', err);
+                    alert('✗ Capture d\'écran non disponible dans ce navigateur');
+                });
+            } else {
+                alert('✗ API capture d\'écran non supportée');
+            }
+        }
+
+        function sendConfigToN8N() {
+            const webhook = document.getElementById('configWebhook').value;
+            const params = document.getElementById('configParams').value;
+
+            if (!webhook) {
+                alert('Veuillez saisir l\'URL du webhook n8n');
+                return;
+            }
+
+            try {
+                const config = JSON.parse(params);
+                fetch(webhook, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        action: 'update_config',
+                        config: config,
+                        timestamp: new Date().toISOString()
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert('✓ Configuration envoyée à n8n!');
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    alert('✗ Erreur lors de l\'envoi');
+                });
+            } catch (e) {
+                alert('✗ JSON invalide dans la configuration');
+            }
+        }
+
+        function receiveConfigFromN8N() {
+            const webhook = document.getElementById('configWebhook').value;
+
+            if (!webhook) {
+                alert('Veuillez saisir l\'URL du webhook n8n');
+                return;
+            }
+
+            fetch(webhook + '?action=get_config', {
+                method: 'GET'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.config) {
+                    document.getElementById('configParams').value = JSON.stringify(data.config, null, 2);
+                    applyConfigFromN8N(data.config);
+                    alert('✓ Configuration récupérée et appliquée!');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('✗ Erreur lors de la récupération');
+            });
+        }
+
+        function applyConfigFromN8N(config) {
+            if (config.display_config) {
+                if (config.display_config.dark_mode && !document.body.classList.contains('dark-mode')) {
+                    toggleDarkMode();
+                }
+                if (config.display_config.font_size && config.display_config.font_size !== 1.0) {
+                    document.documentElement.style.fontSize = (config.display_config.font_size * 100) + '%';
+                }
+            }
+            if (config.sections) {
+                document.getElementById('sectionCount').value = config.sections;
+            }
+        }
+
+        // Debug function to check display issues
+        function debugDisplay() {
+            console.log('🐛 DEBUG START ====================');
+            console.log('Debug - Mitchell Data:', mitchellData);
+            console.log('Debug - Parsed Pairs:', parsedPairs);
+            console.log('Debug - Current Section Count:', currentSectionCount);
+            console.log('Debug - Container:', document.getElementById('mitchellContainer'));
+            console.log('Debug - Page Navigation:', document.getElementById('pageNavigation'));
+            console.log('🐛 DEBUG END ======================');
+
+            // Show alert to confirm debug ran
+            alert(`Debug info logged to console:\n- Parsed pairs: ${parsedPairs.length}\n- Mitchell data: ${mitchellData.length}\n- Section count: ${currentSectionCount}`);
+        }
+
+        // Add debug info to generateSections
+        function generateSectionsOriginal() {
+            // Original function content here - keeping as backup
+        }
+
+        // Dark mode initialization
+        function initializeDarkMode() {
+            const shouldBeDark = localStorage.getItem('darkMode') === 'true';
+            console.log('🌙 Initializing dark mode, should be dark:', shouldBeDark);
+
+            const body = document.body;
+            const btn = document.getElementById('darkModeBtn');
+
+            isDarkMode = shouldBeDark;
+
+            if (shouldBeDark) {
+                body.style.cssText = 'background-color: #1a1a1a !important; color: #e0e0e0 !important;';
+                body.className = 'dark-mode';
+                if (btn) btn.textContent = '☀️ Light';
+            } else {
+                body.style.cssText = 'background-color: #ffffff !important; color: #000000 !important;';
+                body.className = '';
+                if (btn) btn.textContent = '🌙 Dark';
+            }
+
+            console.log('🌙 Dark mode initialized, state:', isDarkMode);
+        }
+
+        // Initialize ASAP
+        document.addEventListener('DOMContentLoaded', initializeDarkMode);
+
+        // Test if button exists and force click handler
+        setTimeout(() => {
+            const btn = document.getElementById('darkModeBtn');
+            if (btn) {
+                console.log('🌙 Button found, adding click handler');
+                btn.onclick = forceDarkMode;
+            }
+        }, 1000);
+
+        // Fix for missing display - ensure renderMitchellDisplay is called
+        window.addEventListener('load', function() {
+            // Auto-debug on page load
+            setTimeout(() => {
+                if (parsedPairs.length > 0 && mitchellData.length === 0) {
+                    console.warn('Warning: Parsed pairs exist but mitchell data is empty');
+                    debugDisplay();
+                }
+            }, 1000);
+        });
+
+        // Add test data button
+        function loadTestData() {
+            document.getElementById('tournamentData').value = generateTestData();
+            hideStatus();
+            // Auto-generate sections after loading test data
+            setTimeout(() => {
+                generateSections();
+            }, 100);
+        }
+
+        function loadTestData80() {
+            document.getElementById('tournamentData').value = generateTestData80();
+            hideStatus();
+            // Auto-generate sections after loading test data
+            setTimeout(() => {
+                generateSections();
+            }, 100);
+        }
+
+        // Auto-hide status on input
+        document.getElementById('tournamentData').addEventListener('input', hideStatus);
+        document.getElementById('sectionCount').addEventListener('change', hideStatus);
+
+        // Add alternative event listeners for all buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔍 DEBUG: DOM loaded, setting up event listeners...');
+
+            const generateBtn = document.getElementById('generateButton');
+            if (generateBtn) {
+                generateBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('🔍 DEBUG: Generate button clicked via event listener');
+                    generateSections();
+                });
+                console.log('✓ Generate button event listener added');
+            } else {
+                console.error('❌ Generate button not found');
+            }
+
+            // Add event listeners to other buttons as backup
+            const buttons = document.querySelectorAll('button[onclick]');
+            buttons.forEach(button => {
+                const onclickAttr = button.getAttribute('onclick');
+                if (onclickAttr) {
+                    button.addEventListener('click', function(e) {
+                        console.log('🔍 DEBUG: Button clicked (backup listener):', onclickAttr);
+                        try {
+                            eval(onclickAttr);
+                        } catch (error) {
+                            console.error('❌ Error executing onclick:', error);
+                        }
+                    });
+                }
+            });
+            console.log('✓ Backup event listeners added for', buttons.length, 'buttons');
+
+            // Re-initialize dark mode after DOM is ready
+            initializeDarkMode();
+        });
+
+        // Bookmarklet for FFB automation (user can drag this to bookmarks)
+        function generateBookmarklet() {
+            const script = `
+                javascript:(() => {
+                    const tables = document.querySelectorAll('table tr');
+                    let data = '';
+                    let currentDate = '';
+
+                    tables.forEach(row => {
+                        const cells = row.querySelectorAll('td');
+                        if (cells.length >= 3) {
+                            const dateCell = cells[0]?.textContent?.trim();
+                            const player1Cell = cells[1]?.textContent?.trim();
+                            const player2Cell = cells[2]?.textContent?.trim();
+
+                            if (dateCell && dateCell.match(/\\d{2}\/\\d{2}\/\\d{4}/)) {
+                                currentDate = dateCell;
+                            }
+
+                            if (player1Cell && player2Cell && currentDate) {
+                                data += currentDate + '\\n';
+                                data += player1Cell + '\\n';
+                                data += player2Cell + '\\n';
+                            }
+                        }
+                    });
+
+                    if (data) {
+                        const newWindow = window.open('${window.location.href}', '_blank');
+                        newWindow.addEventListener('load', () => {
+                            newWindow.document.getElementById('tournamentData').value = data;
+                            newWindow.generateSections();
+                        });
+                    } else {
+                        alert('Aucune donnée de tournoi trouvée sur cette page.');
+                    }
+                })();
+            `;
+
+            return script.replace(/\s+/g, ' ').trim();
+        }
+    </script>
+</body>
+</html>
