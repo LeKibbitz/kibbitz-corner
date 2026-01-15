@@ -1,6 +1,6 @@
 # 🚀 Kibbitz' Corner
 
-**AI Automation & Bridge Software Solutions** - Fort-de-France, Martinique 🇲🇶
+**AI Automation & Bridge Software Solutions** - Nancy, Grand-Est, France 🇫🇷
 
 [![Website](https://img.shields.io/badge/Website-lekibbitz.fr-a855f7?style=flat-square)](https://lekibbitz.fr)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)

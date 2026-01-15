@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "FFB ClubNet & Tournament Manager",
+  "version": "1.0",
+  "description": "Gestionnaire de tournois FFB ClubNet avec extraction automatique",
+
+  "permissions": ["activeTab", "storage"],
+
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "FFB ClubNet Manager"
+  },
+
+  "content_scripts": [{
+    "matches": ["*://metier.ffbridge.fr/*"],
+    "js": ["content.js"]
+  }]
+}

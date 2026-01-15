@@ -141,3 +141,4 @@ __pycache__/
 # Database dumps
 *.sql
 *.dumpbridge-extension/
+bridge-extension/

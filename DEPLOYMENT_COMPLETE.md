@@ -154,11 +154,11 @@ MIT License - Free for commercial and personal use
 
 🎯 **Bridge Generator V2** is now accessible to bridge players and tournament organizers worldwide, providing professional-grade tournament management tools with advanced automation capabilities.
 
-**🌍 Impact:** Bridge clubs from Martinique to Japan can now efficiently manage tournaments with modern, secure, and user-friendly tools.
+**🌍 Impact:** Bridge clubs from Nancy to Tokyo can now efficiently manage tournaments with modern, secure, and user-friendly tools.
 
 **🃏 The future of bridge tournament management starts today!**
 
 ---
 
-*Deployed with ❤️ from Fort-de-France, Martinique 🇲🇶*
+*Deployed with ❤️ from Nancy, Grand-Est, France 🇫🇷*
 *By Thomas Joannès (Le Kibbitz) with Claude Code assistance*

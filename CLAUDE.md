@@ -1,7 +1,7 @@
 # Kibbitz' Corner - Project Context
 
 ## Owner
-Thomas Joannès (Le Kibbitz) - Fort-de-France, Martinique
+Thomas Joannès (Le Kibbitz) - Nancy, Grand-Est, France
 
 ## Stack technique
 - **Automation**: n8n (https://n8n.lekibbitz.fr)
