@@ -1,29 +1,143 @@
-# Credentials & secrets
+# ================================
+# Security & Credentials
+# ================================
+*.key
+*.pem
+*.p12
+*.pfx
+*password*
+*secret*
+*token*
+*api*key*
 .env
-*.env
+.env.*
+!.env.example
+config/production.json
+config/secrets.json
 credentials.json
 **/credentials/
 
-# Node
-node_modules/
+# FFB Service specific
+bridge-extension/ffb-service/.env*
+bridge-extension/ffb-service/config/production.json
+bridge-extension/ffb-service/logs/
 
+# Extension private keys
+bridge-extension/private/
+bridge-extension/*.pem
+bridge-extension/secrets/
+
+# ================================
+# Dependencies
+# ================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# ================================
+# OS Generated
+# ================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# ================================
+# IDE & Editors
+# ================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ================================
+# Build & Distribution
+# ================================
+dist/
+build/
+*.tgz
+*.tar.gz
+
+# Extension builds
+bridge-extension/*.zip
+bridge-extension/*.crx
+bridge-extension/*.xpi
+
+# FFB Service builds
+bridge-extension/ffb-service/dist/
+bridge-extension/ffb-service/*.exe
+
+# ================================
+# Logs & Temp
+# ================================
+logs/
+*.log
+tmp/
+temp/
+
+# ================================
+# FFBClubNet Data
+# ================================
+# Local FFB data (sensitive tournament info)
+*.mdb
+*.bws
+data/tournaments/
+exports/
+
+# ================================
+# User Data
+# ================================
+# Extension user data
+user-data/
+settings/
+cache/
+
+# ================================
+# Development
+# ================================
+coverage/
+.nyc_output/
+.jest/
+test-results/
+
+# ================================
+# Backup Files
+# ================================
+*-backup.*
+*-old.*
+*-copy.*
+*.backup
+
+# ================================
+# Email & Private Docs
+# ================================
+emails/
+private/
+confidential/
+
+# ================================
 # Python
+# ================================
 __pycache__/
 *.pyc
 .venv/
 
-# IDE
-.vscode/
-.idea/
+# ================================
+# Large Media Files
+# ================================
+*.bmp
+*.avi
+*.mov
+*.mp4
 
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-logs/
-
-# Temp
-tmp/
-temp/
+# Database dumps
+*.sql
+*.dump

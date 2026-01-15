@@ -12,13 +12,29 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a0a;
             min-height: 100vh;
             overflow-x: auto;
             overflow-y: auto;
             transition: all 0.3s ease;
-            color: #ecf0f1;
+            color: #e0e0e0;
+            position: relative;
+        }
+
+        /* Particle background effect */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(circle at 20% 80%, rgba(168, 85, 247, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.1) 0%, transparent 50%);
+            z-index: -1;
+            pointer-events: none;
         }
 
         body.dark-mode {
@@ -26,11 +42,38 @@
             color: #e0e0e0 !important;
         }
 
+        /* ALL TEXT uses same color as player names */
         .dark-mode .player-name,
         .dark-mode .table-header,
         .dark-mode .section-title,
         .dark-mode h1, .dark-mode h2, .dark-mode h3,
-        .dark-mode p, .dark-mode span:not(.constraint-indicator) {
+        .dark-mode p, .dark-mode span:not(.constraint-indicator),
+        .header-content span,
+        .section-banner,
+        .section-letter,
+        .section-stats,
+        .section-stats-line,
+        .ns-text,
+        .eo-text,
+        .position-indicator,
+        .tournament-header,
+        .header-title,
+        .header-btn,
+        .section-btn,
+        .algo-btn,
+        .section-control label,
+        .algo-control label,
+        body,
+        * {
+            color: #e0e0e0 !important;
+        }
+
+        /* Override white color anywhere */
+        [style*="color: white"],
+        [style*="color:#fff"],
+        [style*="color:#ffffff"],
+        [style*="color: #fff"],
+        [style*="color: #ffffff"] {
             color: #e0e0e0 !important;
         }
 
@@ -63,9 +106,8 @@
         }
 
         .dark-mode .section-stats {
-            background: #34495e;
-            border-color: #4a6741;
-            color: #ecf0f1;
+            background: transparent;
+            border: none;
         }
 
         .setup-mode {
@@ -92,19 +134,36 @@
         .mitchell-display {
             width: 100vw;
             height: 100vh;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            background: transparent;
             display: flex;
             flex-direction: column;
             position: relative;
-            color: #212529;
+            color: #e0e0e0;
         }
 
         .tournament-header {
-            background: linear-gradient(135deg, #8B5A96 0%, #E91E63 100%);
-            color: white;
-            padding: 12px 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: #e0e0e0;
+            padding: 20px 30px;
+            box-shadow: 0 8px 40px rgba(99, 102, 241, 0.15), 0 4px 12px rgba(0, 0, 0, 0.3);
             z-index: 100;
+            border-radius: 0 0 20px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tournament-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 20%, rgba(168, 85, 247, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+            pointer-events: none;
         }
 
         .header-content {
@@ -112,11 +171,18 @@
             justify-content: space-between;
             align-items: center;
             max-width: 100%;
+            position: relative;
+            z-index: 1;
         }
 
         .header-content span {
-            font-size: 1.3em;
-            font-weight: bold;
+            font-size: 1.6em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 50%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
             flex: 1;
         }
 
@@ -126,96 +192,228 @@
             align-items: center;
         }
 
-        .section-control, .table-control {
-            background: rgba(255,255,255,0.2);
-            padding: 5px 10px;
-            border-radius: 5px;
+        .section-control, .algo-control, .table-control {
+            background: transparent;
+            padding: 0;
             border: none;
             color: white;
             font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .section-control select, .table-control input {
-            background: rgba(255,255,255,0.9);
-            border: none;
-            border-radius: 3px;
-            padding: 3px 6px;
-            margin-left: 5px;
-            color: #333;
+            display: none;
         }
 
         .fullscreen-exit {
-            background: rgba(255,255,255,0.2);
+            background: transparent;
             border: none;
-            color: white;
-            padding: 8px;
-            border-radius: 5px;
+            color: rgba(255,255,255,0.6);
+            padding: 6px 10px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 1.2em;
+            transition: all 0.2s ease;
         }
 
         .fullscreen-exit:hover {
-            background: rgba(255,255,255,0.3);
+            color: rgba(255,255,255,0.95);
+            transform: scale(1.2);
         }
 
         .header-controls {
             display: flex;
-            gap: 8px;
-            align-items: center;
+            gap: 4px;
+            align-items: flex-end;
+            padding: 5px 0;
         }
 
-        .header-btn {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.3);
-            padding: 6px 12px;
-            border-radius: 4px;
+        /* Effet Génie MacOS Dock - Smooth */
+        .header-btn, .section-btn, .algo-btn, .fullscreen-exit {
+            background: transparent;
+            color: rgba(255,255,255,0.6);
+            border: none;
+            padding: 8px 12px;
             cursor: pointer;
-            font-size: 0.8em;
-            transition: all 0.2s ease;
-            backdrop-filter: blur(10px);
-            white-space: nowrap;
+            font-size: 1.1em;
             font-weight: 500;
+            transition: transform 0.2s ease-out, color 0.15s ease, text-shadow 0.15s ease;
+            white-space: nowrap;
+            transform-origin: bottom center;
         }
 
-        .header-btn:hover {
-            background: rgba(255,255,255,0.3);
-            transform: translateY(-1px);
+        .header-btn:hover, .section-btn:hover, .algo-btn:hover {
+            color: rgba(255,255,255,0.95);
+            transform: scale(1.2) translateY(-2px);
+            text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        /* Effet voisin smooth */
+        .header-btn:hover + .header-btn,
+        .section-btn:hover + .section-btn,
+        .algo-btn:hover + .algo-btn,
+        .header-btn:has(+ .header-btn:hover),
+        .section-btn:has(+ .section-btn:hover),
+        .algo-btn:has(+ .algo-btn:hover) {
+            transform: scale(1.08) translateY(-1px);
+            color: rgba(255,255,255,0.7);
+        }
+
+        .header-btn.active, .section-btn.active, .algo-btn.active {
+            color: #ffffff;
+            font-weight: 700;
+            text-shadow: 0 0 12px rgba(255,255,255,0.6);
         }
 
         .button-group {
             display: flex;
             gap: 2px;
-            border-radius: 4px;
-            overflow: hidden;
-            background: rgba(255,255,255,0.1);
-        }
-
-        .section-btn, .algo-btn {
-            background: rgba(255,255,255,0.2);
-            color: white;
+            align-items: flex-end;
+            background: transparent;
+            padding: 0;
             border: none;
-            padding: 6px 12px;
-            cursor: pointer;
-            font-size: 0.8em;
-            transition: all 0.2s ease;
-            white-space: nowrap;
-        }
-
-        .section-btn:hover, .algo-btn:hover {
-            background: rgba(255,255,255,0.3);
-        }
-
-        .section-btn.active, .algo-btn.active {
-            background: rgba(255,255,255,0.4);
-            font-weight: bold;
         }
 
         .section-control label, .algo-control label {
-            color: white;
-            font-size: 0.85em;
-            margin-right: 8px;
+            display: none;
+        }
+
+        /* Séparateur dans header */
+        .header-separator {
+            color: rgba(255,255,255,0.2);
+            font-size: 1.2em;
+            padding: 0 5px;
+            user-select: none;
+        }
+
+        /* Contrôle nombre de tables en HAUT du bandeau section */
+        .table-count-control {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            padding: 8px 0;
+            order: -1; /* Place en haut du bandeau */
+        }
+
+        .table-count-btn {
+            background: transparent;
+            border: none;
+            color: rgba(255,255,255,0.4);
+            font-size: 1em;
+            cursor: pointer;
+            padding: 2px 6px;
+            transition: all 0.2s ease;
+            line-height: 1;
+        }
+
+        .table-count-btn:hover {
+            color: rgba(255,255,255,0.95);
+            transform: scale(1.3);
+        }
+
+        .table-count-display {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .table-count-value {
+            font-size: 1.4em;
+            font-weight: 700;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        .table-icon {
+            font-size: 1.1em;
             opacity: 0.9;
+        }
+
+        /* Section colors for table count */
+        .section-a .table-count-value, .section-a .table-icon { color: #e9d5ff; text-shadow: 0 0 8px rgba(168, 85, 247, 0.5); }
+        .section-b .table-count-value, .section-b .table-icon { color: #fce7f3; text-shadow: 0 0 8px rgba(236, 72, 153, 0.5); }
+        .section-c .table-count-value, .section-c .table-icon { color: #cffafe; text-shadow: 0 0 8px rgba(6, 182, 212, 0.5); }
+
+        /* Flash effect for modified counters */
+        .table-count-value.modified {
+            animation: flashModified 0.8s ease-in-out infinite;
+        }
+
+        @keyframes flashModified {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .section-a .table-count-value.modified {
+            color: #c084fc;
+            text-shadow: 0 0 15px rgba(168, 85, 247, 0.8);
+        }
+        .section-b .table-count-value.modified {
+            color: #f472b6;
+            text-shadow: 0 0 15px rgba(236, 72, 153, 0.8);
+        }
+        .section-c .table-count-value.modified {
+            color: #22d3ee;
+            text-shadow: 0 0 15px rgba(6, 182, 212, 0.8);
+        }
+
+        /* Cartouche de modification en attente */
+        .pending-changes {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.95) 0%, rgba(236, 72, 153, 0.95) 100%);
+            padding: 12px 24px;
+            border-radius: 30px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateX(-50%) translateY(100px); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+
+        .pending-changes.hidden {
+            display: none;
+        }
+
+        .pending-changes span {
+            color: white;
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        .pending-changes button {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .pending-changes button:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+
+        .pending-changes .regen-btn {
+            background: rgba(39, 174, 96, 0.8);
+        }
+
+        .pending-changes .cancel-btn {
+            background: rgba(231, 76, 60, 0.6);
         }
 
         .sections-grid {
@@ -250,17 +448,105 @@
         .section-banner {
             background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
             color: white;
-            padding: 15px 10px;
-            font-weight: bold;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            margin-right: 15px;
-            min-width: 120px;
+            width: 75px;
+            margin-right: 20px;
+            border-radius: 16px;
+            box-shadow: none !important;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: flex-start;
+            padding: 10px 0;
+            gap: 5px;
+            position: relative;
+            overflow: hidden;
+            border: none !important;
+            backdrop-filter: none !important;
+        }
+
+        .section-letter {
+            display: flex;
+            align-items: center;
             justify-content: center;
+            font-family: 'Inter', 'Helvetica Neue', sans-serif;
+            font-weight: 800;
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            line-height: 1;
+            font-variation-settings: 'wght' 800, 'wdth' 100;
+            writing-mode: horizontal-tb;
             text-align: center;
+            letter-spacing: -0.05em;
+            flex: 1;
+            min-height: 60px;
+        }
+
+        .section-stats {
+            padding: 15px 4px 10px 4px;
+            font-size: 1rem;
+            font-weight: 500;
+            line-height: 1.4;
+            text-align: center;
+            width: 100%;
+            background: transparent;
+        }
+
+        .section-stats-line {
+            margin: 3px 0;
+            font-size: 1em;
+            font-weight: 500;
+            text-align: center;
+            opacity: 0.85;
+            letter-spacing: 0.02em;
+        }
+
+        .section-stats-line:nth-child(1) {
+            height: 0;
+            display: none;
+        }
+
+        /* Labels NS/EO - subtle */
+        .section-stats-line:nth-child(2),
+        .section-stats-line:nth-child(4) {
+            font-size: 0.9em;
+            font-weight: 600;
+            opacity: 0.75;
+            letter-spacing: 0.1em;
+        }
+
+        /* Values - emphasized */
+        .section-stats-line:nth-child(3),
+        .section-stats-line:nth-child(5) {
+            font-weight: 700;
+            font-size: 1.3em;
+            opacity: 1;
+        }
+
+        /* Section-specific text colors with nuances */
+        .section-a .section-stats-line {
+            color: #d8b4fe; /* Light purple - nuance of section A violet */
+            text-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+        }
+        .section-a .section-stats-line:nth-child(3),
+        .section-a .section-stats-line:nth-child(5) {
+            color: #f3e8ff; /* Brighter purple for values */
+        }
+
+        .section-b .section-stats-line {
+            color: #fbcfe8; /* Light pink - nuance of section B rose */
+            text-shadow: 0 0 10px rgba(236, 72, 153, 0.5);
+        }
+        .section-b .section-stats-line:nth-child(3),
+        .section-b .section-stats-line:nth-child(5) {
+            color: #fce7f3; /* Brighter pink for values */
+        }
+
+        .section-c .section-stats-line {
+            color: #a5f3fc; /* Light cyan - nuance of section C */
+            text-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+        }
+        .section-c .section-stats-line:nth-child(3),
+        .section-c .section-stats-line:nth-child(5) {
+            color: #cffafe; /* Brighter cyan for values */
         }
 
         .section-title {
@@ -298,10 +584,16 @@
         .section-container {
             display: flex;
             margin-bottom: 30px;
-            align-items: flex-start;
+            align-items: stretch;
         }
 
         .section-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tables-grid {
             flex: 1;
         }
 
@@ -340,87 +632,136 @@
             transform: scale(1.02);
         }
 
-        /* Section colors */
+        /* Drag and drop destination styling */
+        .table-card.drag-target {
+            border: 2px solid #a855f7 !important;
+            border-radius: 18px !important;
+            box-shadow: 0 8px 30px rgba(168, 85, 247, 0.5) !important;
+            transform: scale(1.03);
+            background: rgba(168, 85, 247, 0.15) !important;
+        }
+
+        .section-b .table-card.drag-target {
+            border-color: #ec4899 !important;
+            box-shadow: 0 8px 30px rgba(236, 72, 153, 0.5) !important;
+            background: rgba(236, 72, 153, 0.15) !important;
+        }
+
+        .section-c .table-card.drag-target {
+            border-color: #06b6d4 !important;
+            box-shadow: 0 8px 30px rgba(6, 182, 212, 0.5) !important;
+            background: rgba(6, 182, 212, 0.15) !important;
+        }
+
+        /* Section colors matching Kibbitz Corner aesthetic */
         .section-a .section-title,
         .section-a .section-banner {
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            background: linear-gradient(135deg, #a855f7 0%, #8b5cf6 100%);
         }
 
         .section-b .section-title,
         .section-b .section-banner {
-            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
         }
 
         .section-c .section-title,
         .section-c .section-banner {
-            background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
         }
 
-        .section-stats {
-            font-size: 0.9em;
-            text-align: center;
-            margin-bottom: 8px;
-            padding: 6px;
-            background: #f8f9fa;
-            border-radius: 4px;
-            border: 1px solid #dee2e6;
-        }
+        /* .section-stats is defined earlier with section-specific colors */
 
         .stat-line {
             margin: 2px 0;
         }
 
+        /* Relais - nuance subtile par rapport aux autres cartouches */
         .relais-position {
-            background: #fff3cd !important;
-            border-color: #ffc107 !important;
+            background: linear-gradient(135deg, rgba(60, 70, 60, 0.95) 0%, rgba(50, 60, 50, 0.95) 100%) !important;
+            border-color: rgba(120, 140, 100, 0.6) !important;
+        }
+
+        .section-a .relais-position {
+            background: linear-gradient(135deg, rgba(90, 60, 100, 0.4) 0%, rgba(70, 50, 80, 0.4) 100%) !important;
+            border-color: rgba(168, 85, 247, 0.4) !important;
+        }
+
+        .section-b .relais-position {
+            background: linear-gradient(135deg, rgba(100, 50, 70, 0.4) 0%, rgba(80, 40, 60, 0.4) 100%) !important;
+            border-color: rgba(236, 72, 153, 0.4) !important;
+        }
+
+        .section-c .relais-position {
+            background: linear-gradient(135deg, rgba(40, 80, 90, 0.4) 0%, rgba(30, 70, 80, 0.4) 100%) !important;
+            border-color: rgba(6, 182, 212, 0.4) !important;
         }
 
         .relais-position .empty-position {
-            color: #856404;
+            color: rgba(255,255,255,0.5);
             font-weight: bold;
+            font-style: italic;
         }
 
         .tables-grid {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px;
             width: 100%;
-            max-height: calc(100vh - 200px);
-            overflow-y: auto;
+            flex: 1;
         }
 
         .table-card {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 249, 250, 0.9));
-            border-radius: 6px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
             overflow: hidden;
-            transition: all 0.3s ease;
-            border: 1px solid #e9ecef;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(20px);
             display: flex;
-            min-height: 50px;
-            margin-bottom: 4px;
+            min-height: 60px;
+            margin-bottom: 8px;
+            position: relative;
         }
 
-        /* Section-specific table colors */
+        .table-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 16px;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: xor;
+            pointer-events: none;
+        }
+
+        /* Section-specific table colors matching section banners EXACTLY */
         .section-a .table-card {
-            border-left: 4px solid #4CAF50;
-            background: linear-gradient(135deg, rgba(76, 175, 80, 0.15), rgba(255, 255, 255, 0.9));
-            color: #212529;
-            box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+            border-left: 4px solid #a855f7;
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%);
+            color: #e0e0e0;
+            box-shadow: 0 4px 20px rgba(168, 85, 247, 0.25);
+            border: 1px solid rgba(168, 85, 247, 0.2);
         }
 
         .section-b .table-card {
-            border-left: 4px solid #2196F3;
-            background: linear-gradient(135deg, rgba(33, 150, 243, 0.15), rgba(255, 255, 255, 0.9));
-            color: #212529;
-            box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
+            border-left: 4px solid #ec4899;
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.15) 0%, rgba(219, 39, 119, 0.15) 100%);
+            color: #e0e0e0;
+            box-shadow: 0 4px 20px rgba(236, 72, 153, 0.25);
+            border: 1px solid rgba(236, 72, 153, 0.2);
         }
 
         .section-c .table-card {
-            border-left: 4px solid #FF9800;
-            background: linear-gradient(135deg, rgba(255, 152, 0, 0.15), rgba(255, 255, 255, 0.9));
-            color: #212529;
-            box-shadow: 0 2px 8px rgba(255, 152, 0, 0.2);
+            border-left: 4px solid #06b6d4;
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(8, 145, 178, 0.15) 100%);
+            color: #e0e0e0;
+            box-shadow: 0 4px 20px rgba(6, 182, 212, 0.25);
+            border: 1px solid rgba(6, 182, 212, 0.2);
         }
 
         /* Dark mode section table colors */
@@ -440,39 +781,76 @@
         }
 
         .table-card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        }
+
+        .section-a .table-card:hover {
+            box-shadow: 0 12px 40px rgba(168, 85, 247, 0.4);
+            border-color: rgba(168, 85, 247, 0.4);
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%);
+        }
+
+        .section-b .table-card:hover {
+            box-shadow: 0 12px 40px rgba(236, 72, 153, 0.4);
+            border-color: rgba(236, 72, 153, 0.4);
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.2) 0%, rgba(219, 39, 119, 0.2) 100%);
+        }
+
+        .section-c .table-card:hover {
+            box-shadow: 0 12px 40px rgba(6, 182, 212, 0.4);
+            border-color: rgba(6, 182, 212, 0.4);
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(8, 145, 178, 0.2) 100%);
         }
 
         .table-header {
-            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
             color: white;
-            padding: 8px 12px;
+            padding: 10px 12px;
             text-align: center;
-            font-weight: bold;
-            font-size: 1.2em;
+            font-weight: 600;
+            font-size: 1em;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 5px 5px 0 0;
+            border-radius: 14px 14px 0 0;
+            min-height: 40px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
-        /* Section-specific table header colors matching section banners */
+        /* Section-specific table header colors matching section banners EXACTLY */
         .section-a .table-header {
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            background: linear-gradient(135deg, #a855f7 0%, #8b5cf6 100%) !important;
+            color: #e0e0e0 !important;
+            font-weight: 700 !important;
+            text-shadow: none !important;
+            box-shadow: none !important;
+            border: none !important;
+            border-radius: 16px !important;
         }
 
         .section-b .table-header {
-            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            background: linear-gradient(135deg, #ec4899 0%, #db2777 100%) !important;
+            color: #e0e0e0 !important;
+            font-weight: 700 !important;
+            text-shadow: none !important;
+            box-shadow: none !important;
+            border: none !important;
+            border-radius: 16px !important;
         }
 
         .section-c .table-header {
-            background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%) !important;
+            color: #e0e0e0 !important;
+            font-weight: 700 !important;
+            text-shadow: none !important;
+            box-shadow: none !important;
+            border: none !important;
+            border-radius: 16px !important;
         }
 
-        /* Single section gets Section A styling */
-        .single-section .table-header {
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-        }
+        /* Single section inherits from section-a/b/c - no override needed */
+        /* Table headers now always follow their parent section color */
 
         .table-positions {
             display: flex;
@@ -532,24 +910,69 @@
             flex-direction: column;
             justify-content: center;
             position: relative;
+            position: relative;
             font-size: 0.9em;
         }
 
+        /* Hover équipes: bordure lumineuse + scintillement, pas de changement de background */
         .position:hover {
-            border-color: #8B5A96;
-            background: #f1f3f5;
+            border-color: rgba(255,255,255,0.6);
+            box-shadow: 0 0 12px rgba(255,255,255,0.3), inset 0 0 0 1px rgba(255,255,255,0.2);
+            animation: shimmer 1.5s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { box-shadow: 0 0 12px rgba(255,255,255,0.3), inset 0 0 0 1px rgba(255,255,255,0.2); }
+            50% { box-shadow: 0 0 18px rgba(255,255,255,0.5), inset 0 0 0 1px rgba(255,255,255,0.35); }
+        }
+
+        /* Hover couleurs par section */
+        .section-a .position:hover {
+            border-color: rgba(168, 85, 247, 0.8);
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+        }
+        .section-b .position:hover {
+            border-color: rgba(236, 72, 153, 0.8);
+            box-shadow: 0 0 15px rgba(236, 72, 153, 0.4);
+        }
+        .section-c .position:hover {
+            border-color: rgba(6, 182, 212, 0.8);
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
         }
 
         .position.dragging {
             opacity: 0.5;
             cursor: grabbing;
-            transform: rotate(5deg);
+            transform: rotate(3deg) scale(1.05);
         }
 
+        /* Drop target pendant le drag - avec IV visible */
         .position.drop-target {
-            border-color: #28a745;
-            background: #d4edda;
-            border-style: dashed;
+            border-color: rgba(39, 174, 96, 0.9);
+            border-width: 2px;
+            border-style: solid;
+            box-shadow: 0 0 20px rgba(39, 174, 96, 0.5);
+            animation: pulse-target 0.8s ease-in-out infinite;
+        }
+
+        @keyframes pulse-target {
+            0%, 100% { box-shadow: 0 0 15px rgba(39, 174, 96, 0.4); }
+            50% { box-shadow: 0 0 25px rgba(39, 174, 96, 0.7); }
+        }
+
+        /* IV overlay sur les destinations pendant le drag */
+        .position.drop-target::after {
+            content: attr(data-iv);
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            font-size: 0.75em;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            z-index: 10;
         }
 
         .position.similarity-green {
@@ -612,15 +1035,23 @@
         .player-name {
             font-weight: bold;
             color: #2c3e50;
-            font-size: 1.1em;
+            font-size: 1.4em;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            line-height: 1.3;
+            line-height: 1.4;
             display: flex;
             justify-content: space-between;
             align-items: center;
             letter-spacing: 0.5px;
+        }
+
+        /* Adaptive font size for long names */
+        .player-name.name-long {
+            font-size: 1.2em;
+        }
+        .player-name.name-very-long {
+            font-size: 1em;
         }
 
         .player-amount {
@@ -631,45 +1062,35 @@
         }
 
         /* Payment status colors */
-        .payment-full {
-            /* Normal colors - fully paid */
-        }
-
-        .payment-partial {
-            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%) !important;
-            border-color: #f39c12 !important;
+        .payment-full .player-name {
+            color: #27ae60 !important; /* Green for fully paid */
+            font-weight: 600;
         }
 
         .payment-partial .player-name {
-            color: #856404;
-        }
-
-        .payment-none {
-            background: linear-gradient(135deg, #f8d7da 0%, #fab1a0 100%) !important;
-            border-color: #e74c3c !important;
+            color: #f39c12 !important; /* Orange for partial payment */
+            font-weight: 600;
         }
 
         .payment-none .player-name {
-            color: #721c24;
+            color: #e74c3c !important; /* Red for no payment */
+            font-weight: 600;
         }
 
-        /* Dark mode payment colors */
-        .dark-mode .payment-partial {
-            background: linear-gradient(135deg, #6c5700 0%, #8b6914 100%) !important;
-            border-color: #d68910 !important;
-        }
-
+        /* Dark mode payment colors - FONT ONLY */
         .dark-mode .payment-partial .player-name {
-            color: #f7dc6f;
-        }
-
-        .dark-mode .payment-none {
-            background: linear-gradient(135deg, #6b1f21 0%, #a93226 100%) !important;
-            border-color: #cd6155 !important;
+            color: #f7dc6f !important;
+            font-weight: 600;
         }
 
         .dark-mode .payment-none .player-name {
-            color: #f1948a;
+            color: #f1948a !important;
+            font-weight: 600;
+        }
+
+        .dark-mode .payment-full .player-name {
+            color: #a7f3d0 !important; /* Emerald-200 for fully paid */
+            font-weight: 600;
         }
 
         .iv-total {
@@ -720,6 +1141,21 @@
             display: none;
         }
 
+        .position-indicator {
+            position: absolute;
+            top: 4px;
+            right: 6px;
+            font-size: 0.7em;
+            font-weight: 700;
+            opacity: 0.8;
+            z-index: 2;
+        }
+
+        .ns-text, .eo-text {
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
         .lock-icon {
             font-size: 1.2em;
             margin-bottom: 2px;
@@ -728,6 +1164,41 @@
         .ns-text {
             font-size: 0.8em;
             font-weight: bold;
+        }
+
+        /* Section-specific NS/EO text colors */
+        .section-a .ns-text,
+        .section-a .eo-text,
+        .section-a .position {
+            color: #e0e0e0;
+        }
+
+        .section-b .ns-text,
+        .section-b .eo-text,
+        .section-b .position {
+            color: #e0e0e0;
+        }
+
+        .section-c .ns-text,
+        .section-c .eo-text,
+        .section-c .position {
+            color: #e0e0e0;
+        }
+
+        /* Section-specific text shadows for better visibility */
+        .section-a .ns-text,
+        .section-a .eo-text {
+            text-shadow: 0 1px 3px rgba(168, 85, 247, 0.5);
+        }
+
+        .section-b .ns-text,
+        .section-b .eo-text {
+            text-shadow: 0 1px 3px rgba(236, 72, 153, 0.5);
+        }
+
+        .section-c .ns-text,
+        .section-c .eo-text {
+            text-shadow: 0 1px 3px rgba(6, 182, 212, 0.5);
         }
 
         .position:hover {
@@ -1012,10 +1483,7 @@
             margin: 5px 0;
         }
 
-        .player-name {
-            font-weight: bold;
-            color: #333;
-        }
+        /* .player-name defined earlier with larger font for readability */
 
         .player-info {
             font-size: 0.9em;
@@ -1160,22 +1628,15 @@
                     <div class="algo-control">
                         <label>Algo:</label>
                         <div class="button-group">
-                            <button id="algo147" class="algo-btn active" onclick="setAlgorithm('1-4-7')">1-4-7</button>
-                            <button id="algoNew" class="algo-btn" onclick="setAlgorithm('TBD')">TBD</button>
+                            <button id="algo147" class="algo-btn active" onclick="setAlgorithm('1-4-7')" title="Algorithme 1-4-7">147</button>
+                            <button id="algoNew" class="algo-btn" onclick="setAlgorithm('TBD')" title="Algorithme équilibré">?</button>
                         </div>
                     </div>
-                    <div class="old-section-control" style="display: none;">
-                        Sections: <select id="sectionCountSelect" onchange="changeSectionCount()">
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                        </select>
-                    </div>
-                    <button class="header-btn" onclick="toggleFullscreen()" id="fullscreenToggle">📺 Plein écran</button>
-                    <button class="fullscreen-exit" onclick="toggleFullscreen()" id="fullscreenExit" style="display: none;">✕</button>
-                    <button class="header-btn" onclick="showSetupView()">⚙️ Config</button>
-                    <button class="header-btn" onclick="window.print()">🖨️ Imprimer</button>
-                    <button class="header-btn" onclick="showConstraintControls()">🔒 NS</button>
+                    <span class="header-separator">|</span>
+                    <button class="header-btn" onclick="showConstraintControls()" title="Contraintes NS fixe">🔒</button>
+                    <button class="header-btn" onclick="window.print()" title="Imprimer">🖨</button>
+                    <span class="header-separator">|</span>
+                    <button class="fullscreen-exit" onclick="closeToConfig()" id="fullscreenExit" title="Retour config">✕</button>
                 </div>
             </div>
         </div>
@@ -1185,6 +1646,13 @@
             <div style="font-size: 0.8em; margin-bottom: 8px;" id="constraintCount">0 paire(s) marquée(s)</div>
             <button class="constraint-btn" onclick="redistributeWithConstraints()">🔄 Redistribuer</button>
             <button class="constraint-btn" onclick="clearConstraints()" style="background: #dc3545;">Effacer tout</button>
+        </div>
+
+        <!-- Cartouche de modifications en attente -->
+        <div class="pending-changes hidden" id="pendingChanges">
+            <span>⚠️ Modifications non appliquées</span>
+            <button class="regen-btn" onclick="applyPendingChanges()">✓ Appliquer</button>
+            <button class="cancel-btn" onclick="cancelPendingChanges()">✕ Annuler</button>
         </div>
 
         <div id="mitchellContainer" class="sections-grid">
@@ -2435,6 +2903,9 @@
             console.log('🔍 DEBUG: Calling renderMitchellDisplay...');
             renderMitchellDisplay();
             initializeSectionControls();
+
+            // Auto-enter fullscreen
+            setTimeout(() => enterFullscreen(), 100);
         }
 
         function showSetupView() {
@@ -2527,25 +2998,45 @@
                 const sectionName = currentSectionCount === 1 ? 'Section A' :
                     `Section ${String.fromCharCode(65 + sectionIndex)}`; // A, B, C...
 
-                const sectionClass = currentSectionCount === 1 ? 'section-a' :
-                    `section-${String.fromCharCode(97 + sectionIndex)}`; // section-a, section-b, section-c
+                // Always use the correct section class based on index (a, b, c)
+                const sectionClass = `section-${String.fromCharCode(97 + sectionIndex)}`; // section-a, section-b, section-c
 
-                // Calculate section statistics
-                const nsPairs = section.filter(table => table.ns).map(table => table.ns);
-                const eoPairs = section.filter(table => table.eo).map(table => table.eo);
+                // Calculate section statistics (exclude relais/null pairs)
+                const nsPairs = section.filter(table => table.ns && table.ns.combinedIV).map(table => table.ns);
+                const eoPairs = section.filter(table => table.eo && table.eo.combinedIV).map(table => table.eo);
 
+                // Calculate averages only from valid pairs
                 const nsAvgIV = nsPairs.length > 0 ?
-                    (nsPairs.reduce((sum, pair) => sum + pair.combinedIV, 0) / nsPairs.length).toFixed(1) : '0';
+                    (nsPairs.reduce((sum, pair) => sum + (pair.combinedIV || 0), 0) / nsPairs.length).toFixed(1) : '0';
                 const eoAvgIV = eoPairs.length > 0 ?
-                    (eoPairs.reduce((sum, pair) => sum + pair.combinedIV, 0) / eoPairs.length).toFixed(1) : '0';
+                    (eoPairs.reduce((sum, pair) => sum + (pair.combinedIV || 0), 0) / eoPairs.length).toFixed(1) : '0';
 
                 // Format du titre avec IV moyens harmonieusement répartis - ALWAYS show section banner
+                const sectionLetter = currentSectionCount === 1 ? 'A' : String.fromCharCode(65 + sectionIndex);
+                const tableCount = section.filter(t => t.ns || t.eo).length;
+
+                // Table count control only for multi-section - vertical layout
+                const tableCountControl = currentSectionCount > 1 ? `
+                    <div class="table-count-control">
+                        <button class="table-count-btn" onclick="adjustTableCount(${sectionIndex}, 1)" title="Plus de tables">▲</button>
+                        <div class="table-count-display">
+                            <span class="table-count-value">${tableCount}</span>
+                            <span class="table-icon">♠♥</span>
+                        </div>
+                        <button class="table-count-btn" onclick="adjustTableCount(${sectionIndex}, -1)" title="Moins de tables">▼</button>
+                    </div>
+                ` : '';
+
                 const sectionBanner =
                     `<div class="section-banner">
-                        <div class="section-name">${sectionName}</div>
-                        <div class="section-averages">
-                            <div>NS ~${nsAvgIV}</div>
-                            <div>EO ~${eoAvgIV}</div>
+                        ${tableCountControl}
+                        <div class="section-letter">${sectionLetter}</div>
+                        <div class="section-stats">
+                            <div class="section-stats-line"></div>
+                            <div class="section-stats-line">NS</div>
+                            <div class="section-stats-line">~${Math.round(parseFloat(nsAvgIV))}</div>
+                            <div class="section-stats-line">EO</div>
+                            <div class="section-stats-line">~${Math.round(parseFloat(eoAvgIV))}</div>
                         </div>
                      </div>`;
 
@@ -2675,9 +3166,39 @@
                 `;
             }
 
-            // Shorten names if too long
-            const name1 = pair.player1?.name?.split(' ').slice(-2).join(' ') || 'N/A';
-            const name2 = pair.player2?.name?.split(' ').slice(-2).join(' ') || 'N/A';
+            // Convert FFB names to INITIAL. NOM format
+            // FFB format: "NOM Prénom" -> output: "P. NOM"
+            // Examples: MARTIN Pierre -> P. MARTIN | DUPONT Jean-Claude -> J-C. DUPONT
+            function formatNameToInitial(fullName) {
+                if (!fullName || fullName === 'N/A') return 'N/A';
+                const parts = fullName.trim().split(' ').filter(p => p.length > 0);
+                if (parts.length === 0) return 'N/A';
+                if (parts.length === 1) return parts[0].toUpperCase() + '.';
+
+                // FFB format: first part is LASTNAME, rest is firstname(s)
+                const lastName = parts[0].toUpperCase();
+                const firstNameParts = parts.slice(1);
+
+                // Handle hyphenated first names or multiple first names
+                let initials = '';
+                for (let i = 0; i < firstNameParts.length; i++) {
+                    const namePart = firstNameParts[i];
+                    if (namePart.includes('-')) {
+                        // Hyphenated name like "Jean-Claude" -> "J-C"
+                        const hyphenatedParts = namePart.split('-');
+                        initials += hyphenatedParts.map(part => part.charAt(0).toUpperCase()).join('-');
+                    } else {
+                        // Regular name -> initial
+                        initials += namePart.charAt(0).toUpperCase();
+                        if (i < firstNameParts.length - 1) initials += '-';
+                    }
+                }
+
+                return `${initials}. ${lastName}`;
+            }
+
+            const name1 = formatNameToInitial(pair.player1?.name);
+            const name2 = formatNameToInitial(pair.player2?.name);
 
             const amount1 = pair.player1?.amount || 0;
             const amount2 = pair.player2?.amount || 0;
@@ -2692,19 +3213,23 @@
                      data-table="${tableNumber}"
                      data-pos="${position}"
                      data-pair-id="${pair.id}"
+                     data-iv="IV: ${pair.combinedIV}"
                      onclick="toggleCardDetails(this, event); toggleNSConstraint('${pair.id}')">
                     <div class="pair-info">
+                        <div class="position-indicator">
+                            <div class="${position}-text">${position.toUpperCase()}</div>
+                        </div>
                         <div class="constraint-indicator">
                             <div class="lock-icon">🔒</div>
                             <div class="ns-text">NS</div>
                         </div>
                         <div class="player-names">
-                            <div class="player-name">
+                            <div class="player-name ${name1.length > 15 ? (name1.length > 20 ? 'name-very-long' : 'name-long') : ''}">
                                 <span>${name1}</span>
                                 <span class="player-amount">${amount1.toFixed(2)}€</span>
                                 ${amount1 < (entryFee || 5.0) ? `<span class="payment-info">⚠️ Manque ${((entryFee || 5.0) - amount1).toFixed(2)}€</span>` : ''}
                             </div>
-                            <div class="player-name">
+                            <div class="player-name ${name2.length > 15 ? (name2.length > 20 ? 'name-very-long' : 'name-long') : ''}">
                                 <span>${name2}</span>
                                 <span class="player-amount">${amount2.toFixed(2)}€</span>
                                 ${amount2 < (entryFee || 5.0) ? `<span class="payment-info">⚠️ Manque ${((entryFee || 5.0) - amount2).toFixed(2)}€</span>` : ''}
@@ -2869,54 +3394,31 @@
             });
         }
 
-        // Fullscreen functionality
-        function toggleFullscreen() {
-            const elem = document.documentElement;
-            const toggleBtn = document.getElementById('fullscreenToggle');
-            const exitBtn = document.getElementById('fullscreenExit');
-
-            if (!document.fullscreenElement) {
-                elem.requestFullscreen().then(() => {
-                    updateFullscreenUI(true);
-                }).catch(err => {
-                    console.error('Error entering fullscreen:', err);
-                });
-            } else {
-                document.exitFullscreen().then(() => {
-                    updateFullscreenUI(false);
-                }).catch(err => {
+        // Close to config view
+        function closeToConfig() {
+            // Exit fullscreen if active
+            if (document.fullscreenElement) {
+                document.exitFullscreen().catch(err => {
                     console.error('Error exiting fullscreen:', err);
                 });
             }
+            // Return to setup view
+            showSetupView();
         }
 
-        function updateFullscreenUI(isFullscreen) {
-            const toggleBtn = document.getElementById('fullscreenToggle');
-            const exitBtn = document.getElementById('fullscreenExit');
-            const headerBtns = document.querySelectorAll('.header-btn:not(#fullscreenToggle)');
-            const buttonGroups = document.querySelectorAll('.section-control, .algo-control, .old-section-control');
-
-            if (isFullscreen) {
-                toggleBtn.style.display = 'none';
-                exitBtn.style.display = 'block';
-                // Keep buttons visible in fullscreen
-                headerBtns.forEach(btn => btn.style.display = 'block');
-                buttonGroups.forEach(group => group.style.display = 'block');
-                // Keep old section control hidden
-                document.querySelector('.old-section-control').style.display = 'none';
-            } else {
-                toggleBtn.style.display = 'block';
-                exitBtn.style.display = 'none';
-                headerBtns.forEach(btn => btn.style.display = 'block');
-                buttonGroups.forEach(group => group.style.display = 'block');
-                // Keep old section control hidden
-                document.querySelector('.old-section-control').style.display = 'none';
+        // Enter fullscreen automatically when showing mitchell view
+        function enterFullscreen() {
+            const elem = document.documentElement;
+            if (!document.fullscreenElement) {
+                elem.requestFullscreen().catch(err => {
+                    console.log('Fullscreen not available:', err.message);
+                });
             }
         }
 
         // Listen for fullscreen changes
         document.addEventListener('fullscreenchange', function() {
-            updateFullscreenUI(document.fullscreenElement !== null);
+            console.log('Fullscreen changed:', document.fullscreenElement !== null);
         });
 
         // Section configuration functions
@@ -2948,17 +3450,462 @@
         }
 
         function setSectionCount(count) {
+            console.log('🔄 setSectionCount called with:', count);
+
             // Remove active class from all section buttons
             document.querySelectorAll('.section-btn').forEach(btn => btn.classList.remove('active'));
 
             // Add active class to clicked button
-            document.getElementById('sections' + count).classList.add('active');
+            const btn = document.getElementById('sections' + count);
+            if (btn) btn.classList.add('active');
+
+            // Update global section count directly
+            currentSectionCount = count;
 
             // Update hidden select for compatibility
-            document.getElementById('sectionCountSelect').value = count;
+            const select = document.getElementById('sectionCountSelect');
+            if (select) select.value = count;
 
-            // Trigger section count change without refresh
-            changeSectionCount();
+            // Regenerate distribution if we have data
+            if (parsedPairs && parsedPairs.length > 0) {
+                console.log('🔄 Regenerating with', count, 'sections');
+                try {
+                    mitchellData = mitchellDistribution(parsedPairs, count, nsConstraints.size > 0);
+                    renderMitchellDisplay();
+                    console.log('✅ Redistribution complete');
+                } catch (error) {
+                    console.error('❌ Error redistributing:', error);
+                }
+            }
+        }
+
+        // Track pending changes
+        let pendingTableCounts = null;
+        let originalTableCounts = null;
+
+        function adjustTableCount(sectionIndex, delta) {
+            if (currentSectionCount <= 1) return;
+
+            // Initialize pending counts if not set
+            if (!pendingTableCounts) {
+                pendingTableCounts = mitchellData.map(section =>
+                    section.filter(t => t.ns || t.eo).length
+                );
+                originalTableCounts = [...pendingTableCounts];
+            }
+
+            const minTables = 2;
+            const totalPairs = parsedPairs.length;
+            const maxTablesPerSection = Math.ceil(totalPairs / currentSectionCount);
+
+            // Calculate new count
+            let newCount = pendingTableCounts[sectionIndex] + delta;
+            newCount = Math.max(minTables, Math.min(maxTablesPerSection, newCount));
+
+            if (newCount === pendingTableCounts[sectionIndex]) return;
+
+            // Adjust adjacent section cyclically
+            const nextSectionIndex = (sectionIndex + 1) % currentSectionCount;
+            const counterDelta = -delta;
+
+            pendingTableCounts[sectionIndex] = newCount;
+            pendingTableCounts[nextSectionIndex] = Math.max(minTables,
+                pendingTableCounts[nextSectionIndex] + counterDelta);
+
+            // Update display and check if we're back to original
+            updateTableCountDisplay();
+            checkPendingChangesStatus();
+        }
+
+        function updateTableCountDisplay() {
+            if (!pendingTableCounts || !originalTableCounts) return;
+
+            document.querySelectorAll('.table-count-value').forEach((el, index) => {
+                if (pendingTableCounts[index] !== undefined) {
+                    el.textContent = pendingTableCounts[index];
+
+                    // Add/remove flash class based on modification status
+                    if (pendingTableCounts[index] !== originalTableCounts[index]) {
+                        el.classList.add('modified');
+                    } else {
+                        el.classList.remove('modified');
+                    }
+                }
+            });
+        }
+
+        function checkPendingChangesStatus() {
+            if (!pendingTableCounts || !originalTableCounts) return;
+
+            // Check if all values are back to original
+            const allOriginal = pendingTableCounts.every((count, index) =>
+                count === originalTableCounts[index]
+            );
+
+            const cartouche = document.getElementById('pendingChanges');
+            if (allOriginal) {
+                // Hide cartouche and reset
+                if (cartouche) cartouche.classList.add('hidden');
+                // Remove all flash effects
+                document.querySelectorAll('.table-count-value.modified').forEach(el => {
+                    el.classList.remove('modified');
+                });
+            } else {
+                // Show cartouche
+                if (cartouche) cartouche.classList.remove('hidden');
+            }
+        }
+
+        function showPendingChanges() {
+            const cartouche = document.getElementById('pendingChanges');
+            if (cartouche) {
+                cartouche.classList.remove('hidden');
+            }
+        }
+
+        function hidePendingChanges() {
+            const cartouche = document.getElementById('pendingChanges');
+            if (cartouche) {
+                cartouche.classList.add('hidden');
+            }
+            // Remove all flash effects
+            document.querySelectorAll('.table-count-value.modified').forEach(el => {
+                el.classList.remove('modified');
+            });
+            pendingTableCounts = null;
+            originalTableCounts = null;
+        }
+
+        function applyPendingChanges() {
+            if (pendingTableCounts && parsedPairs.length > 0) {
+                console.log('🔄 Applying pending table counts:', pendingTableCounts, 'Algo:', currentAlgorithm);
+                try {
+                    // Use smart distribution which respects current algorithm choice
+                    mitchellData = smartDistribution(parsedPairs, pendingTableCounts, nsConstraints.size > 0);
+                    renderMitchellDisplay();
+                    console.log('✅ Redistribution appliquée avec algo:', currentAlgorithm);
+                } catch (error) {
+                    console.error('❌ Erreur:', error);
+                    // Fallback to standard distribution
+                    mitchellData = mitchellDistribution(parsedPairs, currentSectionCount, nsConstraints.size > 0);
+                    renderMitchellDisplay();
+                }
+            }
+            hidePendingChanges();
+        }
+
+        function cancelPendingChanges() {
+            // Restore original display
+            if (originalTableCounts) {
+                pendingTableCounts = [...originalTableCounts];
+                updateTableCountDisplay();
+            }
+            hidePendingChanges();
+            renderMitchellDisplay();
+        }
+
+        // Custom distribution with specific table counts per section - Algo 147
+        function mitchellDistributionWithTableCounts(pairs, tableCounts, useConstraints) {
+            console.log('🔄 MITCHELL 147 avec table counts:', tableCounts, 'Contraintes NS:', nsConstraints.size);
+
+            const numSections = tableCounts.length;
+
+            // Sort pairs by IV and add metadata
+            const sortedPairs = [...pairs].sort((a, b) => calculateCombinedIV(b) - calculateCombinedIV(a));
+            sortedPairs.forEach((pair, i) => {
+                if (!pair.id) pair.id = `pair_${i}`;
+                pair.combinedIV = calculateCombinedIV(pair);
+                pair.nsConstraint = nsConstraints.has(pair.id);
+            });
+
+            // Separate NS-constrained pairs from free pairs
+            const nsConstrainedPairs = sortedPairs.filter(p => p.nsConstraint);
+            const freePairs = sortedPairs.filter(p => !p.nsConstraint);
+
+            console.log('🔒 NS Contraints:', nsConstrainedPairs.length, 'Libres:', freePairs.length);
+
+            // Create sections with specified table counts
+            const sections = tableCounts.map(count => {
+                const sectionTables = [];
+                for (let i = 0; i < count; i++) {
+                    sectionTables.push({
+                        tableNumber: i + 1,
+                        ns: null,
+                        eo: null
+                    });
+                }
+                return sectionTables;
+            });
+
+            // Step 1: Place NS-constrained pairs first (in NS positions)
+            let constraintIdx = 0;
+            for (let sectionIdx = 0; sectionIdx < numSections && constraintIdx < nsConstrainedPairs.length; sectionIdx++) {
+                const section = sections[sectionIdx];
+                const tablesInSection = section.length;
+
+                // Distribute constrained pairs using Mitchell 1-4-7 pattern within section
+                const mitchellSeq = generateMitchellSequence(tablesInSection);
+
+                for (let i = 0; i < mitchellSeq.length && constraintIdx < nsConstrainedPairs.length; i++) {
+                    const tableNum = mitchellSeq[i];
+                    const table = section[tableNum - 1];
+
+                    if (table && !table.ns) {
+                        table.ns = nsConstrainedPairs[constraintIdx++];
+                        console.log(`🔒 NS Fixe: Section ${sectionIdx}, Table ${tableNum}`);
+                    }
+                }
+            }
+
+            // Step 2: Fill remaining positions with free pairs using 1-4-7 pattern
+            let freeIdx = 0;
+
+            for (let sectionIdx = 0; sectionIdx < numSections; sectionIdx++) {
+                const section = sections[sectionIdx];
+                const tablesInSection = section.length;
+                const mitchellSeq = generateMitchellSequence(tablesInSection);
+
+                // Fill NS positions first (following Mitchell sequence)
+                for (let i = 0; i < mitchellSeq.length && freeIdx < freePairs.length; i++) {
+                    const tableNum = mitchellSeq[i];
+                    const table = section[tableNum - 1];
+
+                    if (table && !table.ns) {
+                        table.ns = freePairs[freeIdx++];
+                    }
+                }
+
+                // Then fill EO positions (following Mitchell sequence)
+                for (let i = 0; i < mitchellSeq.length && freeIdx < freePairs.length; i++) {
+                    const tableNum = mitchellSeq[i];
+                    const table = section[tableNum - 1];
+
+                    if (table && !table.eo) {
+                        table.eo = freePairs[freeIdx++];
+                    }
+                }
+            }
+
+            console.log('✅ Distribution 147 terminée');
+            return sections;
+        }
+
+        // =====================================================
+        // NOUVEL ALGORITHME ÉQUILIBRÉ (?)
+        // Objectif: minimiser les différentiels d'IV entre sections et lignes NS/EO
+        // Méthode: Distribution en serpentin avec équilibrage
+        // =====================================================
+
+        let currentAlgorithm = '1-4-7'; // Default
+
+        function balancedDistribution(pairs, tableCounts, useConstraints) {
+            console.log('🎯 ALGO ÉQUILIBRÉ: Démarrage avec', pairs.length, 'paires');
+            console.log('📊 Table counts:', tableCounts);
+
+            const numSections = tableCounts.length;
+
+            // Sort pairs by IV DESC
+            const sortedPairs = [...pairs].sort((a, b) => calculateCombinedIV(b) - calculateCombinedIV(a));
+            sortedPairs.forEach((pair, i) => {
+                if (!pair.id) pair.id = `pair_${i}`;
+                pair.combinedIV = calculateCombinedIV(pair);
+                pair.nsConstraint = nsConstraints.has(pair.id);
+            });
+
+            // Separate constrained from free pairs
+            const nsConstrainedPairs = sortedPairs.filter(p => p.nsConstraint);
+            const freePairs = sortedPairs.filter(p => !p.nsConstraint);
+
+            // Create sections with specified table counts
+            const sections = tableCounts.map(count => {
+                const sectionTables = [];
+                for (let i = 0; i < count; i++) {
+                    sectionTables.push({
+                        tableNumber: i + 1,
+                        ns: null,
+                        eo: null
+                    });
+                }
+                return sectionTables;
+            });
+
+            // Calculate total positions per section (NS + EO)
+            const positionsPerSection = tableCounts.map(count => count * 2);
+            const totalPositions = positionsPerSection.reduce((a, b) => a + b, 0);
+
+            console.log('📊 Positions par section:', positionsPerSection);
+
+            // Step 1: Place NS-constrained pairs in NS positions (distribute across sections)
+            if (nsConstrainedPairs.length > 0) {
+                let constraintIdx = 0;
+                // Distribute evenly across sections using serpentin
+                const sectionOrder = generateSerpentinOrder(numSections, nsConstrainedPairs.length);
+
+                for (let i = 0; i < sectionOrder.length && constraintIdx < nsConstrainedPairs.length; i++) {
+                    const sectionIdx = sectionOrder[i];
+                    const section = sections[sectionIdx];
+
+                    // Find first empty NS position in this section
+                    for (let tableIdx = 0; tableIdx < section.length; tableIdx++) {
+                        if (!section[tableIdx].ns) {
+                            section[tableIdx].ns = nsConstrainedPairs[constraintIdx++];
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Step 2: Distribute free pairs using "serpentin équilibré"
+            // Alternate between sections and NS/EO to balance IV
+
+            // Build list of all empty positions: {section, table, position (ns/eo)}
+            const emptyPositions = [];
+            for (let s = 0; s < numSections; s++) {
+                for (let t = 0; t < sections[s].length; t++) {
+                    if (!sections[s][t].ns) emptyPositions.push({ s, t, pos: 'ns' });
+                }
+                for (let t = 0; t < sections[s].length; t++) {
+                    if (!sections[s][t].eo) emptyPositions.push({ s, t, pos: 'eo' });
+                }
+            }
+
+            // Sort positions to create balanced serpentin:
+            // Round-robin: Section 0 NS, Section 1 NS, Section 2 NS, Section 0 EO, Section 1 EO...
+            // Then snake back for next round
+            const balancedPositions = createBalancedPositionOrder(sections, numSections);
+
+            // Place free pairs in balanced order
+            let freeIdx = 0;
+            for (const pos of balancedPositions) {
+                if (freeIdx >= freePairs.length) break;
+
+                const table = sections[pos.s][pos.t];
+                if (pos.pos === 'ns' && !table.ns) {
+                    table.ns = freePairs[freeIdx++];
+                } else if (pos.pos === 'eo' && !table.eo) {
+                    table.eo = freePairs[freeIdx++];
+                }
+            }
+
+            // Log statistics
+            logDistributionStats(sections);
+
+            return sections;
+        }
+
+        // Generate serpentin order for distributing across sections
+        function generateSerpentinOrder(numSections, count) {
+            const order = [];
+            let forward = true;
+
+            while (order.length < count) {
+                if (forward) {
+                    for (let s = 0; s < numSections && order.length < count; s++) {
+                        order.push(s);
+                    }
+                } else {
+                    for (let s = numSections - 1; s >= 0 && order.length < count; s--) {
+                        order.push(s);
+                    }
+                }
+                forward = !forward;
+            }
+
+            return order;
+        }
+
+        // Create balanced position order for optimal IV distribution
+        function createBalancedPositionOrder(sections, numSections) {
+            const positions = [];
+
+            // Count max tables across sections
+            const maxTables = Math.max(...sections.map(s => s.length));
+
+            // Serpentin: distribute by table index across sections, alternating direction
+            // This ensures top IV pairs are spread across sections and NS/EO
+
+            // First pass: All NS positions in serpentin
+            for (let t = 0; t < maxTables; t++) {
+                const forward = t % 2 === 0;
+                if (forward) {
+                    for (let s = 0; s < numSections; s++) {
+                        if (t < sections[s].length && !sections[s][t].ns) {
+                            positions.push({ s, t, pos: 'ns' });
+                        }
+                    }
+                } else {
+                    for (let s = numSections - 1; s >= 0; s--) {
+                        if (t < sections[s].length && !sections[s][t].ns) {
+                            positions.push({ s, t, pos: 'ns' });
+                        }
+                    }
+                }
+            }
+
+            // Second pass: All EO positions in serpentin (reversed direction)
+            for (let t = 0; t < maxTables; t++) {
+                const forward = t % 2 === 1; // Inverted from NS
+                if (forward) {
+                    for (let s = 0; s < numSections; s++) {
+                        if (t < sections[s].length && !sections[s][t].eo) {
+                            positions.push({ s, t, pos: 'eo' });
+                        }
+                    }
+                } else {
+                    for (let s = numSections - 1; s >= 0; s--) {
+                        if (t < sections[s].length && !sections[s][t].eo) {
+                            positions.push({ s, t, pos: 'eo' });
+                        }
+                    }
+                }
+            }
+
+            return positions;
+        }
+
+        // Log distribution statistics for debugging
+        function logDistributionStats(sections) {
+            console.log('📊 === STATISTIQUES DE DISTRIBUTION ===');
+
+            for (let s = 0; s < sections.length; s++) {
+                const section = sections[s];
+                let nsTotal = 0, eoTotal = 0, nsCount = 0, eoCount = 0;
+
+                for (const table of section) {
+                    if (table.ns) { nsTotal += table.ns.combinedIV || 0; nsCount++; }
+                    if (table.eo) { eoTotal += table.eo.combinedIV || 0; eoCount++; }
+                }
+
+                const nsAvg = nsCount > 0 ? (nsTotal / nsCount).toFixed(1) : 0;
+                const eoAvg = eoCount > 0 ? (eoTotal / eoCount).toFixed(1) : 0;
+                const sectionTotal = nsTotal + eoTotal;
+                const diff = Math.abs(nsTotal - eoTotal);
+
+                console.log(`Section ${String.fromCharCode(65 + s)}: Total=${sectionTotal}, NS=${nsTotal}(~${nsAvg}), EO=${eoTotal}(~${eoAvg}), Diff=${diff}`);
+            }
+
+            // Calculate global balance
+            const sectionTotals = sections.map(section => {
+                let total = 0;
+                for (const table of section) {
+                    if (table.ns) total += table.ns.combinedIV || 0;
+                    if (table.eo) total += table.eo.combinedIV || 0;
+                }
+                return total;
+            });
+
+            const maxSection = Math.max(...sectionTotals);
+            const minSection = Math.min(...sectionTotals);
+            console.log(`📊 Écart entre sections: ${maxSection - minSection} (Max: ${maxSection}, Min: ${minSection})`);
+        }
+
+        // Wrapper function that chooses algorithm based on current selection
+        function smartDistribution(pairs, tableCounts, useConstraints) {
+            if (currentAlgorithm === '1-4-7') {
+                return mitchellDistributionWithTableCounts(pairs, tableCounts, useConstraints);
+            } else {
+                return balancedDistribution(pairs, tableCounts, useConstraints);
+            }
         }
 
         function setAlgorithm(algo) {
@@ -2968,15 +3915,26 @@
             // Add active class to clicked button
             if (algo === '1-4-7') {
                 document.getElementById('algo147').classList.add('active');
+                currentAlgorithm = '1-4-7';
             } else {
                 document.getElementById('algoNew').classList.add('active');
+                currentAlgorithm = 'balanced';
             }
 
             // Store algorithm preference
             localStorage.setItem('bridgeAlgorithm', algo);
 
-            // Show notification
-            showStatus(`Algorithme changé: ${algo}`, 'info');
+            // Regenerate if we have data
+            if (parsedPairs && parsedPairs.length > 0) {
+                const tableCounts = mitchellData.map(section =>
+                    section.filter(t => t.ns || t.eo).length
+                );
+                mitchellData = smartDistribution(parsedPairs, tableCounts, nsConstraints.size > 0);
+                renderMitchellDisplay();
+                showStatus(`Algorithme ${algo === '1-4-7' ? 'Mitchell 1-4-7' : 'Équilibré'} appliqué`, 'success');
+            } else {
+                showStatus(`Algorithme changé: ${algo}`, 'info');
+            }
         }
 
         // Toggle card details display
@@ -3004,6 +3962,16 @@
             if (selector && currentSectionCount) {
                 selector.value = currentSectionCount.toString();
             }
+        }
+
+        // Add drag target styling
+        function addDragTargetStyling(cardElement) {
+            cardElement.classList.add('drag-target');
+        }
+
+        // Remove drag target styling
+        function removeDragTargetStyling(cardElement) {
+            cardElement.classList.remove('drag-target');
         }
 
         // Constraint system functions

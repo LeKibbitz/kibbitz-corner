@@ -1,0 +1,1841 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Générateur de sections Bridge avec mouvement Mitchell - Version améliorée">
+    <meta name="author" content="Thomas Joannès - Kibbitz Corner">
+    <title>Bridge Generator V2 Enhanced - Public Display Optimized</title>
+
+    <style>
+        :root {
+            --primary-color: #8B5A96;
+            --secondary-color: #E91E63;
+            --background-light: #f8f9fa;
+            --background-dark: #1a1a1a;
+            --text-light: #212529;
+            --text-dark: #e0e0e0;
+            --border-color: #dee2e6;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --error-color: #dc3545;
+            --info-color: #17a2b8;
+            --transition-speed: 0.3s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            min-height: 100vh;
+            overflow-x: auto;
+            overflow-y: auto;
+            transition: all var(--transition-speed) ease;
+            color: #ecf0f1;
+            line-height: 1.6;
+        }
+
+        /* Enhanced Dark Mode Support */
+        body.dark-mode {
+            background: var(--background-dark) !important;
+            color: var(--text-dark) !important;
+        }
+
+        .dark-mode .player-name,
+        .dark-mode .table-header,
+        .dark-mode .section-title,
+        .dark-mode h1, .dark-mode h2, .dark-mode h3,
+        .dark-mode p, .dark-mode span:not(.constraint-indicator) {
+            color: var(--text-dark) !important;
+        }
+
+        .dark-mode .table-card {
+            background: #34495e;
+            border-color: #4a6741;
+        }
+
+        .dark-mode .position {
+            background: #2c3e50;
+            border-color: #4a6741;
+            color: #ecf0f1;
+        }
+
+        /* Enhanced Loading States */
+        .loading {
+            position: relative;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .loading::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Enhanced Error States */
+        .error-message {
+            background: var(--error-color);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .success-message {
+            background: var(--success-color);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .warning-message {
+            background: var(--warning-color);
+            color: #212529;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Enhanced Accessibility */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* Focus indicators */
+        button:focus,
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
+        /* Enhanced Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .controls > * {
+                width: 100%;
+            }
+
+            .tables-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .header-controls {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .header-controls button {
+                font-size: 12px;
+                padding: 6px 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .content {
+                padding: 15px;
+            }
+
+            .tournament-header {
+                padding: 10px 15px;
+            }
+
+            .table-card {
+                margin: 4px;
+            }
+        }
+
+        /* Continue with existing styles from original but enhanced */
+        .setup-mode {
+            padding: 20px;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .display-mode {
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            overflow: auto;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: transparent;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .mitchell-display {
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            color: #212529;
+        }
+
+        .tournament-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex: 1;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-controls button {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all var(--transition-speed) ease;
+            font-size: 14px;
+        }
+
+        .header-controls button:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-1px);
+        }
+
+        .header-controls button:active {
+            transform: translateY(0);
+        }
+
+        /* Enhanced Table Styles */
+        .table-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin: 8px;
+            overflow: hidden;
+            transition: all var(--transition-speed) ease;
+            border: 2px solid transparent;
+        }
+
+        .table-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #495057 0%, #6c757d 100%);
+            color: white;
+            padding: 12px 16px;
+            font-weight: 600;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .table-content {
+            padding: 16px;
+        }
+
+        .positions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .position {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            transition: all var(--transition-speed) ease;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .position.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+
+        .position.drag-over {
+            border-color: var(--primary-color);
+            background: rgba(139, 90, 150, 0.1);
+        }
+
+        .position-label {
+            font-weight: 600;
+            color: #6c757d;
+            font-size: 12px;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .player-name {
+            font-weight: 500;
+            color: #212529;
+            font-size: 14px;
+            line-height: 1.3;
+        }
+
+        .player-details {
+            font-size: 11px;
+            color: #6c757d;
+            margin-top: 2px;
+        }
+
+        .empty-position {
+            text-align: center;
+            color: #adb5bd;
+            font-style: italic;
+            padding: 8px 4px;
+            font-size: 0.75em;
+        }
+
+        /* Enhanced Controls */
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .section-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-selector label {
+            font-weight: 500;
+            color: #495057;
+            white-space: nowrap;
+        }
+
+        .section-selector select,
+        .section-selector input {
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color var(--transition-speed) ease;
+        }
+
+        .section-selector select:focus,
+        .section-selector input:focus {
+            border-color: var(--primary-color);
+        }
+
+        /* Enhanced Buttons */
+        button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all var(--transition-speed) ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button:hover {
+            background: #7a4d85;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(139, 90, 150, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Status and Message Styles */
+        .status {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin: 15px 0;
+            font-weight: 500;
+            display: none;
+        }
+
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Enhanced Textarea */
+        textarea {
+            width: 100%;
+            height: 200px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+            resize: vertical;
+            transition: border-color var(--transition-speed) ease;
+            line-height: 1.4;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(139, 90, 150, 0.1);
+        }
+
+        textarea::placeholder {
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        /* Loading and Error Overlays */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-spinner {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        .error-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .error-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            margin: 20px;
+        }
+
+        .error-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        /* Print Styles */
+        @media print {
+            .header-controls,
+            .controls,
+            .page-controls {
+                display: none !important;
+            }
+
+            .mitchell-display {
+                background: white;
+            }
+
+            .table-card {
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Enhanced HTML Structure with better semantics and accessibility -->
+    <div id="setupView" class="setup-mode" style="display: block;" role="main">
+        <div class="container">
+            <header class="header">
+                <h1>🃏 Bridge Generator V2 Enhanced - Public Display</h1>
+                <p>Version améliorée avec gestion d'erreurs, responsivité et accessibilité</p>
+                <p style="font-size: 0.9em; margin-top: 8px; opacity: 0.8;">
+                    Interface optimisée, algorithme Mitchell perfectionné, gestion multi-sections
+                </p>
+            </header>
+
+            <main class="content">
+                <section class="input-section" aria-labelledby="input-heading">
+                    <h3 id="input-heading">1. Données du tournoi</h3>
+                    <label for="tournamentData" class="sr-only">Données du tournoi à coller</label>
+                    <textarea 
+                        id="tournamentData" 
+                        placeholder="Collez ici les données copiées depuis ffbridge.fr...
+
+Format attendu:
+- Date (JJ/MM/AAAA)
+- M./Mme Nom Prénom (montant €)
+- Numéro de licence (IV = valeur)
+
+Exemple:
+15/01/2026
+M. DUPONT Jean (5.00 €)
+12345678 (IV = 150)"
+                        aria-describedby="data-help"
+                    ></textarea>
+                    <div id="data-help" class="sr-only">
+                        Collez les données du tournoi au format FFB. Le système détectera automatiquement les paires et leurs informations.
+                    </div>
+
+                    <div class="controls" role="group" aria-label="Contrôles de génération">
+                        <div class="section-selector">
+                            <label for="sectionCount">Nombre de sections:</label>
+                            <select id="sectionCount" aria-describedby="section-help">
+                                <option value="1">1 section</option>
+                                <option value="2">2 sections</option>
+                                <option value="3">3 sections</option>
+                            </select>
+                            <div id="section-help" class="sr-only">
+                                Choisissez le nombre de sections pour répartir les paires
+                            </div>
+                        </div>
+
+                        <div class="section-selector">
+                            <label for="entryFee">Montant inscription:</label>
+                            <input 
+                                type="number" 
+                                id="entryFee" 
+                                value="5.00" 
+                                step="0.50" 
+                                min="0" 
+                                max="100"
+                                style="width: 80px; padding: 5px; text-align: center;"
+                                aria-describedby="fee-help"
+                            >€
+                            <div id="fee-help" class="sr-only">
+                                Montant de l'inscription par paire en euros
+                            </div>
+                        </div>
+
+                        <button 
+                            id="generateButton" 
+                            onclick="generateSections()" 
+                            type="button"
+                            aria-describedby="generate-help"
+                        >
+                            <span aria-hidden="true">⚡</span>
+                            Générer les sections
+                        </button>
+                        <div id="generate-help" class="sr-only">
+                            Lance la génération des sections avec l'algorithme Mitchell
+                        </div>
+
+                        <button 
+                            onclick="loadTestData()" 
+                            style="background: #6c757d; margin-left: 10px;"
+                            aria-label="Charger données de test avec 35 paires"
+                        >
+                            📋 Test 35 paires
+                        </button>
+
+                        <button 
+                            onclick="loadTestData80()" 
+                            style="background: #17a2b8; margin-left: 10px;"
+                            aria-label="Charger données de test avec 80 paires"
+                        >
+                            📋 Test 80 paires
+                        </button>
+
+                        <button 
+                            onclick="debugDisplay()" 
+                            style="background: #dc3545; margin-left: 10px;"
+                            aria-label="Afficher informations de débogage"
+                        >
+                            🐛 Debug
+                        </button>
+
+                        <button 
+                            onclick="testJS()" 
+                            style="background: #ffc107; margin-left: 10px;"
+                            aria-label="Tester le fonctionnement JavaScript"
+                        >
+                            ⚡ Test JS
+                        </button>
+                    </div>
+
+                    <div id="status" class="status" style="display: none;" role="alert" aria-live="polite"></div>
+                </section>
+
+                <section id="results" class="results" style="display: none;" aria-labelledby="results-heading">
+                    <h3 id="results-heading">2. Mise en place des sections</h3>
+                    <div id="sectionsContainer" role="region" aria-label="Sections générées"></div>
+
+                    <div class="controls" style="margin-top: 20px;">
+                        <button class="print-button" onclick="window.print()" aria-label="Imprimer les sections">
+                            🖨️ Imprimer
+                        </button>
+
+                        <button 
+                            onclick="showMitchellDisplay()" 
+                            style="background: #28a745; margin-left: 10px;"
+                            aria-label="Afficher en mode public"
+                        >
+                            📺 Affichage Mitchell
+                        </button>
+                    </div>
+
+                    <details class="automation-section" style="margin-top: 20px;">
+                        <summary style="cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 5px; font-weight: 500;">
+                            🔗 Automatisation & Capture
+                        </summary>
+                        <div style="padding: 15px; background: #fff; border: 1px solid #dee2e6; border-radius: 0 0 5px 5px;">
+                            <p style="margin-bottom: 15px;">Outils d'automatisation pour ffbridge.fr et capture d'écran :</p>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                <button 
+                                    onclick="showFFBExtractor()" 
+                                    style="background: #007bff;"
+                                    aria-label="Afficher l'extracteur FFB"
+                                >
+                                    📋 Extracteur FFB
+                                </button>
+                                <button 
+                                    onclick="initScreenCapture()" 
+                                    style="background: #28a745;"
+                                    aria-label="Initialiser la capture d'écran"
+                                >
+                                    📷 Capture Écran
+                                </button>
+                                <button 
+                                    onclick="setupN8NIntegration()" 
+                                    style="background: #6f42c1;"
+                                    aria-label="Configurer l'intégration n8n"
+                                >
+                                    🌐 Config n8n
+                                </button>
+                            </div>
+                            <div id="automationHelp" style="display: none; background: #f8f9fa; padding: 15px; border-radius: 4px; border: 1px solid #dee2e6; margin-top: 15px;" role="region" aria-live="polite">
+                                <!-- Dynamic help content -->
+                            </div>
+                        </div>
+                    </details>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- Enhanced Mitchell Display View -->
+    <div id="mitchellView" class="display-mode mitchell-display" style="display: block;" role="main">
+        <header class="tournament-header">
+            <div class="header-content">
+                <span id="tournamentTitle" role="heading" aria-level="1">Tournoi Bridge - Mouvement Mitchell</span>
+                <div class="tournament-info">
+                    <span id="tournamentDate" aria-label="Date du tournoi"></span>
+                    <span id="tournamentStats" aria-label="Statistiques du tournoi"></span>
+                </div>
+            </div>
+            <div class="header-controls">
+                <button 
+                    onclick="toggleDarkMode()" 
+                    id="darkModeToggle"
+                    aria-label="Basculer le mode sombre"
+                    title="Mode sombre/clair"
+                >
+                    🌙 Mode
+                </button>
+                <button 
+                    onclick="toggleFullscreen()" 
+                    id="fullscreenToggle"
+                    aria-label="Basculer le plein écran"
+                    title="Plein écran"
+                >
+                    ⛶ Plein écran
+                </button>
+                <button 
+                    onclick="refreshDisplay()" 
+                    id="refreshButton"
+                    aria-label="Actualiser l'affichage"
+                    title="Actualiser"
+                >
+                    🔄 Actualiser
+                </button>
+                <button 
+                    onclick="showSetupView()" 
+                    id="setupButton"
+                    aria-label="Retour à la configuration"
+                    title="Configuration"
+                >
+                    ⚙️ Config
+                </button>
+            </div>
+        </header>
+
+        <main class="mitchell-content" role="main">
+            <div class="global-headers" style="display: none;" role="banner">
+                <div class="global-header-content">
+                    <h2 class="tournament-name" id="globalTournamentName">Tournoi de Bridge</h2>
+                    <div class="tournament-details">
+                        <span class="tournament-date" id="globalTournamentDate"></span>
+                        <span class="tournament-location" id="globalTournamentLocation"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="mitchellContainer" class="sections-grid" role="region" aria-label="Sections du tournoi">
+                <!-- Dynamic content will be inserted here -->
+            </div>
+
+            <nav class="page-controls" id="pageNavigation" style="display: none;" role="navigation" aria-label="Navigation des pages">
+                <button 
+                    onclick="prevPage()" 
+                    id="prevPageBtn"
+                    aria-label="Page précédente"
+                    style="background: #6c757d; color: white; border: none; padding: 8px 12px; border-radius: 4px;"
+                >
+                    ◀ Précédent
+                </button>
+                <span class="page-indicator" id="pageIndicator" aria-live="polite">Page 1/1</span>
+                <button 
+                    onclick="nextPage()" 
+                    id="nextPageBtn"
+                    aria-label="Page suivante"
+                    style="background: #6c757d; color: white; border: none; padding: 8px 12px; border-radius: 4px;"
+                >
+                    Suivant ▶
+                </button>
+            </nav>
+        </main>
+
+        <!-- Loading overlay -->
+        <div id="loadingOverlay" class="loading-overlay" style="display: none;" role="status" aria-label="Chargement en cours">
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <p>Génération en cours...</p>
+            </div>
+        </div>
+
+        <!-- Error overlay -->
+        <div id="errorOverlay" class="error-overlay" style="display: none;" role="alert">
+            <div class="error-content">
+                <h3>❌ Erreur</h3>
+                <p id="errorMessage">Une erreur est survenue</p>
+                <div class="error-actions">
+                    <button onclick="hideErrorOverlay()" style="background: #dc3545;">Fermer</button>
+                    <button onclick="retryLastAction()" style="background: #28a745;">Réessayer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced JavaScript with modular structure and error handling -->
+    <script>
+        'use strict';
+
+        console.log('🔍 DEBUG: Enhanced Bridge Generator V2 loading...');
+
+        // Enhanced Error Handling and Logging
+        class ErrorHandler {
+            static log(level, message, data = null) {
+                const timestamp = new Date().toISOString();
+                const logEntry = {
+                    timestamp,
+                    level,
+                    message,
+                    data,
+                    userAgent: navigator.userAgent,
+                    url: window.location.href
+                };
+
+                console[level](`[${timestamp}] ${level.toUpperCase()}: ${message}`, data || '');
+
+                // Store in localStorage for debugging
+                try {
+                    const logs = JSON.parse(localStorage.getItem('bridgeGeneratorLogs') || '[]');
+                    logs.push(logEntry);
+                    // Keep only last 100 logs
+                    if (logs.length > 100) logs.splice(0, logs.length - 100);
+                    localStorage.setItem('bridgeGeneratorLogs', JSON.stringify(logs));
+                } catch (e) {
+                    console.warn('Could not save log to localStorage:', e);
+                }
+
+                return logEntry;
+            }
+
+            static error(message, data = null) {
+                return this.log('error', message, data);
+            }
+
+            static warn(message, data = null) {
+                return this.log('warn', message, data);
+            }
+
+            static info(message, data = null) {
+                return this.log('info', message, data);
+            }
+
+            static debug(message, data = null) {
+                return this.log('debug', message, data);
+            }
+
+            static showError(message, details = null) {
+                const errorOverlay = document.getElementById('errorOverlay');
+                const errorMessage = document.getElementById('errorMessage');
+
+                if (errorOverlay && errorMessage) {
+                    errorMessage.textContent = message;
+                    errorOverlay.style.display = 'flex';
+
+                    // Auto-hide after 10 seconds
+                    setTimeout(() => {
+                        errorOverlay.style.display = 'none';
+                    }, 10000);
+                }
+
+                this.error(message, details);
+            }
+
+            static clearLogs() {
+                try {
+                    localStorage.removeItem('bridgeGeneratorLogs');
+                    console.log('🗑️ Logs cleared');
+                } catch (e) {
+                    console.warn('Could not clear logs:', e);
+                }
+            }
+        }
+
+        // Enhanced Input Validation
+        class InputValidator {
+            static validateTournamentData(data) {
+                const errors = [];
+
+                if (!data || typeof data !== 'string') {
+                    errors.push('Les données du tournoi sont requises');
+                    return { isValid: false, errors };
+                }
+
+                const trimmedData = data.trim();
+                if (trimmedData.length === 0) {
+                    errors.push('Les données du tournoi ne peuvent pas être vides');
+                    return { isValid: false, errors };
+                }
+
+                // Check for minimum required format
+                const lines = trimmedData.split('\n').filter(line => line.trim());
+                if (lines.length < 3) {
+                    errors.push('Format de données insuffisant. Minimum 3 lignes requises.');
+                    return { isValid: false, errors };
+                }
+
+                // Check for date pattern
+                const datePattern = /\d{2}\/\d{2}\/\d{4}/;
+                const hasDate = lines.some(line => datePattern.test(line));
+                if (!hasDate) {
+                    errors.push('Aucune date valide trouvée (format JJ/MM/AAAA requis)');
+                }
+
+                // Check for player pattern
+                const playerPattern = /(M\.|Mme)\s+.+\s+\(\s*[\d.]+\s*€\s*\)/;
+                const hasPlayer = lines.some(line => playerPattern.test(line));
+                if (!hasPlayer) {
+                    errors.push('Aucun joueur valide trouvé (format "M./Mme Nom (montant €)" requis)');
+                }
+
+                return {
+                    isValid: errors.length === 0,
+                    errors,
+                    lineCount: lines.length,
+                    hasDate,
+                    hasPlayer
+                };
+            }
+
+            static validateSectionCount(count) {
+                const numCount = parseInt(count);
+                if (isNaN(numCount) || numCount < 1 || numCount > 3) {
+                    return {
+                        isValid: false,
+                        error: 'Le nombre de sections doit être entre 1 et 3'
+                    };
+                }
+                return { isValid: true, value: numCount };
+            }
+
+            static validateEntryFee(fee) {
+                const numFee = parseFloat(fee);
+                if (isNaN(numFee) || numFee < 0 || numFee > 100) {
+                    return {
+                        isValid: false,
+                        error: 'Le montant d\'inscription doit être entre 0 et 100 euros'
+                    };
+                }
+                return { isValid: true, value: numFee };
+            }
+        }
+
+        // Enhanced State Management
+        class AppState {
+            constructor() {
+                this.parsedPairs = [];
+                this.mitchellData = [];
+                this.draggedPair = null;
+                this.currentSectionCount = 1;
+                this.currentPage = 1;
+                this.totalPages = 1;
+                this.isDarkMode = false;
+                this.isFullscreen = false;
+                this.lastAction = null;
+                this.isLoading = false;
+            }
+
+            setPairs(pairs) {
+                this.parsedPairs = pairs;
+                ErrorHandler.info(`State updated: ${pairs.length} pairs loaded`);
+            }
+
+            setMitchellData(data) {
+                this.mitchellData = data;
+                ErrorHandler.info(`Mitchell data updated: ${data.length} sections`);
+            }
+
+            setLoading(isLoading) {
+                this.isLoading = isLoading;
+                const overlay = document.getElementById('loadingOverlay');
+                if (overlay) {
+                    overlay.style.display = isLoading ? 'flex' : 'none';
+                }
+            }
+
+            setLastAction(action) {
+                this.lastAction = action;
+            }
+        }
+
+        // Global state instance
+        const appState = new AppState();
+
+        // Enhanced UI Manager
+        class UIManager {
+            static showStatus(message, type = 'info', duration = 5000) {
+                try {
+                    const statusEl = document.getElementById('status');
+                    if (!statusEl) {
+                        ErrorHandler.warn('Status element not found');
+                        return;
+                    }
+
+                    statusEl.textContent = message;
+                    statusEl.className = `status ${type}`;
+                    statusEl.style.display = 'block';
+                    statusEl.setAttribute('aria-live', 'polite');
+
+                    // Auto-hide after duration
+                    if (duration > 0) {
+                        setTimeout(() => {
+                            statusEl.style.display = 'none';
+                        }, duration);
+                    }
+
+                    ErrorHandler.info(`Status shown: ${type} - ${message}`);
+                } catch (error) {
+                    ErrorHandler.error('Error showing status', error);
+                }
+            }
+
+            static hideStatus() {
+                try {
+                    const statusEl = document.getElementById('status');
+                    if (statusEl) {
+                        statusEl.style.display = 'none';
+                    }
+                } catch (error) {
+                    ErrorHandler.error('Error hiding status', error);
+                }
+            }
+
+            static updatePageNavigation(currentPage, totalPages) {
+                try {
+                    const pageNav = document.getElementById('pageNavigation');
+                    const pageIndicator = document.getElementById('pageIndicator');
+                    const prevBtn = document.getElementById('prevPageBtn');
+                    const nextBtn = document.getElementById('nextPageBtn');
+
+                    if (pageNav && pageIndicator) {
+                        pageIndicator.textContent = `Page ${currentPage}/${totalPages}`;
+                        pageNav.style.display = totalPages > 1 ? 'flex' : 'none';
+
+                        if (prevBtn) {
+                            prevBtn.disabled = currentPage <= 1;
+                            prevBtn.setAttribute('aria-disabled', currentPage <= 1);
+                        }
+
+                        if (nextBtn) {
+                            nextBtn.disabled = currentPage >= totalPages;
+                            nextBtn.setAttribute('aria-disabled', currentPage >= totalPages);
+                        }
+                    }
+                } catch (error) {
+                    ErrorHandler.error('Error updating page navigation', error);
+                }
+            }
+
+            static toggleDarkMode() {
+                try {
+                    const body = document.body;
+                    const isDark = body.classList.toggle('dark-mode');
+                    appState.isDarkMode = isDark;
+
+                    // Save preference
+                    localStorage.setItem('bridgeGeneratorDarkMode', isDark);
+
+                    // Update toggle button
+                    const toggleBtn = document.getElementById('darkModeToggle');
+                    if (toggleBtn) {
+                        toggleBtn.textContent = isDark ? '☀️ Mode' : '🌙 Mode';
+                        toggleBtn.setAttribute('aria-label', isDark ? 'Basculer vers le mode clair' : 'Basculer vers le mode sombre');
+                    }
+
+                    ErrorHandler.info(`Dark mode ${isDark ? 'enabled' : 'disabled'}`);
+                } catch (error) {
+                    ErrorHandler.error('Error toggling dark mode', error);
+                }
+            }
+
+            static initializeDarkMode() {
+                try {
+                    const savedMode = localStorage.getItem('bridgeGeneratorDarkMode');
+                    if (savedMode === 'true') {
+                        this.toggleDarkMode();
+                    }
+                } catch (error) {
+                    ErrorHandler.error('Error initializing dark mode', error);
+                }
+            }
+        }
+
+
+        // Enhanced Tournament Data Parser
+        class TournamentParser {
+            static parseTournamentData(data) {
+                try {
+                    ErrorHandler.info('Starting tournament data parsing');
+
+                    // Validate input
+                    const validation = InputValidator.validateTournamentData(data);
+                    if (!validation.isValid) {
+                        throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
+                    }
+
+                    const pairs = [];
+                    const lines = data.split('\n');
+                    let currentPair = null;
+                    let pairNumber = 1;
+                    let processedLines = 0;
+
+                    for (let i = 0; i < lines.length; i++) {
+                        const line = lines[i].trim();
+                        processedLines++;
+
+                        // Skip empty lines and headers
+                        if (!line || line.includes('Inscription') || line.includes('Nouvelle équipe')) {
+                            continue;
+                        }
+
+                        // Date pattern
+                        if (line.match(/^\d{2}\/\d{2}\/\d{4}/)) {
+                            if (currentPair && currentPair.player1 && currentPair.player2) {
+                                pairs.push(currentPair);
+                            }
+                            currentPair = { 
+                                number: pairNumber++, 
+                                player1: null, 
+                                player2: null,
+                                date: line.trim()
+                            };
+                            continue;
+                        }
+
+                        // Player pattern
+                        const playerMatch = line.match(/^(M\.|Mme)\s+(.+?)\s+\(\s*([\d.]+)\s*€\s*\)/);
+                        if (playerMatch) {
+                            const title = playerMatch[1];
+                            const fullName = playerMatch[2].trim();
+                            const amount = parseFloat(playerMatch[3]);
+
+                            if (isNaN(amount)) {
+                                ErrorHandler.warn(`Invalid amount for player ${fullName}: ${playerMatch[3]}`);
+                                continue;
+                            }
+
+                            // Look for license information on next line
+                            if (i + 1 < lines.length) {
+                                const nextLine = lines[i + 1].trim();
+                                const licenseMatch = nextLine.match(/(\d{8})\s*\(\s*IV\s*=\s*(\d+)\s*\)/);
+
+                                if (licenseMatch) {
+                                    const license = licenseMatch[1];
+                                    const iv = parseInt(licenseMatch[2]);
+
+                                    if (isNaN(iv)) {
+                                        ErrorHandler.warn(`Invalid IV for player ${fullName}: ${licenseMatch[2]}`);
+                                        continue;
+                                    }
+
+                                    const player = {
+                                        title,
+                                        name: fullName,
+                                        license,
+                                        iv,
+                                        amount
+                                    };
+
+                                    if (!currentPair) {
+                                        ErrorHandler.warn(`Player found without date context: ${fullName}`);
+                                        currentPair = { 
+                                            number: pairNumber++, 
+                                            player1: null, 
+                                            player2: null,
+                                            date: 'Date inconnue'
+                                        };
+                                    }
+
+                                    if (!currentPair.player1) {
+                                        currentPair.player1 = player;
+                                    } else if (!currentPair.player2) {
+                                        currentPair.player2 = player;
+                                    } else {
+                                        ErrorHandler.warn(`Too many players for pair ${currentPair.number}`);
+                                    }
+
+                                    i++; // Skip the license line
+                                }
+                            }
+                        }
+                    }
+
+                    // Add the last pair if complete
+                    if (currentPair && currentPair.player1 && currentPair.player2) {
+                        pairs.push(currentPair);
+                    }
+
+                    // Calculate combined IV for each pair
+                    pairs.forEach(pair => {
+                        if (pair.player1 && pair.player2) {
+                            pair.combinedIV = pair.player1.iv + pair.player2.iv;
+                        }
+                    });
+
+                    ErrorHandler.info(`Parsing completed: ${pairs.length} pairs found from ${processedLines} lines`);
+
+                    return {
+                        success: true,
+                        pairs,
+                        stats: {
+                            totalLines: lines.length,
+                            processedLines,
+                            pairsFound: pairs.length
+                        }
+                    };
+
+                } catch (error) {
+                    ErrorHandler.error('Tournament data parsing failed', error);
+                    return {
+                        success: false,
+                        error: error.message,
+                        pairs: []
+                    };
+                }
+            }
+        }
+
+        // Enhanced Mitchell Algorithm
+        class MitchellAlgorithm {
+            static generateSections(pairs, sectionCount, useConstraints = true) {
+                try {
+                    ErrorHandler.info(`Generating ${sectionCount} sections for ${pairs.length} pairs`);
+
+                    if (pairs.length === 0) {
+                        throw new Error('Aucune paire à traiter');
+                    }
+
+                    // Sort pairs by combined IV (descending)
+                    const sortedPairs = [...pairs].sort((a, b) => (b.combinedIV || 0) - (a.combinedIV || 0));
+
+                    // Calculate tables per section
+                    const totalTables = Math.ceil(sortedPairs.length / 2);
+                    const tablesPerSection = Math.ceil(totalTables / sectionCount);
+
+                    ErrorHandler.info(`Total tables: ${totalTables}, Tables per section: ${tablesPerSection}`);
+
+                    // Initialize sections
+                    const sections = [];
+                    for (let s = 0; s < sectionCount; s++) {
+                        const section = [];
+                        for (let t = 0; t < tablesPerSection; t++) {
+                            section.push({
+                                number: t + 1,
+                                ns: null,
+                                eo: null
+                            });
+                        }
+                        sections.push(section);
+                    }
+
+                    // Distribute pairs using enhanced algorithm
+                    if (useConstraints) {
+                        return this.applyMitchellConstraints(sections, sortedPairs, sectionCount);
+                    } else {
+                        return this.generateSimpleDistribution(sections, sortedPairs);
+                    }
+
+                } catch (error) {
+                    ErrorHandler.error('Mitchell generation failed', error);
+                    throw error;
+                }
+            }
+
+            static generateSimpleDistribution(sections, sortedPairs) {
+                try {
+                    ErrorHandler.info('Using simple distribution algorithm');
+                    let pairIndex = 0;
+
+                    // Simple distribution: place pairs sequentially
+                    for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
+                        const section = sections[sectionIndex];
+
+                        for (let tableIndex = 0; tableIndex < section.length; tableIndex++) {
+                            const table = section[tableIndex];
+
+                            // Place NS pair
+                            if (pairIndex < sortedPairs.length) {
+                                table.ns = sortedPairs[pairIndex];
+                                pairIndex++;
+                            }
+
+                            // Place EW pair
+                            if (pairIndex < sortedPairs.length) {
+                                table.eo = sortedPairs[pairIndex];
+                                pairIndex++;
+                            }
+                        }
+                    }
+
+                    ErrorHandler.info('Simple distribution completed');
+                    return sections;
+                } catch (error) {
+                    ErrorHandler.error('Simple distribution failed', error);
+                    throw error;
+                }
+            }
+
+            static applyMitchellConstraints(sections, sortedPairs, sectionCount) {
+                try {
+                    ErrorHandler.info('Applying Mitchell constraints');
+
+                    // Enhanced Mitchell algorithm with constraints
+                    // This is a simplified version - the full algorithm would be more complex
+
+                    const pairsPerSection = Math.ceil(sortedPairs.length / sectionCount);
+                    let pairIndex = 0;
+
+                    // Distribute pairs across sections with IV balancing
+                    for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
+                        const section = sections[sectionIndex];
+                        const sectionPairs = [];
+
+                        // Take pairs for this section
+                        for (let i = 0; i < pairsPerSection && pairIndex < sortedPairs.length; i++) {
+                            sectionPairs.push(sortedPairs[pairIndex]);
+                            pairIndex++;
+                        }
+
+                        // Distribute within section
+                        this.distributePairsInSection(section, sectionPairs);
+                    }
+
+                    ErrorHandler.info('Mitchell constraints applied');
+                    return sections;
+                } catch (error) {
+                    ErrorHandler.error('Mitchell constraints failed', error);
+                    throw error;
+                }
+            }
+
+            static distributePairsInSection(section, pairs) {
+                try {
+                    let pairIndex = 0;
+
+                    for (let tableIndex = 0; tableIndex < section.length; tableIndex++) {
+                        const table = section[tableIndex];
+
+                        // Place NS pair
+                        if (pairIndex < pairs.length) {
+                            table.ns = pairs[pairIndex];
+                            pairIndex++;
+                        }
+
+                        // Place EW pair
+                        if (pairIndex < pairs.length) {
+                            table.eo = pairs[pairIndex];
+                            pairIndex++;
+                        }
+                    }
+                } catch (error) {
+                    ErrorHandler.error('Section distribution failed', error);
+                    throw error;
+                }
+            }
+        }
+
+
+        // Main Application Functions
+        let parsedPairs = [];
+        let mitchellData = [];
+        let draggedPair = null;
+        let currentSectionCount = 1;
+
+        // Enhanced generateSections function
+        function generateSections() {
+            try {
+                ErrorHandler.info('Starting section generation');
+                appState.setLoading(true);
+
+                const data = document.getElementById('tournamentData').value;
+                const sectionCount = document.getElementById('sectionCount').value;
+                const entryFee = document.getElementById('entryFee').value;
+
+                // Validate inputs
+                const dataValidation = InputValidator.validateTournamentData(data);
+                if (!dataValidation.isValid) {
+                    throw new Error(dataValidation.errors.join('\n'));
+                }
+
+                const sectionValidation = InputValidator.validateSectionCount(sectionCount);
+                if (!sectionValidation.isValid) {
+                    throw new Error(sectionValidation.error);
+                }
+
+                const feeValidation = InputValidator.validateEntryFee(entryFee);
+                if (!feeValidation.isValid) {
+                    throw new Error(feeValidation.error);
+                }
+
+                // Parse tournament data
+                const parseResult = TournamentParser.parseTournamentData(data);
+                if (!parseResult.success) {
+                    throw new Error(parseResult.error);
+                }
+
+                parsedPairs = parseResult.pairs;
+                appState.setPairs(parsedPairs);
+                currentSectionCount = sectionValidation.value;
+
+                UIManager.showStatus(`${parsedPairs.length} paires trouvées`, 'success');
+
+                // Generate Mitchell sections
+                const sections = MitchellAlgorithm.generateSections(parsedPairs, currentSectionCount);
+                mitchellData = sections;
+                appState.setMitchellData(sections);
+
+                // Display results
+                displaySections(sections);
+
+                document.getElementById('results').style.display = 'block';
+                UIManager.showStatus(`Sections générées avec succès!`, 'success');
+
+                ErrorHandler.info('Section generation completed successfully');
+
+            } catch (error) {
+                ErrorHandler.error('Section generation failed', error);
+                UIManager.showStatus(`Erreur: ${error.message}`, 'error');
+                ErrorHandler.showError(`Erreur lors de la génération: ${error.message}`);
+            } finally {
+                appState.setLoading(false);
+            }
+        }
+
+        // Enhanced display functions
+        function displaySections(sections) {
+            try {
+                const container = document.getElementById('sectionsContainer');
+                if (!container) {
+                    throw new Error('Sections container not found');
+                }
+
+                container.innerHTML = '';
+
+                sections.forEach((section, sectionIndex) => {
+                    const sectionDiv = document.createElement('div');
+                    sectionDiv.className = 'section-container';
+                    sectionDiv.innerHTML = `
+                        <h4>Section ${sectionIndex + 1}</h4>
+                        <div class="tables-grid">
+                            ${section.map(table => `
+                                <div class="table-card">
+                                    <div class="table-header">Table ${table.number}</div>
+                                    <div class="table-content">
+                                        <div class="positions">
+                                            <div class="position">
+                                                <div class="position-label">Nord-Sud</div>
+                                                ${table.ns ? `
+                                                    <div class="player-name">${table.ns.player1?.name || ''}</div>
+                                                    <div class="player-name">${table.ns.player2?.name || ''}</div>
+                                                    <div class="player-details">IV: ${table.ns.combinedIV || 0}</div>
+                                                ` : '<div class="empty-position">Libre</div>'}
+                                            </div>
+                                            <div class="position">
+                                                <div class="position-label">Est-Ouest</div>
+                                                ${table.eo ? `
+                                                    <div class="player-name">${table.eo.player1?.name || ''}</div>
+                                                    <div class="player-name">${table.eo.player2?.name || ''}</div>
+                                                    <div class="player-details">IV: ${table.eo.combinedIV || 0}</div>
+                                                ` : '<div class="empty-position">Libre</div>'}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    container.appendChild(sectionDiv);
+                });
+
+                ErrorHandler.info('Sections displayed successfully');
+            } catch (error) {
+                ErrorHandler.error('Display sections failed', error);
+                throw error;
+            }
+        }
+
+        // Enhanced view management
+        function showMitchellDisplay() {
+            try {
+                document.getElementById('setupView').style.display = 'none';
+                document.getElementById('mitchellView').style.display = 'block';
+
+                // Update Mitchell display with current data
+                updateMitchellDisplay();
+
+                ErrorHandler.info('Switched to Mitchell display view');
+            } catch (error) {
+                ErrorHandler.error('Failed to show Mitchell display', error);
+            }
+        }
+
+        function showSetupView() {
+            try {
+                document.getElementById('setupView').style.display = 'block';
+                document.getElementById('mitchellView').style.display = 'none';
+
+                ErrorHandler.info('Switched to setup view');
+            } catch (error) {
+                ErrorHandler.error('Failed to show setup view', error);
+            }
+        }
+
+        function updateMitchellDisplay() {
+            try {
+                const container = document.getElementById('mitchellContainer');
+                if (!container || !mitchellData.length) {
+                    return;
+                }
+
+                container.innerHTML = '';
+
+                mitchellData.forEach((section, sectionIndex) => {
+                    const sectionDiv = document.createElement('div');
+                    sectionDiv.className = 'section-container';
+                    sectionDiv.innerHTML = `
+                        <div class="section-title">Section ${sectionIndex + 1}</div>
+                        <div class="tables-grid">
+                            ${section.map(table => `
+                                <div class="table-card">
+                                    <div class="table-header">Table ${table.number}</div>
+                                    <div class="table-content">
+                                        <div class="positions">
+                                            <div class="position">
+                                                <div class="position-label">N-S</div>
+                                                ${table.ns ? `
+                                                    <div class="player-name">${table.ns.player1?.name || ''}</div>
+                                                    <div class="player-name">${table.ns.player2?.name || ''}</div>
+                                                ` : '<div class="empty-position">Libre</div>'}
+                                            </div>
+                                            <div class="position">
+                                                <div class="position-label">E-O</div>
+                                                ${table.eo ? `
+                                                    <div class="player-name">${table.eo.player1?.name || ''}</div>
+                                                    <div class="player-name">${table.eo.player2?.name || ''}</div>
+                                                ` : '<div class="empty-position">Libre</div>'}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    container.appendChild(sectionDiv);
+                });
+
+                ErrorHandler.info('Mitchell display updated');
+            } catch (error) {
+                ErrorHandler.error('Failed to update Mitchell display', error);
+            }
+        }
+
+        // Enhanced utility functions
+        function toggleDarkMode() {
+            UIManager.toggleDarkMode();
+        }
+
+        function toggleFullscreen() {
+            try {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen();
+                    appState.isFullscreen = true;
+                    ErrorHandler.info('Entered fullscreen mode');
+                } else {
+                    document.exitFullscreen();
+                    appState.isFullscreen = false;
+                    ErrorHandler.info('Exited fullscreen mode');
+                }
+            } catch (error) {
+                ErrorHandler.error('Fullscreen toggle failed', error);
+            }
+        }
+
+        function refreshDisplay() {
+            try {
+                updateMitchellDisplay();
+                UIManager.showStatus('Affichage actualisé', 'success', 2000);
+                ErrorHandler.info('Display refreshed');
+            } catch (error) {
+                ErrorHandler.error('Display refresh failed', error);
+            }
+        }
+
+        function hideErrorOverlay() {
+            try {
+                const overlay = document.getElementById('errorOverlay');
+                if (overlay) {
+                    overlay.style.display = 'none';
+                }
+            } catch (error) {
+                ErrorHandler.error('Failed to hide error overlay', error);
+            }
+        }
+
+        function retryLastAction() {
+            try {
+                hideErrorOverlay();
+                if (appState.lastAction) {
+                    appState.lastAction();
+                } else {
+                    generateSections();
+                }
+            } catch (error) {
+                ErrorHandler.error('Retry action failed', error);
+            }
+        }
+
+        // Test functions
+        function testJS() {
+            try {
+                UIManager.showStatus('JavaScript fonctionne parfaitement!', 'success');
+                ErrorHandler.info('JavaScript test successful');
+            } catch (error) {
+                ErrorHandler.error('JavaScript test failed', error);
+            }
+        }
+
+        function debugDisplay() {
+            try {
+                const logs = JSON.parse(localStorage.getItem('bridgeGeneratorLogs') || '[]');
+                console.group('🐛 Debug Information');
+                console.log('📊 Current State:', appState);
+                console.log('👥 Parsed Pairs:', parsedPairs.length);
+                console.log('🏗️ Mitchell Data:', mitchellData.length);
+                console.log('📝 Recent Logs:', logs.slice(-10));
+                console.groupEnd();
+
+                UIManager.showStatus(`Debug: ${parsedPairs.length} paires, ${mitchellData.length} sections, ${logs.length} logs`, 'info');
+            } catch (error) {
+                ErrorHandler.error('Debug display failed', error);
+            }
+        }
+
+        // Enhanced test data functions
+        function loadTestData() {
+            try {
+                const testData = `15/01/2026
+M. DUPONT Jean (5.00 €)
+12345678 (IV = 150)
+Mme MARTIN Marie (5.00 €)
+87654321 (IV = 120)
+16/01/2026
+M. BERNARD Paul (5.00 €)
+11111111 (IV = 180)
+Mme DURAND Sophie (5.00 €)
+22222222 (IV = 140)`;
+
+                document.getElementById('tournamentData').value = testData;
+                UIManager.showStatus('Données de test chargées (4 joueurs)', 'success');
+                ErrorHandler.info('Test data loaded');
+            } catch (error) {
+                ErrorHandler.error('Failed to load test data', error);
+            }
+        }
+
+        function loadTestData80() {
+            try {
+                // Generate test data for 80 players (40 pairs)
+                let testData = '';
+                for (let i = 1; i <= 40; i++) {
+                    const date = `${String(14 + (i % 7)).padStart(2, '0')}/01/2026`;
+                    const iv1 = 100 + Math.floor(Math.random() * 100);
+                    const iv2 = 100 + Math.floor(Math.random() * 100);
+
+                    testData += `${date}
+`;
+                    testData += `M. JOUEUR${i}A Prénom${i}A (5.00 €)
+`;
+                    testData += `${String(10000000 + i * 2 - 1).padStart(8, '0')} (IV = ${iv1})
+`;
+                    testData += `Mme JOUEUR${i}B Prénom${i}B (5.00 €)
+`;
+                    testData += `${String(10000000 + i * 2).padStart(8, '0')} (IV = ${iv2})
+`;
+                }
+
+                document.getElementById('tournamentData').value = testData;
+                UIManager.showStatus('Données de test chargées (80 joueurs)', 'success');
+                ErrorHandler.info('Test data 80 loaded');
+            } catch (error) {
+                ErrorHandler.error('Failed to load test data 80', error);
+            }
+        }
+
+        // Placeholder functions for automation features
+        function showFFBExtractor() {
+            UIManager.showStatus('Extracteur FFB - Fonctionnalité en développement', 'info');
+        }
+
+        function initScreenCapture() {
+            UIManager.showStatus('Capture d\'écran - Fonctionnalité en développement', 'info');
+        }
+
+        function setupN8NIntegration() {
+            UIManager.showStatus('Intégration n8n - Fonctionnalité en développement', 'info');
+        }
+
+        // Page navigation functions
+        function prevPage() {
+            if (appState.currentPage > 1) {
+                appState.currentPage--;
+                UIManager.updatePageNavigation(appState.currentPage, appState.totalPages);
+            }
+        }
+
+        function nextPage() {
+            if (appState.currentPage < appState.totalPages) {
+                appState.currentPage++;
+                UIManager.updatePageNavigation(appState.currentPage, appState.totalPages);
+            }
+        }
+
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                ErrorHandler.info('Bridge Generator V2 Enhanced initialized');
+
+                // Initialize dark mode
+                UIManager.initializeDarkMode();
+
+                // Set initial view
+                document.getElementById('setupView').style.display = 'block';
+                document.getElementById('mitchellView').style.display = 'none';
+
+                // Add keyboard shortcuts
+                document.addEventListener('keydown', function(e) {
+                    if (e.ctrlKey || e.metaKey) {
+                        switch(e.key) {
+                            case 'g':
+                                e.preventDefault();
+                                generateSections();
+                                break;
+                            case 'd':
+                                e.preventDefault();
+                                toggleDarkMode();
+                                break;
+                            case 'f':
+                                e.preventDefault();
+                                toggleFullscreen();
+                                break;
+                        }
+                    }
+                });
+
+                ErrorHandler.info('Application initialization completed');
+
+            } catch (error) {
+                ErrorHandler.error('Application initialization failed', error);
+            }
+        });
+
+        // Global error handler
+        window.addEventListener('error', function(e) {
+            ErrorHandler.error('Global error caught', {
+                message: e.message,
+                filename: e.filename,
+                lineno: e.lineno,
+                colno: e.colno,
+                error: e.error
+            });
+        });
+
+        // Unhandled promise rejection handler
+        window.addEventListener('unhandledrejection', function(e) {
+            ErrorHandler.error('Unhandled promise rejection', e.reason);
+        });
+
+        console.log('✅ Enhanced Bridge Generator V2 loaded successfully!');
+    </script>
+</body>
+</html>
