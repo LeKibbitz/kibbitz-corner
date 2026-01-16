@@ -3,12 +3,18 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'extract') {
         try {
             const result = extractFFBData();
+
+            // NOUVEAUTÉ : Afficher les données directement sur la page FFB pour test
+            displayExtractedDataOnPage(result);
+
             sendResponse({
                 success: true,
                 data: result.data,
                 count: result.count
             });
         } catch (error) {
+            console.error('❌ Erreur extraction:', error);
+            displayErrorOnPage(error.message);
             sendResponse({
                 success: false,
                 error: error.message
@@ -16,6 +22,81 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         }
     }
 });
+
+// TEST : Afficher les données extraites directement sur la page FFB
+function displayExtractedDataOnPage(result) {
+    console.log('🎯 Affichage des données sur la page FFB:', result);
+
+    // Supprimer ancien affichage s'il existe
+    const existing = document.getElementById('ffb-extracted-display');
+    if (existing) existing.remove();
+
+    // Créer div d'affichage
+    const displayDiv = document.createElement('div');
+    displayDiv.id = 'ffb-extracted-display';
+    displayDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        width: 400px;
+        max-height: 300px;
+        overflow-y: auto;
+        background: #28a745;
+        color: white;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        z-index: 10000;
+        font-family: monospace;
+        font-size: 12px;
+    `;
+
+    displayDiv.innerHTML = `
+        <h3>✅ EXTRACTION FFB RÉUSSIE</h3>
+        <p><strong>${result.count} joueurs trouvés</strong></p>
+        <div style="background: rgba(0,0,0,0.2); padding: 8px; border-radius: 4px; white-space: pre-wrap; max-height: 150px; overflow-y: auto;">${result.data}</div>
+        <button onclick="this.parentElement.remove()" style="margin-top: 8px; padding: 4px 8px; background: #dc3545; color: white; border: none; border-radius: 4px;">Fermer</button>
+    `;
+
+    document.body.appendChild(displayDiv);
+
+    // Auto-fermer après 10 secondes
+    setTimeout(() => {
+        if (displayDiv.parentElement) displayDiv.remove();
+    }, 10000);
+}
+
+function displayErrorOnPage(errorMessage) {
+    console.error('❌ Affichage erreur sur page FFB:', errorMessage);
+
+    const errorDiv = document.createElement('div');
+    errorDiv.id = 'ffb-extraction-error';
+    errorDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        width: 350px;
+        background: #dc3545;
+        color: white;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        z-index: 10000;
+        font-family: Arial, sans-serif;
+    `;
+
+    errorDiv.innerHTML = `
+        <h3>❌ ERREUR EXTRACTION FFB</h3>
+        <p>${errorMessage}</p>
+        <button onclick="this.parentElement.remove()" style="margin-top: 8px; padding: 4px 8px; background: rgba(0,0,0,0.3); color: white; border: none; border-radius: 4px;">Fermer</button>
+    `;
+
+    document.body.appendChild(errorDiv);
+
+    setTimeout(() => {
+        if (errorDiv.parentElement) errorDiv.remove();
+    }, 8000);
+}
 
 function extractFFBData() {
     // Find tournament table
@@ -41,13 +122,15 @@ function extractFFBData() {
         const cells = rows[i].querySelectorAll('td');
         if (cells.length < 3) continue;
 
-        // Player 1 (cell 1)
-        const player1 = parsePlayer(cells[1].textContent);
-        if (player1) players.push(player1);
-
-        // Player 2 (cell 2)
-        const player2 = parsePlayer(cells[2].textContent);
-        if (player2) players.push(player2);
+        // Skip first cell (inscription date), get player cells
+        for (let j = 1; j < cells.length - 1; j++) { // -1 to skip actions column
+            const cell = cells[j];
+            const playerDiv = cell.querySelector('div');
+            if (playerDiv && !playerDiv.textContent.trim().includes('Actions')) {
+                const player = parsePlayer(playerDiv.textContent);
+                if (player) players.push(player);
+            }
+        }
     }
 
     if (players.length === 0) {

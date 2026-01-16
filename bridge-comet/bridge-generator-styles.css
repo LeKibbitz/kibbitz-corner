@@ -1,0 +1,628 @@
+/* Bridge Generator V2 Styles - Complete CSS */
+
+/* ================================
+   1. RESET & BASE STYLES
+   ================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #0a0a0a;
+    min-height: 100vh;
+    overflow-x: auto;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+    color: #e0e0e0;
+    position: relative;
+}
+
+/* ================================
+   2. BACKGROUND EFFECTS
+   ================================ */
+/* Particle background effect */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        radial-gradient(circle at 20% 80%, rgba(168, 85, 247, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.1) 0%, transparent 50%);
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* ================================
+   3. DARK MODE STYLES
+   ================================ */
+body.dark-mode {
+    background: #1a1a1a !important;
+    color: #e0e0e0 !important;
+}
+
+.dark-mode .player-name,
+.dark-mode .table-header,
+.dark-mode .section-title,
+.dark-mode h1, .dark-mode h2, .dark-mode h3,
+.dark-mode p, .dark-mode span:not(.constraint-indicator),
+.header-content span,
+.section-banner,
+.section-letter,
+.section-stats,
+.section-stats-line,
+.ns-text,
+.eo-text,
+.position-indicator,
+.tournament-header,
+.header-title,
+.header-btn,
+.section-btn,
+.algo-btn,
+.section-control label,
+.algo-control label,
+body,
+* {
+    color: #e0e0e0 !important;
+}
+
+/* ================================
+   4. TOURNAMENT HEADER
+   ================================ */
+.tournament-header {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+    backdrop-filter: blur(30px);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    color: #e0e0e0;
+    padding: 20px 30px;
+    box-shadow: 0 8px 40px rgba(99, 102, 241, 0.15), 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 100;
+    border-radius: 0 0 20px 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 100%;
+    position: relative;
+    z-index: 1;
+}
+
+.header-content span {
+    font-size: 1.6em;
+    font-weight: 700;
+    background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 50%, #cbd5e1 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.02em;
+    flex: 1;
+}
+
+/* ================================
+   5. SECTIONS GRID
+   ================================ */
+.sections-grid {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    padding: 30px;
+    overflow-y: auto;
+}
+
+.section {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.4) 0%, rgba(51, 65, 85, 0.4) 100%);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.section-title {
+    background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+    color: white;
+    padding: 15px 25px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.4em;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+}
+
+/* ================================
+   6. TABLES CONTAINER
+   ================================ */
+.tables-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.table-card {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    border-radius: 10px;
+    padding: 15px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.table-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(168, 85, 247, 0.4);
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%);
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    color: #e0e0e0;
+    font-weight: 600;
+}
+
+/* ================================
+   7. POSITION STYLES
+   ================================ */
+.position {
+    background: rgba(51, 65, 85, 0.8);
+    border: 1px solid rgba(139, 92, 246, 0.4);
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 8px;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.position.ns {
+    border-left: 4px solid #10b981;
+}
+
+.position.eo {
+    border-left: 4px solid #f59e0b;
+}
+
+.position.relais {
+    background: rgba(239, 68, 68, 0.3) !important;
+    border-color: #ef4444 !important;
+    font-weight: bold;
+    color: #fca5a5 !important;
+}
+
+.player-name {
+    font-weight: 500;
+    color: #e0e0e0;
+    text-align: center;
+}
+
+.ns-text {
+    color: #10b981;
+    font-weight: 600;
+    font-size: 0.8em;
+    margin-bottom: 5px;
+}
+
+.eo-text {
+    color: #f59e0b;
+    font-weight: 600;
+    font-size: 0.8em;
+    margin-bottom: 5px;
+}
+
+/* ================================
+   8. BUTTONS AND CONTROLS
+   ================================ */
+.header-btn {
+    background: rgba(30, 41, 59, 0.8);
+    color: #e0e0e0;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.3s ease;
+}
+
+.header-btn:hover {
+    background: rgba(51, 65, 85, 0.9);
+    transform: translateY(-1px) scale(1.05);
+}
+
+/* ================================
+   9. LOADING AND STATES
+   ================================ */
+.loading {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.2em;
+    color: #8b5cf6;
+}
+
+/* ================================
+   10. BYE SELECTOR
+   ================================ */
+.bye-selector {
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(30, 41, 59, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(139, 92, 246, 0.5);
+    border-radius: 15px;
+    padding: 25px;
+    max-width: 400px;
+    z-index: 1000;
+    color: #e0e0e0;
+}
+
+.bye-selector h3 {
+    margin-bottom: 15px;
+    color: #8b5cf6;
+}
+
+.bye-teams {
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 15px;
+}
+
+.bye-team-option {
+    padding: 8px 12px;
+    margin: 5px 0;
+    background: rgba(51, 65, 85, 0.6);
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.bye-team-option:hover {
+    background: rgba(139, 92, 246, 0.3);
+    border-color: #8b5cf6;
+}
+
+.bye-team-option.selected {
+    background: rgba(139, 92, 246, 0.5);
+    border-color: #8b5cf6;
+}
+
+.bye-controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.bye-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.bye-btn.confirm {
+    background: #10b981;
+    color: white;
+}
+
+.bye-btn.cancel {
+    background: #6b7280;
+    color: white;
+}
+
+.bye-btn:hover {
+    opacity: 0.8;
+}
+
+/* ================================
+   11. SETUP SCREEN STYLES
+   ================================ */
+.setup-screen {
+    min-height: 100vh;
+    background: #0a0a0a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.setup-container {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(51, 65, 85, 0.9) 100%);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 800px;
+    width: 100%;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.setup-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.setup-header h1 {
+    color: #e0e0e0;
+    font-size: 2em;
+    font-weight: 700;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.setup-header p {
+    color: #cbd5e1;
+    font-size: 1.1em;
+}
+
+.setup-content {
+    margin-bottom: 30px;
+}
+
+.setup-section h3 {
+    color: #e0e0e0;
+    font-size: 1.4em;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.setup-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.control-group label {
+    color: #e0e0e0;
+    font-weight: 600;
+    font-size: 0.9em;
+}
+
+.control-group select {
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    border-radius: 8px;
+    padding: 10px;
+    color: #e0e0e0;
+    font-size: 0.9em;
+}
+
+.control-group select:focus {
+    outline: none;
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+}
+
+.control-group small {
+    color: #94a3b8;
+    font-size: 0.8em;
+}
+
+.control-group input[type="checkbox"] {
+    margin-right: 8px;
+    transform: scale(1.2);
+}
+
+.setup-preview {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.setup-preview h4 {
+    color: #8b5cf6;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+}
+
+.setup-preview #previewContent {
+    color: #cbd5e1;
+    font-size: 0.9em;
+    line-height: 1.6;
+}
+
+.setup-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.setup-btn {
+    padding: 15px 30px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 200px;
+}
+
+.setup-btn.primary {
+    background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+    color: white;
+}
+
+.setup-btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+}
+
+.setup-btn.secondary {
+    background: rgba(107, 114, 128, 0.8);
+    color: #e0e0e0;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+.setup-btn.secondary:hover {
+    background: rgba(107, 114, 128, 1);
+    transform: translateY(-1px);
+}
+
+/* ================================
+   12. MITCHELL DISPLAY
+   ================================ */
+.mitchell-display {
+    width: 100vw;
+    height: 100vh;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    color: #e0e0e0;
+}
+
+/* ================================
+   12. STATUS MESSAGES
+   ================================ */
+.status {
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin: 10px 0;
+    font-weight: 600;
+    text-align: center;
+}
+
+.status.success {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.status.error {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.status.info {
+    background: rgba(139, 92, 246, 0.2);
+    color: #8b5cf6;
+    border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+/* ================================
+   13. RESPONSIVE DESIGN
+   ================================ */
+@media (max-width: 768px) {
+    .setup-controls {
+        grid-template-columns: 1fr;
+    }
+
+    .setup-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .setup-btn {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .header-content {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .sections-grid {
+        padding: 15px;
+    }
+}
+
+/* ================================
+   14. ANIMATIONS
+   ================================ */
+@keyframes slideUp {
+    from { transform: translateX(-50%) translateY(100px); opacity: 0; }
+    to { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+
+@keyframes pulse-target {
+    0%, 100% { box-shadow: 0 0 15px rgba(39, 174, 96, 0.4); }
+    50% { box-shadow: 0 0 25px rgba(39, 174, 96, 0.7); }
+}
+
+/* ================================
+   15. DRAG AND DROP
+   ================================ */
+.table-card.drag-target {
+    border: 2px solid #a855f7 !important;
+    border-radius: 18px !important;
+    box-shadow: 0 8px 30px rgba(168, 85, 247, 0.5) !important;
+    transform: scale(1.03);
+    background: rgba(168, 85, 247, 0.15) !important;
+}
+
+.position.drop-target::after {
+    content: attr(data-iv);
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    color: #10b981;
+    font-size: 0.7em;
+    font-weight: 600;
+}
+
+.position.dragging {
+    opacity: 0.5;
+    transform: scale(0.95);
+}
+
+/* ================================
+   16. PRINT STYLES
+   ================================ */
+@media print {
+    body {
+        background: white !important;
+        color: black !important;
+    }
+
+    .mitchell-display {
+        background: white;
+    }
+
+    .table-card {
+        break-inside: avoid;
+        border: 1px solid #333;
+        background: white;
+    }
+
+    .tournament-header {
+        background: white !important;
+        color: black !important;
+        border: 1px solid #333;
+    }
+}

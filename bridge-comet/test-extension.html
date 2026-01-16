@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Extension Debug</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #f0f0f0; }
+        .test { margin: 10px 0; padding: 10px; background: white; border-radius: 5px; }
+        .pass { border-left: 5px solid green; }
+        .fail { border-left: 5px solid red; }
+        button { padding: 10px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Diagnostic Extension Bridge Comet</h1>
+
+    <div class="test">
+        <h3>1. Test de l'API Chrome</h3>
+        <button onclick="testChromeAPI()">Tester</button>
+        <div id="chromeResult"></div>
+    </div>
+
+    <div class="test">
+        <h3>2. Test du Storage</h3>
+        <button onclick="testStorage()">Tester</button>
+        <div id="storageResult"></div>
+    </div>
+
+    <div class="test">
+        <h3>3. Test Content Script</h3>
+        <button onclick="testContentScript()">Tester sur FFB</button>
+        <div id="contentResult"></div>
+    </div>
+
+    <div class="test">
+        <h3>4. Test URL Generator</h3>
+        <button onclick="testGenerator()">Tester</button>
+        <div id="generatorResult"></div>
+    </div>
+
+    <script>
+        function log(elementId, message, success = true) {
+            const element = document.getElementById(elementId);
+            element.innerHTML += `<div style="color: ${success ? 'green' : 'red'}">${message}</div>`;
+        }
+
+        function testChromeAPI() {
+            const result = document.getElementById('chromeResult');
+            result.innerHTML = '';
+
+            log('chromeResult', 'Testing chrome object...', !!chrome);
+            log('chromeResult', 'Testing chrome.runtime...', !!(chrome && chrome.runtime));
+            log('chromeResult', 'Testing chrome.tabs...', !!(chrome && chrome.tabs));
+            log('chromeResult', 'Testing chrome.storage...', !!(chrome && chrome.storage));
+            log('chromeResult', 'Testing chrome.scripting...', !!(chrome && chrome.scripting));
+
+            if (chrome && chrome.runtime && chrome.runtime.getURL) {
+                const testURL = chrome.runtime.getURL('bridge-section-generator-v2.html');
+                log('chromeResult', `Generator URL: ${testURL}`);
+            }
+        }
+
+        function testStorage() {
+            const result = document.getElementById('storageResult');
+            result.innerHTML = '';
+
+            if (!chrome || !chrome.storage) {
+                log('storageResult', 'Chrome storage not available', false);
+                return;
+            }
+
+            const testData = { test: 'data', timestamp: Date.now() };
+
+            chrome.storage.local.set({ 'testData': testData }, () => {
+                if (chrome.runtime.lastError) {
+                    log('storageResult', `Storage SET failed: ${chrome.runtime.lastError.message}`, false);
+                } else {
+                    log('storageResult', 'Storage SET successful');
+
+                    chrome.storage.local.get(['testData'], (result) => {
+                        if (chrome.runtime.lastError) {
+                            log('storageResult', `Storage GET failed: ${chrome.runtime.lastError.message}`, false);
+                        } else {
+                            log('storageResult', `Storage GET successful: ${JSON.stringify(result.testData)}`);
+                        }
+                    });
+                }
+            });
+        }
+
+        function testContentScript() {
+            const result = document.getElementById('contentResult');
+            result.innerHTML = '';
+
+            if (!chrome || !chrome.tabs) {
+                log('contentResult', 'Chrome tabs not available', false);
+                return;
+            }
+
+            chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+                const currentTab = tabs[0];
+                log('contentResult', `Current tab: ${currentTab.url}`);
+
+                if (!currentTab.url.includes('ffbridge.fr')) {
+                    log('contentResult', '⚠️ Not on FFB site - go to metier.ffbridge.fr first', false);
+                    return;
+                }
+
+                chrome.scripting.executeScript({
+                    target: { tabId: currentTab.id },
+                    func: () => {
+                        return {
+                            hasTable: !!document.querySelector('table.summary-table'),
+                            hasBody: !!document.querySelector('table.summary-table tbody'),
+                            rowCount: document.querySelectorAll('table.summary-table tbody tr').length,
+                            url: window.location.href
+                        };
+                    }
+                }, (results) => {
+                    if (chrome.runtime.lastError) {
+                        log('contentResult', `Script injection failed: ${chrome.runtime.lastError.message}`, false);
+                    } else if (results && results[0]) {
+                        const data = results[0].result;
+                        log('contentResult', `Table found: ${data.hasTable}`);
+                        log('contentResult', `Body found: ${data.hasBody}`);
+                        log('contentResult', `Rows found: ${data.rowCount}`);
+                        log('contentResult', `URL: ${data.url}`);
+                    }
+                });
+            });
+        }
+
+        function testGenerator() {
+            const result = document.getElementById('generatorResult');
+            result.innerHTML = '';
+
+            if (!chrome || !chrome.runtime) {
+                log('generatorResult', 'Chrome runtime not available', false);
+                return;
+            }
+
+            try {
+                const generatorURL = chrome.runtime.getURL('bridge-section-generator-v2.html');
+                log('generatorResult', `Generator URL: ${generatorURL}`);
+
+                chrome.tabs.create({
+                    url: generatorURL
+                }, (tab) => {
+                    if (chrome.runtime.lastError) {
+                        log('generatorResult', `Tab creation failed: ${chrome.runtime.lastError.message}`, false);
+                    } else {
+                        log('generatorResult', `Generator opened successfully in tab ${tab.id}`);
+                    }
+                });
+            } catch (error) {
+                log('generatorResult', `Error: ${error.message}`, false);
+            }
+        }
+    </script>
+</body>
+</html>

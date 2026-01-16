@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FFB Bridge Generator - Auto Display</title>
+    <link rel="stylesheet" href="bridge-generator-styles.css">
+</head>
+<body>
+    <!-- Setup Screen (Configuration) -->
+    <div id="setupScreen" class="setup-screen">
+        <div class="setup-container">
+            <div class="setup-header">
+                <h1>🃏 Configuration du Tournoi FFB</h1>
+                <p id="playerCount">Données extraites : 0 joueurs</p>
+                <div id="status" style="display: none; margin: 10px 0; padding: 10px; border-radius: 8px; font-weight: 600;"></div>
+            </div>
+
+            <div class="setup-content">
+                <div class="setup-section">
+                    <h3>⚙️ Paramètres du tournoi</h3>
+
+                    <div class="setup-controls">
+                        <div class="control-group">
+                            <label for="movementType">Type de mouvement :</label>
+                            <select id="movementType">
+                                <option value="auto">Automatique (recommandé)</option>
+                                <option value="mitchell">Mitchell</option>
+                                <option value="howell">Howell</option>
+                            </select>
+                            <small id="movementHelp">Détection automatique selon le nombre d'équipes</small>
+                        </div>
+
+                        <div class="control-group">
+                            <label for="sectionCount">Nombre de sections :</label>
+                            <select id="sectionCount">
+                                <option value="auto">Automatique (recommandé)</option>
+                                <option value="1">1 section</option>
+                                <option value="2">2 sections</option>
+                                <option value="3">3 sections</option>
+                                <option value="4">4 sections</option>
+                            </select>
+                            <small id="sectionHelp">Calcul automatique selon le nombre d'équipes</small>
+                        </div>
+
+                        <div class="control-group">
+                            <label for="algorithmType">Algorithme de placement :</label>
+                            <select id="algorithmType">
+                                <option value="147">147 (Mitchell classique)</option>
+                                <option value="balanced">Équilibré par IV</option>
+                                <option value="random">Aléatoire</option>
+                            </select>
+                            <small>Méthode de répartition des équipes dans les tables</small>
+                        </div>
+
+                        <div class="control-group">
+                            <label>
+                                <input type="checkbox" id="autoFullscreen" checked>
+                                Plein écran automatique
+                            </label>
+                        </div>
+
+                        <div class="control-group">
+                            <label>
+                                <input type="checkbox" id="darkMode">
+                                Mode sombre
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="setup-preview" id="setupPreview">
+                        <h4>📊 Aperçu de la configuration</h4>
+                        <div id="previewContent">
+                            Configuration en attente...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="setup-actions">
+                <button id="generateTournament" class="setup-btn primary">
+                    🚀 Générer le tournoi
+                </button>
+                <button id="loadTestData" class="setup-btn secondary">
+                    🎲 Charger données de test
+                </button>
+                <button id="backToExtraction" class="setup-btn secondary">
+                    ← Retour à l'extraction
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tournament Display -->
+    <div id="tournamentDisplay" class="mitchell-display" style="display: none;">
+        <div class="tournament-header">
+            <div class="header-content">
+                <span id="tournamentTitle">FFB Tournament - Auto Generated</span>
+                <button id="backToSetup" class="header-btn">⚙️ Configuration</button>
+            </div>
+        </div>
+
+        <div id="sectionsContainer" class="sections-grid">
+        </div>
+
+        <div id="byeSelector" class="bye-selector" style="display: none;">
+            <h3>🎯 Choisir l'équipe RELAIS (bye)</h3>
+            <p style="margin-bottom: 15px; color: #cbd5e1; font-size: 0.9em;">
+                Sélectionnez l'équipe qui sera relais en table 1 NS
+            </p>
+            <div id="byeTeamsList" class="bye-teams">
+            </div>
+            <div class="bye-controls">
+                <button class="bye-btn cancel" onclick="cancelByeSelection()">Annuler</button>
+                <button class="bye-btn confirm" onclick="confirmByeSelection()">Confirmer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Screen (deprecated but kept for compatibility) -->
+    <div id="loadingMessage" class="loading" style="display: none;">
+        🔄 Génération automatique en cours...
+    </div>
+
+    <script src="bridge-generator.js"></script>
+</body>
+</html>

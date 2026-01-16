@@ -4,15 +4,43 @@
   "version": "1.0",
   "description": "Gestionnaire de tournois FFB ClubNet avec extraction automatique",
 
-  "permissions": ["activeTab", "storage"],
+  "permissions": ["activeTab", "storage", "tabs", "scripting"],
 
   "action": {
     "default_popup": "popup.html",
-    "default_title": "FFB ClubNet Manager"
+    "default_title": "FFB ClubNet Manager",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
   },
 
   "content_scripts": [{
-    "matches": ["*://metier.ffbridge.fr/*"],
-    "js": ["content.js"]
-  }]
+    "matches": ["*://metier.ffbridge.fr/*", "*://*.ffbridge.fr/*"],
+    "js": ["content.js"],
+    "run_at": "document_end"
+  }],
+
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
+
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "bridge-section-generator-v2.html",
+        "bridge-generator-v2.js",
+        "bridge-generator-styles.css",
+        "test-extension.html"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }

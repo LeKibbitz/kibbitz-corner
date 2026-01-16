@@ -1,0 +1,1672 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bridge Generator V2 - Public Display Optimized</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a0a;
+            min-height: 100vh;
+            overflow-x: auto;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            color: #e0e0e0;
+            position: relative;
+        }
+
+        /* Particle background effect */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(circle at 20% 80%, rgba(168, 85, 247, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.1) 0%, transparent 50%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        body.dark-mode {
+            background: #1a1a1a !important;
+            color: #e0e0e0 !important;
+        }
+
+        /* ALL TEXT uses same color as player names */
+        .dark-mode .player-name,
+        .dark-mode .table-header,
+        .dark-mode .section-title,
+        .dark-mode h1, .dark-mode h2, .dark-mode h3,
+        .dark-mode p, .dark-mode span:not(.constraint-indicator),
+        .header-content span,
+        .section-banner,
+        .section-letter,
+        .section-stats,
+        .section-stats-line,
+        .ns-text,
+        .eo-text,
+        .position-indicator,
+        .tournament-header,
+        .header-title,
+        .header-btn,
+        .section-btn,
+        .algo-btn,
+        .section-control label,
+        .algo-control label,
+        body,
+        * {
+            color: #e0e0e0 !important;
+        }
+
+        /* Override white color anywhere */
+        [style*="color: white"],
+        [style*="color:#fff"],
+        [style*="color:#ffffff"],
+        [style*="color: #fff"],
+        [style*="color: #ffffff"] {
+            color: #e0e0e0 !important;
+        }
+
+        .dark-mode .table-card {
+            background: #34495e;
+            border-color: #4a6741;
+        }
+
+        .dark-mode .position {
+            background: #2c3e50;
+            border-color: #4a6741;
+            color: #ecf0f1;
+        }
+
+        .dark-mode .player-name {
+            color: #ecf0f1;
+        }
+
+        .dark-mode .tournament-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        }
+
+        .dark-mode .section-title {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+        }
+
+        .dark-mode .global-headers {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            border-color: #4a6741;
+        }
+
+        .dark-mode .section-stats {
+            background: transparent;
+            border: none;
+        }
+
+        .setup-mode {
+            padding: 20px;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .display-mode {
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            overflow: auto;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: transparent;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .mitchell-display {
+            width: 100vw;
+            height: 100vh;
+            background: transparent;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            color: #e0e0e0;
+        }
+
+        .tournament-header {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: #e0e0e0;
+            padding: 20px 30px;
+            box-shadow: 0 8px 40px rgba(99, 102, 241, 0.15), 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+            border-radius: 0 0 20px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tournament-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 20%, rgba(168, 85, 247, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-content span {
+            font-size: 1.6em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 50%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+            flex: 1;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .section-control, .algo-control, .table-control {
+            background: transparent;
+            padding: 0;
+            border: none;
+            color: white;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .section-control select, .table-control input {
+            display: none;
+        }
+
+        .fullscreen-exit {
+            background: transparent;
+            border: none;
+            color: rgba(255,255,255,0.6);
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: all 0.2s ease;
+        }
+
+        .fullscreen-exit:hover {
+            color: rgba(255,255,255,0.95);
+            transform: scale(1.2);
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 4px;
+            align-items: flex-end;
+            padding: 5px 0;
+        }
+
+        /* Effet Génie MacOS Dock - Smooth */
+        .header-btn, .section-btn, .algo-btn, .fullscreen-exit {
+            background: transparent;
+            color: rgba(255,255,255,0.6);
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 500;
+            transition: transform 0.2s ease-out, color 0.15s ease, text-shadow 0.15s ease;
+            white-space: nowrap;
+            transform-origin: bottom center;
+        }
+
+        .header-btn:hover, .section-btn:hover, .algo-btn:hover {
+            color: rgba(255,255,255,0.95);
+            transform: scale(1.2) translateY(-2px);
+            text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        /* Effet voisin smooth */
+        .header-btn:hover + .header-btn,
+        .section-btn:hover + .section-btn,
+        .algo-btn:hover + .algo-btn,
+        .header-btn:has(+ .header-btn:hover),
+        .section-btn:has(+ .section-btn:hover),
+        .algo-btn:has(+ .algo-btn:hover) {
+            transform: scale(1.08) translateY(-1px);
+            color: rgba(255,255,255,0.7);
+        }
+
+        .header-btn.active, .section-btn.active, .algo-btn.active {
+            color: #ffffff;
+            font-weight: 700;
+            text-shadow: 0 0 12px rgba(255,255,255,0.6);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 2px;
+            align-items: flex-end;
+            background: transparent;
+            padding: 0;
+            border: none;
+        }
+
+        .section-control label, .algo-control label {
+            display: none;
+        }
+
+        /* Séparateur dans header */
+        .header-separator {
+            color: rgba(255,255,255,0.2);
+            font-size: 1.2em;
+            padding: 0 5px;
+            user-select: none;
+        }
+
+        /* Contrôle nombre de tables en HAUT du bandeau section */
+        .table-count-control {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            padding: 8px 0;
+            order: -1; /* Place en haut du bandeau */
+        }
+
+        .table-count-btn {
+            background: transparent;
+            border: none;
+            color: rgba(255,255,255,0.4);
+            font-size: 1em;
+            cursor: pointer;
+            padding: 2px 6px;
+            transition: all 0.2s ease;
+            line-height: 1;
+        }
+
+        .table-count-btn:hover {
+            color: rgba(255,255,255,0.95);
+            transform: scale(1.3);
+        }
+
+        .table-count-display {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .table-count-value {
+            font-size: 1.4em;
+            font-weight: 700;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        .table-icon {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        /* Section colors for table count */
+        .section-a .table-count-value, .section-a .table-icon { color: #e9d5ff; text-shadow: 0 0 8px rgba(168, 85, 247, 0.5); }
+        .section-b .table-count-value, .section-b .table-icon { color: #fce7f3; text-shadow: 0 0 8px rgba(236, 72, 153, 0.5); }
+        .section-c .table-count-value, .section-c .table-icon { color: #cffafe; text-shadow: 0 0 8px rgba(6, 182, 212, 0.5); }
+
+        /* Flash effect for modified counters */
+        .table-count-value.modified {
+            animation: flashModified 0.8s ease-in-out infinite;
+        }
+
+        @keyframes flashModified {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .section-a .table-count-value.modified {
+            color: #c084fc;
+            text-shadow: 0 0 15px rgba(168, 85, 247, 0.8);
+        }
+        .section-b .table-count-value.modified {
+            color: #f472b6;
+            text-shadow: 0 0 15px rgba(236, 72, 153, 0.8);
+        }
+        .section-c .table-count-value.modified {
+            color: #22d3ee;
+            text-shadow: 0 0 15px rgba(6, 182, 212, 0.8);
+        }
+
+        /* Cartouche de modification en attente */
+        .pending-changes {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.95) 0%, rgba(236, 72, 153, 0.95) 100%);
+            padding: 12px 24px;
+            border-radius: 30px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateX(-50%) translateY(100px); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+
+        .pending-changes.hidden {
+            display: none;
+        }
+
+        .pending-changes span {
+            color: white;
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        .pending-changes button {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .pending-changes button:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+
+        .pending-changes .regen-btn {
+            background: rgba(39, 174, 96, 0.8);
+        }
+
+        .pending-changes .cancel-btn {
+            background: rgba(231, 76, 60, 0.6);
+        }
+
+        .sections-grid {
+            flex: 1;
+            display: flex;
+            gap: 40px;
+            padding: 10px;
+            padding-right: 10px;
+            justify-content: center;
+            align-items: flex-start;
+            overflow-y: auto;
+        }
+
+        .sections-grid.two-sections {
+            padding-right: 10px;
+        }
+
+        .sections-grid.three-sections {
+            padding-right: 10px;
+        }
+
+        .three-sections .section-container {
+            flex: 1;
+            max-width: 33%;
+        }
+
+        .section-container {
+            flex: 1;
+            max-width: 50%;
+        }
+
+        .section-banner {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+            width: 75px;
+            margin-right: 20px;
+            border-radius: 16px;
+            box-shadow: none !important;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 10px 0;
+            gap: 5px;
+            position: relative;
+            overflow: hidden;
+            border: none !important;
+            backdrop-filter: none !important;
+        }
+
+        .section-letter {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', 'Helvetica Neue', sans-serif;
+            font-weight: 800;
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            line-height: 1;
+            font-variation-settings: 'wght' 800, 'wdth' 100;
+            writing-mode: horizontal-tb;
+            text-align: center;
+            letter-spacing: -0.05em;
+            flex: 1;
+            min-height: 60px;
+        }
+
+        .section-stats {
+            padding: 15px 4px 10px 4px;
+            font-size: 1rem;
+            font-weight: 500;
+            line-height: 1.4;
+            text-align: center;
+            width: 100%;
+            background: transparent;
+        }
+
+        .section-stats-line {
+            margin: 3px 0;
+            font-size: 1em;
+            font-weight: 500;
+            text-align: center;
+            opacity: 0.85;
+            letter-spacing: 0.02em;
+        }
+
+        .section-stats-line:nth-child(1) {
+            height: 0;
+            display: none;
+        }
+
+        /* Labels NS/EO - subtle */
+        .section-stats-line:nth-child(2),
+        .section-stats-line:nth-child(4) {
+            font-size: 0.9em;
+            font-weight: 600;
+            opacity: 0.75;
+            letter-spacing: 0.1em;
+        }
+
+        /* Values - emphasized */
+        .section-stats-line:nth-child(3),
+        .section-stats-line:nth-child(5) {
+            font-weight: 700;
+            font-size: 1.3em;
+            opacity: 1;
+        }
+
+        /* Section-specific text colors with nuances */
+        .section-a .section-stats-line {
+            color: #d8b4fe; /* Light purple - nuance of section A violet */
+            text-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+        }
+        .section-a .section-stats-line:nth-child(3),
+        .section-a .section-stats-line:nth-child(5) {
+            color: #f3e8ff; /* Brighter purple for values */
+        }
+
+        .section-b .section-stats-line {
+            color: #fbcfe8; /* Light pink - nuance of section B rose */
+            text-shadow: 0 0 10px rgba(236, 72, 153, 0.5);
+        }
+        .section-b .section-stats-line:nth-child(3),
+        .section-b .section-stats-line:nth-child(5) {
+            color: #fce7f3; /* Brighter pink for values */
+        }
+
+        .section-c .section-stats-line {
+            color: #a5f3fc; /* Light cyan - nuance of section C */
+            text-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+        }
+        .section-c .section-stats-line:nth-child(3),
+        .section-c .section-stats-line:nth-child(5) {
+            color: #cffafe; /* Brighter cyan for values */
+        }
+
+        .section-title {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+            padding: 8px;
+            text-align: center;
+            font-weight: bold;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+            display: none; /* Hidden by default, will be replaced by section-banner */
+        }
+
+        .section-name {
+            flex: 1;
+            text-align: center;
+        }
+
+        .section-ns-avg,
+        .section-eo-avg {
+            font-size: 0.9em;
+            font-weight: normal;
+            opacity: 0.9;
+        }
+
+        .section-ns-avg {
+            text-align: left;
+        }
+
+        .section-eo-avg {
+            text-align: right;
+        }
+
+        .section-container {
+            display: flex;
+            margin-bottom: 30px;
+            align-items: stretch;
+        }
+
+        .section-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tables-grid {
+            flex: 1;
+        }
+
+        .section-averages {
+            font-size: 0.85em;
+            line-height: 1.4;
+        }
+
+        /* Hide amounts, IV, and payment info from main display */
+        .player-amount, .iv-total, .payment-info {
+            display: none;
+        }
+
+        /* Show details on hover or click */
+        .position.show-details .player-amount,
+        .position.show-details .iv-total,
+        .position.show-details .payment-info {
+            display: inline-block;
+        }
+
+        /* Payment info styling */
+        .payment-info {
+            font-size: 0.8em;
+            color: #e74c3c;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        /* Click indicator for team cards */
+        .position.clickable {
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .position.clickable:hover {
+            transform: scale(1.02);
+        }
+
+        /* Drag and drop destination styling */
+        .table-card.drag-target {
+            border: 2px solid #a855f7 !important;
+            border-radius: 18px !important;
+            box-shadow: 0 8px 30px rgba(168, 85, 247, 0.5) !important;
+            transform: scale(1.03);
+            background: rgba(168, 85, 247, 0.15) !important;
+        }
+
+        .section-b .table-card.drag-target {
+            border-color: #ec4899 !important;
+            box-shadow: 0 8px 30px rgba(236, 72, 153, 0.5) !important;
+            background: rgba(236, 72, 153, 0.15) !important;
+        }
+
+        .section-c .table-card.drag-target {
+            border-color: #06b6d4 !important;
+            box-shadow: 0 8px 30px rgba(6, 182, 212, 0.5) !important;
+            background: rgba(6, 182, 212, 0.15) !important;
+        }
+
+        /* Section colors matching Kibbitz Corner aesthetic */
+        .section-a .section-title,
+        .section-a .section-banner {
+            background: linear-gradient(135deg, #a855f7 0%, #8b5cf6 100%);
+        }
+
+        .section-b .section-title,
+        .section-b .section-banner {
+            background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+        }
+
+        .section-c .section-title,
+        .section-c .section-banner {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+        }
+
+        /* .section-stats is defined earlier with section-specific colors */
+
+        .stat-line {
+            margin: 2px 0;
+        }
+
+        /* Relais - nuance subtile par rapport aux autres cartouches */
+        .relais-position {
+            background: linear-gradient(135deg, rgba(60, 70, 60, 0.95) 0%, rgba(50, 60, 50, 0.95) 100%) !important;
+            border-color: rgba(120, 140, 100, 0.6) !important;
+        }
+
+        .section-a .relais-position {
+            background: linear-gradient(135deg, rgba(90, 60, 100, 0.4) 0%, rgba(70, 50, 80, 0.4) 100%) !important;
+            border-color: rgba(168, 85, 247, 0.4) !important;
+        }
+
+        .section-b .relais-position {
+            background: linear-gradient(135deg, rgba(100, 50, 70, 0.4) 0%, rgba(80, 40, 60, 0.4) 100%) !important;
+            border-color: rgba(236, 72, 153, 0.4) !important;
+        }
+
+        .section-c .relais-position {
+            background: linear-gradient(135deg, rgba(40, 80, 90, 0.4) 0%, rgba(30, 70, 80, 0.4) 100%) !important;
+            border-color: rgba(6, 182, 212, 0.4) !important;
+        }
+
+        .relais-position .empty-position {
+            color: rgba(255,255,255,0.5);
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        .tables-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+            flex: 1;
+        }
+
+        .table-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(20px);
+            display: flex;
+            min-height: 60px;
+            margin-bottom: 8px;
+            position: relative;
+        }
+
+        .table-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 16px;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: xor;
+            pointer-events: none;
+        }
+
+        /* Section-specific table colors matching section banners EXACTLY */
+        .section-a .table-card {
+            border-left: 4px solid #a855f7;
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%);
+            color: #e0e0e0;
+            box-shadow: 0 4px 20px rgba(168, 85, 247, 0.25);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+        }
+
+        .section-b .table-card {
+            border-left: 4px solid #ec4899;
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.15) 0%, rgba(219, 39, 119, 0.15) 100%);
+            color: #e0e0e0;
+            box-shadow: 0 4px 20px rgba(236, 72, 153, 0.25);
+            border: 1px solid rgba(236, 72, 153, 0.2);
+        }
+
+        .section-c .table-card {
+            border-left: 4px solid #06b6d4;
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(8, 145, 178, 0.15) 100%);
+            color: #e0e0e0;
+            box-shadow: 0 4px 20px rgba(6, 182, 212, 0.25);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+        }
+
+        /* Dark mode section table colors */
+        .dark-mode .section-a .table-card {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            border-left-color: #3498db;
+        }
+
+        .dark-mode .section-b .table-card {
+            background: linear-gradient(135deg, #2c3e50 0%, #27ae60 100%);
+            border-left-color: #2ecc71;
+        }
+
+        .dark-mode .section-c .table-card {
+            background: linear-gradient(135deg, #2c3e50 0%, #e74c3c 100%);
+            border-left-color: #e74c3c;
+        }
+
+        .table-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        }
+
+        .section-a .table-card:hover {
+            box-shadow: 0 12px 40px rgba(168, 85, 247, 0.4);
+            border-color: rgba(168, 85, 247, 0.4);
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%);
+        }
+
+        .section-b .table-card:hover {
+            box-shadow: 0 12px 40px rgba(236, 72, 153, 0.4);
+            border-color: rgba(236, 72, 153, 0.4);
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.2) 0%, rgba(219, 39, 119, 0.2) 100%);
+        }
+
+        .section-c .table-card:hover {
+            box-shadow: 0 12px 40px rgba(6, 182, 212, 0.4);
+            border-color: rgba(6, 182, 212, 0.4);
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(8, 145, 178, 0.2) 100%);
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+            padding: 10px 12px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px 14px 0 0;
+            min-height: 40px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Section-specific table header colors matching section banners EXACTLY */
+        .section-a .table-header {
+            background: linear-gradient(135deg, #a855f7 0%, #8b5cf6 100%) !important;
+            color: #e0e0e0 !important;
+            font-weight: 700 !important;
+            text-shadow: none !important;
+            box-shadow: none !important;
+            border: none !important;
+            border-radius: 16px !important;
+        }
+
+        .section-b .table-header {
+            background: linear-gradient(135deg, #ec4899 0%, #db2777 100%) !important;
+            color: #e0e0e0 !important;
+            font-weight: 700 !important;
+            text-shadow: none !important;
+            box-shadow: none !important;
+            border: none !important;
+            border-radius: 16px !important;
+        }
+
+        .section-c .table-header {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%) !important;
+            color: #e0e0e0 !important;
+            font-weight: 700 !important;
+            text-shadow: none !important;
+            box-shadow: none !important;
+            border: none !important;
+            border-radius: 16px !important;
+        }
+
+        /* Single section inherits from section-a/b/c - no override needed */
+        /* Table headers now always follow their parent section color */
+
+        .table-positions {
+            display: flex;
+            flex: 1;
+        }
+
+        .global-headers {
+            display: flex;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+
+        .global-header-spacer {
+            width: 60px;
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border-radius: 4px 0 0 4px;
+            font-size: 0.9em;
+        }
+
+        .global-header {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ns-header {
+            border-right: 1px solid #dee2e6;
+            color: #007bff;
+        }
+
+        .eo-header {
+            color: #dc3545;
+        }
+
+        .position {
+            flex: 1;
+            padding: 3px 5px;
+            border: 1px solid #e9ecef;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+            cursor: grab;
+            min-height: var(--position-height, 45px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            position: relative;
+            font-size: 0.9em;
+        }
+
+        /* Hover équipes: bordure lumineuse + scintillement, pas de changement de background */
+        .position:hover {
+            border-color: rgba(255,255,255,0.6);
+            box-shadow: 0 0 12px rgba(255,255,255,0.3), inset 0 0 0 1px rgba(255,255,255,0.2);
+            animation: shimmer 1.5s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { box-shadow: 0 0 12px rgba(255,255,255,0.3), inset 0 0 0 1px rgba(255,255,255,0.2); }
+            50% { box-shadow: 0 0 18px rgba(255,255,255,0.5), inset 0 0 0 1px rgba(255,255,255,0.35); }
+        }
+
+        /* Hover couleurs par section */
+        .section-a .position:hover {
+            border-color: rgba(168, 85, 247, 0.8);
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+        }
+        .section-b .position:hover {
+            border-color: rgba(236, 72, 153, 0.8);
+            box-shadow: 0 0 15px rgba(236, 72, 153, 0.4);
+        }
+        .section-c .position:hover {
+            border-color: rgba(6, 182, 212, 0.8);
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+        }
+
+        .position.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+            transform: rotate(3deg) scale(1.05);
+        }
+
+        /* Drop target pendant le drag - avec IV visible */
+        .position.drop-target {
+            border-color: rgba(39, 174, 96, 0.9);
+            border-width: 2px;
+            border-style: solid;
+            box-shadow: 0 0 20px rgba(39, 174, 96, 0.5);
+            animation: pulse-target 0.8s ease-in-out infinite;
+        }
+
+        @keyframes pulse-target {
+            0%, 100% { box-shadow: 0 0 15px rgba(39, 174, 96, 0.4); }
+            50% { box-shadow: 0 0 25px rgba(39, 174, 96, 0.7); }
+        }
+
+        /* IV overlay sur les destinations pendant le drag */
+        .position.drop-target::after {
+            content: attr(data-iv);
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            font-size: 0.75em;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            z-index: 10;
+        }
+
+        .position.similarity-green {
+            background: #d4edda;
+            border-color: #28a745;
+            animation: pulse-green 0.8s infinite;
+        }
+
+        .position.similarity-orange {
+            background: #fff3cd;
+            border-color: #ffc107;
+            animation: pulse-orange 0.8s infinite;
+        }
+
+        .position.similarity-red {
+            background: #f8d7da;
+            border-color: #dc3545;
+            animation: pulse-red 0.8s infinite;
+        }
+
+        @keyframes pulse-green {
+            0%, 100% { box-shadow: 0 0 5px rgba(40, 167, 69, 0.4); }
+            50% { box-shadow: 0 0 15px rgba(40, 167, 69, 0.8); }
+        }
+
+        @keyframes pulse-orange {
+            0%, 100% { box-shadow: 0 0 5px rgba(255, 193, 7, 0.4); }
+            50% { box-shadow: 0 0 15px rgba(255, 193, 7, 0.8); }
+        }
+
+        @keyframes pulse-red {
+            0%, 100% { box-shadow: 0 0 5px rgba(220, 53, 69, 0.4); }
+            50% { box-shadow: 0 0 15px rgba(220, 53, 69, 0.8); }
+        }
+
+
+        .ns-position {
+            border-right: 1px solid #dee2e6;
+        }
+
+        .eo-position {
+            border-left: 1px solid #dee2e6;
+        }
+
+        .pair-info {
+            display: flex;
+            align-items: center;
+            height: 100%;
+            padding: 2px;
+        }
+
+        .player-names {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            line-height: 1.1;
+        }
+
+        .player-name {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 1.4em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.4;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            letter-spacing: 0.5px;
+        }
+
+        /* Adaptive font size for long names */
+        .player-name.name-long {
+            font-size: 1.2em;
+        }
+        .player-name.name-very-long {
+            font-size: 1em;
+        }
+
+        .player-amount {
+            font-size: 0.75em;
+            color: #666;
+            margin-left: 4px;
+            flex-shrink: 0;
+        }
+
+        /* Payment status colors */
+        .payment-full .player-name {
+            color: #27ae60 !important; /* Green for fully paid */
+            font-weight: 600;
+        }
+
+        .payment-partial .player-name {
+            color: #f39c12 !important; /* Orange for partial payment */
+            font-weight: 600;
+        }
+
+        .payment-none .player-name {
+            color: #e74c3c !important; /* Red for no payment */
+            font-weight: 600;
+        }
+
+        /* Dark mode payment colors - FONT ONLY */
+        .dark-mode .payment-partial .player-name {
+            color: #f7dc6f !important;
+            font-weight: 600;
+        }
+
+        .dark-mode .payment-none .player-name {
+            color: #f1948a !important;
+            font-weight: 600;
+        }
+
+        .dark-mode .payment-full .player-name {
+            color: #a7f3d0 !important; /* Emerald-200 for fully paid */
+            font-weight: 600;
+        }
+
+        .iv-total {
+            font-weight: bold;
+            color: #8B5A96;
+            font-size: 0.9em;
+            margin-left: 6px;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .ns-constraint .constraint-indicator {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #1976d2;
+            margin-right: 8px;
+            font-size: 0.7em;
+            min-width: 25px;
+            background: rgba(33, 150, 243, 0.1);
+            border-radius: 4px;
+            padding: 2px;
+        }
+
+        .dark-mode .ns-constraint .constraint-indicator {
+            color: #3498db;
+            background: rgba(52, 152, 219, 0.2);
+        }
+
+        .ns-constraint .pair-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .ns-constraint .lock-icon {
+            font-size: 1em;
+            margin-bottom: 1px;
+        }
+
+        .ns-constraint .ns-text {
+            font-size: 0.6em;
+            font-weight: bold;
+        }
+
+        .constraint-indicator {
+            display: none;
+        }
+
+        .position-indicator {
+            position: absolute;
+            top: 4px;
+            right: 6px;
+            font-size: 0.7em;
+            font-weight: 700;
+            opacity: 0.8;
+            z-index: 2;
+        }
+
+        .ns-text, .eo-text {
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .lock-icon {
+            font-size: 1.2em;
+            margin-bottom: 2px;
+        }
+
+        .ns-text {
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        /* Section-specific NS/EO text colors */
+        .section-a .ns-text,
+        .section-a .eo-text,
+        .section-a .position {
+            color: #e0e0e0;
+        }
+
+        .section-b .ns-text,
+        .section-b .eo-text,
+        .section-b .position {
+            color: #e0e0e0;
+        }
+
+        .section-c .ns-text,
+        .section-c .eo-text,
+        .section-c .position {
+            color: #e0e0e0;
+        }
+
+        /* Section-specific text shadows for better visibility */
+        .section-a .ns-text,
+        .section-a .eo-text {
+            text-shadow: 0 1px 3px rgba(168, 85, 247, 0.5);
+        }
+
+        .section-b .ns-text,
+        .section-b .eo-text {
+            text-shadow: 0 1px 3px rgba(236, 72, 153, 0.5);
+        }
+
+        .section-c .ns-text,
+        .section-c .eo-text {
+            text-shadow: 0 1px 3px rgba(6, 182, 212, 0.5);
+        }
+
+        .position:hover {
+            background: #fff3cd;
+            border-color: #ffc107;
+        }
+
+        .position.clickable {
+            cursor: pointer;
+        }
+
+        .constraint-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 15px;
+            z-index: 300;
+            display: none;
+            background: rgba(255,255,255,0.95);
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .page-controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 300;
+            display: none;
+            background: rgba(255,255,255,0.95);
+            padding: 8px 16px;
+            border-radius: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            font-weight: bold;
+        }
+
+        .page-indicator {
+            color: #8B5A96;
+            margin: 0 10px;
+        }
+
+        .tables-grid.paginated {
+            transition: transform 0.5s ease;
+        }
+
+        .dark-mode .constraint-controls,
+        .dark-mode .page-controls {
+            background: rgba(44, 62, 80, 0.95);
+            color: #ecf0f1;
+        }
+
+        .constraint-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin: 2px;
+        }
+
+        .constraint-btn:hover {
+            background: #218838;
+        }
+
+        .empty-position {
+            text-align: center;
+            color: #adb5bd;
+            font-style: italic;
+            padding: 8px 4px;
+            font-size: 0.75em;
+        }
+
+        /* Old controls styles removed - now in header */
+
+        .single-section .sections-grid {
+            justify-content: center;
+        }
+
+        .single-section .section-container {
+            max-width: 80%;
+        }
+
+        .single-section .tables-grid {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Two-column layout for single section with many tables */
+        .single-section.two-columns .tables-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            max-width: 1600px;
+            align-items: flex-start;
+        }
+
+        .single-section.two-columns .column-left,
+        .single-section.two-columns .column-right {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .single-section.two-columns .section-container {
+            max-width: 95%;
+        }
+
+        /* Responsive: Fall back to single column on small screens */
+        @media (max-width: 1200px) {
+            .single-section.two-columns .tables-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #8B5A96 0%, #E91E63 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .input-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 12px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #8B5A96;
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .section-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        select {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #8B5A96 0%, #E91E63 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .results {
+            margin-top: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, #8B5A96 0%, #E91E63 100%);
+            color: white;
+            padding: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .pairs-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .pairs-table th,
+        .pairs-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .pairs-table th {
+            background: #f8f9fa;
+            font-weight: bold;
+        }
+
+        .pairs-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .pairs-table tr:hover {
+            background: #e9ecef;
+        }
+
+        .player {
+            margin: 5px 0;
+        }
+
+        /* .player-name defined earlier with larger font for readability */
+
+        .player-info {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .iv-score {
+            font-weight: bold;
+            color: #8B5A96;
+        }
+
+        .print-button {
+            margin-top: 20px;
+            background: #28a745;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .container {
+                box-shadow: none;
+                border-radius: 0;
+            }
+
+            .input-section,
+            .controls,
+            .print-button,
+            .controls-bar {
+                display: none !important;
+            }
+
+            .mitchell-display {
+                background: white;
+            }
+
+            .table-card {
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="setupView" class="setup-mode" style="display: block;">
+        <div class="container">
+            <div class="header">
+                <h1>🃏 Bridge Generator V2 - Public Display</h1>
+                <p>TBD: Algo OK, Display OK, Multi-section OK, Need small fixes</p>
+                <p style="font-size: 0.9em; margin-top: 8px; opacity: 0.8;">
+                    Restful colors, highly visible for public use, section management
+                </p>
+            </div>
+
+            <div class="content">
+                <div class="input-section">
+                    <h3>1. Coller les données du tournoi</h3>
+                    <textarea id="tournamentData" placeholder="Collez ici les données copiées depuis ffbridge.fr..."></textarea>
+
+                    <div class="controls">
+                        <div class="section-selector">
+                            <label for="sectionCount">Nombre de sections:</label>
+                            <select id="sectionCount">
+                                <option value="1">1 section</option>
+                                <option value="2">2 sections</option>
+                                <option value="3">3 sections</option>
+                            </select>
+                        </div>
+
+                        <div class="section-selector">
+                            <label for="entryFee">Montant inscription:</label>
+                            <input type="number" id="entryFee" value="5.00" step="0.50" min="0" style="width: 80px; padding: 5px; text-align: center;">€
+                        </div>
+
+                        <button id="generateButton" type="button">
+                            Générer les sections
+                        </button>
+
+                        <button id="loadTestDataBtn" style="background: #6c757d; margin-left: 10px;">
+                            📋 Test 35 paires
+                        </button>
+                        <button id="loadTestData80Btn" style="background: #17a2b8; margin-left: 10px;">
+                            📋 Test 80 paires
+                        </button>
+
+                        <button id="debugDisplay" style="background: #dc3545; margin-left: 10px;">
+                            🐛 Debug
+                        </button>
+
+                        <button id="testJSBtn" style="background: #ffc107; margin-left: 10px;">
+                            ⚡ Test JS
+                        </button>
+                    </div>
+
+                    <div id="status" class="status" style="display: none;"></div>
+                </div>
+
+                <div id="results" class="results" style="display: none;">
+                    <h3>2. Mise en place des sections</h3>
+                    <div id="sectionsContainer"></div>
+                    <button class="print-button" id="printBtn">🖨️ Imprimer</button>
+                    <button id="showMitchellBtn" style="background: #28a745; margin-left: 10px;">
+                        📺 Affichage Mitchell
+                    </button>
+                    <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px; font-size: 0.9em;">
+                        <h5>🔗 Automatisation & Capture</h5>
+                        <p>Outils d'automatisation pour ffbridge.fr et capture d'écran :</p>
+                        <div style="margin: 10px 0;">
+                            <button onclick="showFFBExtractor()" style="background: #007bff; color: white; border: none; padding: 6px 12px; border-radius: 4px; margin-right: 8px;">
+                                📋 Extracteur FFB
+                            </button>
+                            <button onclick="initScreenCapture()" style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; margin-right: 8px;">
+                                📷 Capture Écran
+                            </button>
+                            <button onclick="setupN8NIntegration()" style="background: #6f42c1; color: white; border: none; padding: 6px 12px; border-radius: 4px;">
+                                🌐 Config n8n
+                            </button>
+                        </div>
+                        <div id="automationHelp" style="display: none; background: #fff; padding: 10px; border-radius: 4px; border: 1px solid #dee2e6; margin-top: 10px;">
+                            <!-- Dynamic help content -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="mitchellView" class="display-mode mitchell-display" style="display: none;">
+        <div class="tournament-header">
+            <div class="header-content">
+                <span id="tournamentTitle">Tournoi #1</span>
+                <div class="header-controls">
+                    <div class="section-control">
+                        <label>Sections:</label>
+                        <div class="button-group">
+                            <button id="sections1" class="section-btn active" data-sections="1">1</button>
+                            <button id="sections2" class="section-btn" data-sections="2">2</button>
+                            <button id="sections3" class="section-btn" data-sections="3">3</button>
+                        </div>
+                    </div>
+                    <div class="algo-control">
+                        <label>Algo:</label>
+                        <div class="button-group">
+                            <button id="algo147" class="algo-btn active" onclick="setAlgorithm('1-4-7')" title="Algorithme 1-4-7">147</button>
+                            <button id="algoNew" class="algo-btn" onclick="setAlgorithm('TBD')" title="Algorithme équilibré">?</button>
+                        </div>
+                    </div>
+                    <span class="header-separator">|</span>
+                    <button class="header-btn" onclick="showConstraintControls()" title="Contraintes NS fixe">🔒</button>
+                    <button class="header-btn" id="printBtn" title="Imprimer">🖨</button>
+                    <span class="header-separator">|</span>
+                    <button class="fullscreen-exit" onclick="closeToConfig()" id="fullscreenExit" title="Retour config">✕</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="constraint-controls" id="constraintControls">
+            <div style="margin-bottom: 8px; font-weight: bold; font-size: 0.9em;">Contraintes NS</div>
+            <div style="font-size: 0.8em; margin-bottom: 8px;" id="constraintCount">0 paire(s) marquée(s)</div>
+            <button class="constraint-btn" onclick="redistributeWithConstraints()">🔄 Redistribuer</button>
+            <button class="constraint-btn" onclick="clearConstraints()" style="background: #dc3545;">Effacer tout</button>
+        </div>
+
+        <!-- Cartouche de modifications en attente -->
+        <div class="pending-changes hidden" id="pendingChanges">
+            <span>⚠️ Modifications non appliquées</span>
+            <button class="regen-btn" onclick="applyPendingChanges()">✓ Appliquer</button>
+            <button class="cancel-btn" onclick="cancelPendingChanges()">✕ Annuler</button>
+        </div>
+
+        <div id="mitchellContainer" class="sections-grid">
+        </div>
+
+        <div class="page-controls" id="pageNavigation" style="display: none;">
+            <button id="prevPageBtn" style="background: #6c757d; color: white; border: none; padding: 5px 10px; border-radius: 4px;">◀</button>
+            <span class="page-indicator" id="pageIndicator">Page 1/1</span>
+            <button id="nextPageBtn" style="background: #6c757d; color: white; border: none; padding: 5px 10px; border-radius: 4px;">▶</button>
+        </div>
+
+    </div>
+
+    <!-- All JavaScript moved to bridge-generator-v2.js for CSP compliance -->
+    <script src="bridge-generator-v2.js"></script>
+</body>
+</html>
