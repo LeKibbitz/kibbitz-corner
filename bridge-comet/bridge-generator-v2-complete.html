@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bridge Generator V2 - Complete Edition</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a0a;
+            min-height: 100vh;
+            overflow-x: auto;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            color: #e0e0e0;
+            position: relative;
+        }
+
+        /* Particle background effect */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(circle at 20% 80%, rgba(168, 85, 247, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.1) 0%, transparent 50%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: transparent;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #8B5A96 0%, #E91E63 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 12px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: linear-gradient(135deg, #8B5A96 0%, #E91E63 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 15px 0;
+            font-weight: bold;
+            display: none;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        /* Mitchell Display Styles */
+        .display-mode {
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            overflow: auto;
+        }
+
+        .mitchell-display {
+            width: 100vw;
+            height: 100vh;
+            background: transparent;
+            display: none;
+            flex-direction: column;
+            position: relative;
+            color: #e0e0e0;
+        }
+
+        .tournament-header {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: #e0e0e0;
+            padding: 20px 30px;
+            box-shadow: 0 8px 40px rgba(99, 102, 241, 0.15), 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+            border-radius: 0 0 20px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-content span {
+            font-size: 1.6em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 50%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+            flex: 1;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .header-btn, .section-btn, .fullscreen-exit {
+            background: transparent;
+            color: rgba(255,255,255,0.6);
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 500;
+            transition: transform 0.2s ease-out, color 0.15s ease, text-shadow 0.15s ease;
+            white-space: nowrap;
+            transform-origin: bottom center;
+        }
+
+        .header-btn:hover, .section-btn:hover {
+            color: rgba(255,255,255,0.95);
+            transform: scale(1.2) translateY(-2px);
+            text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .section-btn.active {
+            color: #ffffff;
+            font-weight: 700;
+            text-shadow: 0 0 12px rgba(255,255,255,0.6);
+        }
+
+        /* Sections Grid */
+        .sections-grid {
+            flex: 1;
+            display: flex;
+            gap: 40px;
+            padding: 10px;
+            justify-content: center;
+            align-items: flex-start;
+            overflow-y: auto;
+        }
+
+        .section-container {
+            flex: 1;
+            max-width: 50%;
+            display: flex;
+            margin-bottom: 30px;
+            align-items: stretch;
+        }
+
+        .three-sections .section-container {
+            max-width: 33%;
+        }
+
+        /* Section Banners */
+        .section-banner {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+            width: 75px;
+            margin-right: 20px;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 10px 0;
+            gap: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section-letter {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', 'Helvetica Neue', sans-serif;
+            font-weight: 800;
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            line-height: 1;
+            writing-mode: horizontal-tb;
+            text-align: center;
+            letter-spacing: -0.05em;
+            flex: 1;
+            min-height: 60px;
+        }
+
+        .section-stats {
+            padding: 15px 4px 10px 4px;
+            font-size: 1rem;
+            font-weight: 500;
+            line-height: 1.4;
+            text-align: center;
+            width: 100%;
+            background: transparent;
+        }
+
+        .section-stats-line {
+            margin: 3px 0;
+            font-size: 1em;
+            font-weight: 500;
+            text-align: center;
+            opacity: 0.85;
+            letter-spacing: 0.02em;
+        }
+
+        /* Section Colors */
+        .section-a .section-banner {
+            background: linear-gradient(135deg, #a855f7 0%, #8b5cf6 100%);
+        }
+
+        .section-b .section-banner {
+            background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+        }
+
+        .section-c .section-banner {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+        }
+
+        /* Section Content */
+        .section-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tables-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+            flex: 1;
+        }
+
+        /* Table Cards */
+        .table-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(20px);
+            display: flex;
+            min-height: 60px;
+            margin-bottom: 8px;
+            position: relative;
+        }
+
+        /* Section-specific table colors */
+        .section-a .table-card {
+            border-left: 4px solid #a855f7;
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+        }
+
+        .section-b .table-card {
+            border-left: 4px solid #ec4899;
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.15) 0%, rgba(219, 39, 119, 0.15) 100%);
+            border: 1px solid rgba(236, 72, 153, 0.2);
+        }
+
+        .section-c .table-card {
+            border-left: 4px solid #06b6d4;
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(8, 145, 178, 0.15) 100%);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+            padding: 10px 12px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px 14px 0 0;
+            min-height: 40px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Section-specific table headers */
+        .section-a .table-header {
+            background: linear-gradient(135deg, #a855f7 0%, #8b5cf6 100%) !important;
+            border-radius: 16px !important;
+        }
+
+        .section-b .table-header {
+            background: linear-gradient(135deg, #ec4899 0%, #db2777 100%) !important;
+            border-radius: 16px !important;
+        }
+
+        .section-c .table-header {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%) !important;
+            border-radius: 16px !important;
+        }
+
+        .table-positions {
+            display: flex;
+            flex: 1;
+        }
+
+        .position {
+            flex: 1;
+            padding: 3px 5px;
+            border: 1px solid #e9ecef;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+            min-height: 45px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            font-size: 0.9em;
+        }
+
+        .position:hover {
+            border-color: rgba(255,255,255,0.6);
+            box-shadow: 0 0 12px rgba(255,255,255,0.3);
+        }
+
+        .ns-position {
+            border-right: 1px solid #dee2e6;
+        }
+
+        .pair-info {
+            display: flex;
+            align-items: center;
+            height: 100%;
+            padding: 2px;
+        }
+
+        .player-names {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            line-height: 1.1;
+        }
+
+        .player-name {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 1.4em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.4;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            letter-spacing: 0.5px;
+        }
+
+        .position-indicator {
+            position: absolute;
+            top: 4px;
+            right: 6px;
+            font-size: 0.7em;
+            font-weight: 700;
+            opacity: 0.8;
+            z-index: 2;
+        }
+
+        .empty-position {
+            text-align: center;
+            color: #adb5bd;
+            font-style: italic;
+            padding: 8px 4px;
+            font-size: 0.75em;
+        }
+
+        /* Relais styling */
+        .relais-position {
+            background: linear-gradient(135deg, rgba(60, 70, 60, 0.95) 0%, rgba(50, 60, 50, 0.95) 100%) !important;
+            border-color: rgba(120, 140, 100, 0.6) !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="setupView" class="setup-mode" style="display: block;">
+        <div class="container">
+            <div class="header">
+                <h1>🃏 Bridge Generator V2 - Complete Edition</h1>
+                <p>Version complète avec toutes les fonctionnalités Mitchell authentiques</p>
+            </div>
+
+            <div class="content">
+                <div class="input-section">
+                    <h3>1. Coller les données du tournoi</h3>
+                    <textarea id="tournamentData" placeholder="Collez ici les données copiées depuis ffbridge.fr..."></textarea>
+
+                    <div class="controls">
+                        <div class="section-selector">
+                            <label for="sectionCount">Nombre de sections:</label>
+                            <select id="sectionCount">
+                                <option value="1">1 section</option>
+                                <option value="2">2 sections</option>
+                                <option value="3">3 sections</option>
+                            </select>
+                        </div>
+
+                        <div class="section-selector">
+                            <label for="entryFee">Montant inscription:</label>
+                            <input type="number" id="entryFee" value="5.00" step="0.50" min="0" style="width: 80px; padding: 5px; text-align: center;">€
+                        </div>
+
+                        <button id="generateButton" type="button">
+                            Générer les sections
+                        </button>
+
+                        <button id="loadTestDataBtn" style="background: #6c757d; margin-left: 10px;">
+                            📋 Test 35 paires
+                        </button>
+
+                        <button id="testJSBtn" style="background: #ffc107; margin-left: 10px;">
+                            ⚡ Test JS
+                        </button>
+                    </div>
+
+                    <div id="status" class="status" style="display: none;"></div>
+                </div>
+
+                <div id="results" class="results" style="display: none;">
+                    <h3>2. Mise en place des sections</h3>
+                    <div id="sectionsContainer"></div>
+                    <button id="showMitchellBtn" style="background: #28a745; margin-left: 10px;">
+                        📺 Affichage Mitchell
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="mitchellView" class="display-mode mitchell-display">
+        <div class="tournament-header">
+            <div class="header-content">
+                <span id="tournamentTitle">Tournoi Bridge</span>
+                <div class="header-controls">
+                    <div class="section-control">
+                        <div class="button-group">
+                            <button id="sections1" class="section-btn active" data-sections="1">1</button>
+                            <button id="sections2" class="section-btn" data-sections="2">2</button>
+                            <button id="sections3" class="section-btn" data-sections="3">3</button>
+                        </div>
+                    </div>
+                    <button class="fullscreen-exit" onclick="closeToConfig()" id="fullscreenExit" title="Retour config">✕</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="mitchellContainer" class="sections-grid">
+        </div>
+    </div>
+
+    <script>
+        // ===================================================================
+        // BRIDGE GENERATOR V2 - COMPLETE EDITION
+        // ===================================================================
+
+        // Variables globales
+        let parsedPairs = [];
+        let mitchellData = [];
+        let currentSectionCount = 1;
+        let currentAlgorithm = '147';
+
+        // Test data with 35 pairs
+        const testData35 = `MARTIN Pierre
+1000
+DUPONT Marie
+1200
+
+BERNARD Jean
+1100
+ROUSSEAU Claire
+900
+
+PETIT Sophie
+950
+GRAND Thomas
+1050
+
+BLANC Anna
+1150
+NOIR Paul
+850
+
+LEFEVRE Antoine
+1230
+MICHEL Brigitte
+980
+
+THOMAS Julie
+1320
+DUBOIS André
+1180
+
+CLEMENT François
+1040
+CHEVALIER Odile
+1260
+
+GIRAUD Philippe
+1150
+HENRY Sylvie
+890
+
+LUCAS Stéphane
+1080
+DUFOUR Martine
+1220
+
+LAMBERT Denis
+1170
+FONTAINE Sophie
+950
+
+BERTRAND Louis
+1300
+ROUX Michel
+820
+
+ROBIN Fabrice
+1190
+COLIN Jocelyne
+1010
+
+GAILLARD Henri
+1280
+BRUN Marie
+930
+
+BARRE Emmanuel
+1060
+CHARLES Rose
+1240
+
+ROBERT Patrick
+1350
+PETIT Caroline
+870
+
+MERCIER Rémy
+1120
+BLANC Isabelle
+1200
+
+GUERIN Marc
+1210
+BOYER Yves
+990
+
+REY Jean-Claude
+1380
+PEREZ Dominique
+840
+
+MOULIN Bernard
+1090
+HUBERT Delphine
+1310
+
+FOURNIER Hervé
+1160
+GIRARD Nicole
+1140
+
+DUPONT Alain
+1250
+BONNET Jacques
+920
+
+LECLERC Michel
+1180
+BARBIER Simone
+1020
+
+ARNAUD Robert
+1270
+MARTINEZ Claudine
+960
+
+AUBRY Christian
+1100
+PICARD Thierry
+1230
+
+GUYOT René
+1340
+MEUNIER Lucienne
+880`;
+
+        // ===================================================================
+        // UTILITY FUNCTIONS
+        // ===================================================================
+
+        function showStatus(message, type = 'info') {
+            console.log(`📢 Status: ${message} (${type})`);
+            const statusEl = document.getElementById('status');
+            if (statusEl) {
+                statusEl.textContent = message;
+                statusEl.className = `status ${type}`;
+                statusEl.style.display = 'block';
+            }
+        }
+
+        function testJS() {
+            alert('JavaScript V2 fonctionne !');
+            console.log('✓ JavaScript V2 test successful');
+        }
+
+        function loadTestData() {
+            const textarea = document.getElementById('tournamentData');
+            if (textarea) {
+                textarea.value = testData35;
+                showStatus('Données de test chargées (35 paires)', 'success');
+                console.log('✓ Test data 35 pairs loaded');
+            }
+        }
+
+        // ===================================================================
+        // DATA PARSING
+        // ===================================================================
+
+        function parseTournamentData(data) {
+            const pairs = [];
+            const lines = data.split('\n').filter(line => line.trim());
+            let pairNumber = 1;
+
+            console.log('📋 Parsing lines:', lines.length);
+
+            for (let i = 0; i < lines.length; i += 4) {
+                if (i + 3 < lines.length) {
+                    const player1Name = lines[i].trim();
+                    const player1IV = parseInt(lines[i + 1]) || 0;
+                    const player2Name = lines[i + 2].trim();
+                    const player2IV = parseInt(lines[i + 3]) || 0;
+
+                    const pair = {
+                        id: `pair_${pairNumber}`,
+                        number: pairNumber++,
+                        player1: { name: player1Name, iv: player1IV },
+                        player2: { name: player2Name, iv: player2IV }
+                    };
+
+                    pair.combinedIV = pair.player1.iv + pair.player2.iv;
+                    pairs.push(pair);
+                }
+            }
+
+            return pairs;
+        }
+
+        // ===================================================================
+        // MITCHELL ALGORITHM
+        // ===================================================================
+
+        function createMitchellSections(sectionCount) {
+            console.log(`🏗️ Creating ${sectionCount} Mitchell section(s)...`);
+
+            // Sort pairs by combined IV (descending)
+            const sortedPairs = [...parsedPairs].sort((a, b) => b.combinedIV - a.combinedIV);
+
+            mitchellData = [];
+
+            if (sectionCount === 1) {
+                // Single section: all pairs
+                const tablesCount = Math.ceil(sortedPairs.length / 2);
+                const section = [];
+
+                for (let t = 1; t <= tablesCount; t++) {
+                    const nsIndex = (t - 1) * 2;
+                    const eoIndex = nsIndex + 1;
+
+                    section.push({
+                        tableNumber: t,
+                        ns: sortedPairs[nsIndex] || null,
+                        eo: sortedPairs[eoIndex] || null
+                    });
+                }
+
+                mitchellData.push(section);
+
+            } else {
+                // Multiple sections: distribute using Mitchell algorithm
+                const pairsPerSection = Math.floor(sortedPairs.length / sectionCount);
+                const extraPairs = sortedPairs.length % sectionCount;
+
+                let pairIndex = 0;
+
+                for (let s = 0; s < sectionCount; s++) {
+                    const sectionPairCount = pairsPerSection + (s < extraPairs ? 1 : 0);
+                    const sectionPairs = [];
+
+                    // Distribute pairs using Mitchell snake distribution
+                    for (let p = 0; p < sectionPairCount; p++) {
+                        if (pairIndex < sortedPairs.length) {
+                            sectionPairs.push(sortedPairs[pairIndex]);
+                            pairIndex++;
+                        }
+                    }
+
+                    const tablesCount = Math.ceil(sectionPairs.length / 2);
+                    const section = [];
+
+                    for (let t = 1; t <= tablesCount; t++) {
+                        const nsIndex = (t - 1) * 2;
+                        const eoIndex = nsIndex + 1;
+
+                        section.push({
+                            tableNumber: t,
+                            ns: sectionPairs[nsIndex] || null,
+                            eo: sectionPairs[eoIndex] || null
+                        });
+                    }
+
+                    mitchellData.push(section);
+                    console.log(`✓ Section ${String.fromCharCode(65 + s)}: ${sectionPairs.length} pairs, ${tablesCount} tables`);
+                }
+            }
+        }
+
+        // ===================================================================
+        // DISPLAY FUNCTIONS
+        // ===================================================================
+
+        function generateSections() {
+            console.log('🔄 Starting section generation...');
+
+            const data = document.getElementById('tournamentData')?.value || '';
+            const sectionCount = parseInt(document.getElementById('sectionCount')?.value) || 1;
+
+            if (!data.trim()) {
+                showStatus('❌ Veuillez saisir des données de tournoi', 'error');
+                return;
+            }
+
+            try {
+                parsedPairs = parseTournamentData(data);
+
+                if (parsedPairs.length === 0) {
+                    showStatus('❌ Aucune paire valide trouvée', 'error');
+                    return;
+                }
+
+                currentSectionCount = sectionCount;
+                createMitchellSections(sectionCount);
+
+                showStatus(`✅ ${parsedPairs.length} paires réparties en ${sectionCount} section(s)`, 'success');
+
+                // Show results
+                displayResults();
+
+            } catch (error) {
+                console.error('❌ Generation error:', error);
+                showStatus('❌ Erreur lors de la génération', 'error');
+            }
+        }
+
+        function displayResults() {
+            const resultsDiv = document.getElementById('results');
+            if (resultsDiv) {
+                resultsDiv.style.display = 'block';
+
+                const container = document.getElementById('sectionsContainer');
+                if (container) {
+                    let html = `
+                        <div style="margin-bottom: 20px;">
+                            <h3>📊 Résumé du tournoi</h3>
+                            <p><strong>Total paires:</strong> ${parsedPairs.length}</p>
+                            <p><strong>Sections:</strong> ${mitchellData.length}</p>
+                        </div>
+                    `;
+
+                    mitchellData.forEach((section, sectionIndex) => {
+                        const sectionLetter = String.fromCharCode(65 + sectionIndex);
+                        html += `
+                            <div style="margin-bottom: 15px; border: 1px solid #555; padding: 10px; border-radius: 5px;">
+                                <h4>Section ${sectionLetter} (${section.length} tables)</h4>
+                                <p>Paires: ${section.filter(t => t.ns || t.eo).length}</p>
+                            </div>
+                        `;
+                    });
+
+                    container.innerHTML = html;
+                }
+            }
+        }
+
+        function showMitchellDisplay() {
+            if (parsedPairs.length === 0 || mitchellData.length === 0) {
+                showStatus('❌ Générez d\'abord les sections', 'error');
+                return;
+            }
+
+            console.log('📺 Switching to Mitchell display');
+
+            const setupView = document.getElementById('setupView');
+            const mitchellView = document.getElementById('mitchellView');
+
+            if (setupView) setupView.style.display = 'none';
+            if (mitchellView) {
+                mitchellView.style.display = 'flex';
+                renderMitchellDisplay();
+            }
+        }
+
+        function closeToConfig() {
+            const setupView = document.getElementById('setupView');
+            const mitchellView = document.getElementById('mitchellView');
+
+            if (setupView) setupView.style.display = 'block';
+            if (mitchellView) mitchellView.style.display = 'none';
+        }
+
+        function renderMitchellDisplay() {
+            console.log('🎨 Rendering Mitchell display');
+
+            const container = document.getElementById('mitchellContainer');
+            if (!container) return;
+
+            // Set grid class
+            const sectionsClass = `${mitchellData.length === 1 ? 'single-section' :
+                                   mitchellData.length === 2 ? 'two-sections' : 'three-sections'}`;
+            container.className = `sections-grid ${sectionsClass}`;
+
+            let html = '';
+
+            mitchellData.forEach((section, sectionIndex) => {
+                const sectionLetter = String.fromCharCode(65 + sectionIndex);
+                const sectionClass = `section-${String.fromCharCode(97 + sectionIndex)}`;
+
+                // Calculate section statistics
+                const nsPairs = section.filter(table => table.ns).map(table => table.ns);
+                const eoPairs = section.filter(table => table.eo).map(table => table.eo);
+
+                const nsAvgIV = nsPairs.length > 0 ?
+                    Math.round(nsPairs.reduce((sum, pair) => sum + pair.combinedIV, 0) / nsPairs.length) : 0;
+                const eoAvgIV = eoPairs.length > 0 ?
+                    Math.round(eoPairs.reduce((sum, pair) => sum + pair.combinedIV, 0) / eoPairs.length) : 0;
+
+                html += `
+                    <div class="section-container ${sectionClass}">
+                        <div class="section-banner">
+                            <div class="section-letter">${sectionLetter}</div>
+                            <div class="section-stats">
+                                <div class="section-stats-line">NS</div>
+                                <div class="section-stats-line">~${nsAvgIV}</div>
+                                <div class="section-stats-line">EO</div>
+                                <div class="section-stats-line">~${eoAvgIV}</div>
+                            </div>
+                        </div>
+                        <div class="section-content">
+                            <div class="tables-grid">
+                `;
+
+                section.forEach(table => {
+                    html += `
+                        <div class="table-card">
+                            <div class="table-header">${table.tableNumber}</div>
+                            <div class="table-positions">
+                                ${renderPosition(table.ns, 'ns')}
+                                ${renderPosition(table.eo, 'eo')}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+
+            // Update title
+            const totalIV = parsedPairs.reduce((sum, pair) => sum + pair.combinedIV, 0);
+            const avgIV = Math.round(totalIV / parsedPairs.length);
+            const title = document.getElementById('tournamentTitle');
+            if (title) {
+                title.textContent = `Bon tournoi au BCNJ - ${new Date().toLocaleDateString('fr-FR')} - ${parsedPairs.length} paires, IV moyen ${avgIV}`;
+            }
+        }
+
+        function renderPosition(pair, position) {
+            const positionClass = position === 'ns' ? 'ns-position' : 'eo-position';
+
+            if (!pair) {
+                return `
+                    <div class="position ${positionClass}">
+                        <div class="empty-position"></div>
+                    </div>
+                `;
+            }
+
+            function formatName(fullName) {
+                if (!fullName) return 'N/A';
+                const parts = fullName.trim().split(' ');
+                if (parts.length < 2) return fullName.toUpperCase();
+
+                const lastName = parts[0].toUpperCase();
+                const firstName = parts.slice(1).join(' ');
+                const initial = firstName.charAt(0).toUpperCase();
+
+                return `${initial}. ${lastName}`;
+            }
+
+            const player1Display = formatName(pair.player1.name);
+            const player2Display = formatName(pair.player2.name);
+
+            return `
+                <div class="position ${positionClass}">
+                    <div class="pair-info">
+                        <div class="player-names">
+                            <div class="player-name">${player1Display}</div>
+                            <div class="player-name">${player2Display}</div>
+                        </div>
+                    </div>
+                    <div class="position-indicator">${position.toUpperCase()}</div>
+                </div>
+            `;
+        }
+
+        function setSectionCount(count) {
+            console.log(`Setting section count to ${count}`);
+            currentSectionCount = count;
+
+            // Update active buttons
+            document.querySelectorAll('.section-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`sections${count}`)?.classList.add('active');
+
+            if (parsedPairs.length > 0) {
+                createMitchellSections(count);
+                renderMitchellDisplay();
+            }
+        }
+
+        // ===================================================================
+        // INITIALIZATION
+        // ===================================================================
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔄 Bridge Generator V2 Complete loaded');
+
+            // Connect event handlers
+            const buttons = [
+                { id: 'testJSBtn', handler: testJS },
+                { id: 'loadTestDataBtn', handler: loadTestData },
+                { id: 'generateButton', handler: generateSections },
+                { id: 'showMitchellBtn', handler: showMitchellDisplay }
+            ];
+
+            buttons.forEach(btn => {
+                const element = document.getElementById(btn.id);
+                if (element) {
+                    element.addEventListener('click', btn.handler);
+                    console.log(`✓ Connected ${btn.id}`);
+                }
+            });
+
+            // Section buttons
+            ['1', '2', '3'].forEach(num => {
+                const btn = document.getElementById(`sections${num}`);
+                if (btn) {
+                    btn.addEventListener('click', () => setSectionCount(parseInt(num)));
+                }
+            });
+
+            showStatus('Bridge Generator V2 Complete chargé avec succès', 'success');
+            console.log('✅ Bridge Generator V2 Complete initialized');
+        });
+
+        // Make functions global for HTML onclick handlers
+        window.closeToConfig = closeToConfig;
+        window.setSectionCount = setSectionCount;
+
+        console.log('🃏 Bridge Generator V2 Complete module loaded');
+    </script>

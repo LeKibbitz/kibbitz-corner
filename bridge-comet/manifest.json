@@ -36,6 +36,7 @@
     {
       "resources": [
         "bridge-section-generator-v2.html",
+        "bridge-generator-app.js",
         "bridge-generator-v2.js",
         "bridge-generator-styles.css",
         "test-extension.html"

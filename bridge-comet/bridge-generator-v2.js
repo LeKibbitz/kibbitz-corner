@@ -1123,16 +1123,20 @@ function renderMitchellDisplay() {
 
     // Update layout classes
     const sectionsGrid = container;
-    const mitchellView = document.getElementById('tournamentDisplay');
+    const mitchellView = document.getElementById('mitchellView');
 
     // Reset all classes
-    mitchellView.classList.remove('single-section', 'two-columns');
+    if (mitchellView) {
+        mitchellView.classList.remove('single-section', 'two-columns');
+    }
     sectionsGrid.classList.remove('two-sections', 'three-sections');
 
     if (currentSectionCount === 1) {
-        mitchellView.classList.add('single-section');
-        if (useTwoColumns) {
-            mitchellView.classList.add('two-columns');
+        if (mitchellView) {
+            mitchellView.classList.add('single-section');
+            if (useTwoColumns) {
+                mitchellView.classList.add('two-columns');
+            }
         }
     } else if (currentSectionCount === 2) {
         sectionsGrid.classList.add('two-sections');
@@ -2742,16 +2746,16 @@ function showTournamentDisplay() {
     console.log('🔍 DEBUG showTournamentDisplay - Parsed pairs:', parsedPairs.length);
     console.log('🔍 DEBUG showTournamentDisplay - Mitchell data:', mitchellData.length);
 
-    const setupScreen = document.getElementById('setupScreen');
-    const tournamentDisplay = document.getElementById('tournamentDisplay');
+    const setupView = document.getElementById('setupView');
+    const mitchellView = document.getElementById('mitchellView');
 
-    if (setupScreen) {
-        setupScreen.style.display = 'none';
-        console.log('✓ Setup screen hidden');
+    if (setupView) {
+        setupView.style.display = 'none';
+        console.log('✓ Setup view hidden');
     }
-    if (tournamentDisplay) {
-        tournamentDisplay.style.display = 'block';
-        console.log('✓ Tournament display shown');
+    if (mitchellView) {
+        mitchellView.style.display = 'block';
+        console.log('✓ Mitchell view shown');
     }
 
     renderMitchellDisplay();
@@ -2761,11 +2765,11 @@ function showTournamentDisplay() {
  * Affiche l'écran de configuration
  */
 function showSetupScreen() {
-    const setupScreen = document.getElementById('setupScreen');
-    const tournamentDisplay = document.getElementById('tournamentDisplay');
+    const setupView = document.getElementById('setupView');
+    const mitchellView = document.getElementById('mitchellView');
 
-    if (setupScreen) setupScreen.style.display = 'block';
-    if (tournamentDisplay) tournamentDisplay.style.display = 'none';
+    if (setupView) setupView.style.display = 'block';
+    if (mitchellView) mitchellView.style.display = 'none';
 }
 
 console.log('🔍 Bridge Generator JavaScript module loaded successfully');

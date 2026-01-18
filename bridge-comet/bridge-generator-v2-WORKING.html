@@ -249,15 +249,48 @@
             text-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
 
-        /* Effet voisin smooth */
+        /* Effet voisin smooth - ÉTENDU À TOUS LES BOUTONS DU HEADER */
         .header-btn:hover + .header-btn,
         .section-btn:hover + .section-btn,
         .algo-btn:hover + .algo-btn,
+        .fullscreen-exit:hover + *,
         .header-btn:has(+ .header-btn:hover),
         .section-btn:has(+ .section-btn:hover),
-        .algo-btn:has(+ .algo-btn:hover) {
+        .algo-btn:has(+ .algo-btn:hover),
+        .fullscreen-exit:has(+ *:hover),
+        * + .header-btn:hover,
+        * + .section-btn:hover,
+        * + .algo-btn:hover,
+        * + .fullscreen-exit:hover {
             transform: scale(1.08) translateY(-1px);
             color: rgba(255,255,255,0.7);
+        }
+
+        /* Effet génie SMOOTH sur TOUS les éléments du header */
+        .header-controls .header-btn,
+        .header-controls .section-btn,
+        .header-controls .algo-btn,
+        .header-controls .fullscreen-exit {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .header-controls .header-btn:hover,
+        .header-controls .section-btn:hover,
+        .header-controls .algo-btn:hover,
+        .header-controls .fullscreen-exit:hover {
+            transform: scale(1.2) translateY(-3px);
+            color: rgba(255,255,255,0.98);
+            text-shadow: 0 3px 12px rgba(0,0,0,0.4);
+        }
+
+        /* Effet génie propagation SMOOTH sur voisins */
+        .header-controls .header-btn:hover + .header-btn,
+        .header-controls .section-btn:hover + .section-btn,
+        .header-controls .algo-btn:hover + .algo-btn,
+        .header-controls .header-btn:hover + .algo-control .algo-btn,
+        .header-controls .section-btn:hover + .algo-control .algo-btn {
+            transform: scale(1.1) translateY(-1px);
+            color: rgba(255,255,255,0.8);
         }
 
         .header-btn.active, .section-btn.active, .algo-btn.active {
@@ -336,14 +369,41 @@
         .section-b .table-count-value, .section-b .table-icon { color: #fce7f3; text-shadow: 0 0 8px rgba(236, 72, 153, 0.5); }
         .section-c .table-count-value, .section-c .table-icon { color: #cffafe; text-shadow: 0 0 8px rgba(6, 182, 212, 0.5); }
 
-        /* Flash effect for modified counters */
+        /* Flash effect for modified counters - AMÉLIORÉ */
         .table-count-value.modified {
-            animation: flashModified 0.8s ease-in-out infinite;
+            animation: flashModified 1.2s ease-in-out infinite;
+            border-radius: 50%;
+            padding: 2px 4px;
         }
 
         @keyframes flashModified {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+                box-shadow: none;
+            }
+            50% {
+                opacity: 0.6;
+                transform: scale(1.15);
+                box-shadow: 0 0 15px rgba(255,255,255,0.8);
+            }
+        }
+
+        /* Flash effect pour sections modifiées */
+        .section-banner.modified {
+            animation: sectionFlash 0.8s ease-in-out 3;
+            border: 2px solid rgba(255,255,255,0.8);
+        }
+
+        @keyframes sectionFlash {
+            0%, 100% {
+                border-color: rgba(255,255,255,0.2);
+                box-shadow: none;
+            }
+            50% {
+                border-color: rgba(255,255,255,0.9);
+                box-shadow: 0 0 20px rgba(255,255,255,0.5);
+            }
         }
 
         .section-a .table-count-value.modified {
@@ -1291,29 +1351,26 @@
             margin: 0 auto;
         }
 
-        /* Two-column layout for single section with many tables */
-        .single-section.two-columns .tables-grid {
+        /* Two-column layout for single section - AMÉLIORÉ */
+        .single-section .tables-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 60px;
+            gap: 40px;
             max-width: 1600px;
             align-items: flex-start;
         }
 
-        .single-section.two-columns .column-left,
-        .single-section.two-columns .column-right {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+        .single-section .table-card {
+            margin-bottom: 12px;
         }
 
-        .single-section.two-columns .section-container {
+        .single-section .section-container {
             max-width: 95%;
         }
 
         /* Responsive: Fall back to single column on small screens */
         @media (max-width: 1200px) {
-            .single-section.two-columns .tables-grid {
+            .single-section .tables-grid {
                 grid-template-columns: 1fr;
                 gap: 20px;
             }
@@ -1563,11 +1620,19 @@
                             Générer les sections
                         </button>
 
-                        <button id="loadTestDataBtn" type="button" style="background: #6c757d; margin-left: 10px;">
+                        <button id="loadTestDataBtn" style="background: #6c757d; margin-left: 10px;">
                             📋 Test 35 paires
                         </button>
-                        <button id="loadTestData80Btn" type="button" style="background: #17a2b8; margin-left: 10px;">
+                        <button id="loadTestData80Btn" style="background: #17a2b8; margin-left: 10px;">
                             📋 Test 80 paires
+                        </button>
+
+                        <button id="debugDisplay" style="background: #dc3545; margin-left: 10px;">
+                            🐛 Debug
+                        </button>
+
+                        <button id="testJSBtn" style="background: #ffc107; margin-left: 10px;">
+                            ⚡ Test JS
                         </button>
                     </div>
 
@@ -1578,17 +1643,20 @@
                     <h3>2. Mise en place des sections</h3>
                     <div id="sectionsContainer"></div>
                     <button class="print-button" id="printBtn">🖨️ Imprimer</button>
+                    <button id="showMitchellBtn" style="background: #28a745; margin-left: 10px;">
+                        📺 Affichage Mitchell
+                    </button>
                     <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px; font-size: 0.9em;">
                         <h5>🔗 Automatisation & Capture</h5>
                         <p>Outils d'automatisation pour ffbridge.fr et capture d'écran :</p>
                         <div style="margin: 10px 0;">
-                            <button id="showFFBExtractor" style="background: #007bff; color: white; border: none; padding: 6px 12px; border-radius: 4px; margin-right: 8px;">
+                            <button onclick="showFFBExtractor()" style="background: #007bff; color: white; border: none; padding: 6px 12px; border-radius: 4px; margin-right: 8px;">
                                 📋 Extracteur FFB
                             </button>
-                            <button id="initScreenCapture" style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; margin-right: 8px;">
+                            <button onclick="initScreenCapture()" style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; margin-right: 8px;">
                                 📷 Capture Écran
                             </button>
-                            <button id="setupN8NIntegration" style="background: #6f42c1; color: white; border: none; padding: 6px 12px; border-radius: 4px;">
+                            <button onclick="setupN8NIntegration()" style="background: #6f42c1; color: white; border: none; padding: 6px 12px; border-radius: 4px;">
                                 🌐 Config n8n
                             </button>
                         </div>
@@ -1609,23 +1677,21 @@
                     <div class="section-control">
                         <label>Sections:</label>
                         <div class="button-group">
-                            <button id="sections1" class="section-btn active" data-sections="1">1</button>
-                            <button id="sections2" class="section-btn" data-sections="2">2</button>
-                            <button id="sections3" class="section-btn" data-sections="3">3</button>
+                            <button id="sections1" class="section-btn active" onclick="setSectionCount(1)" data-sections="1">1</button>
+                            <button id="sections2" class="section-btn" onclick="setSectionCount(2)" data-sections="2">2</button>
+                            <button id="sections3" class="section-btn" onclick="setSectionCount(3)" data-sections="3">3</button>
                         </div>
                     </div>
                     <div class="algo-control">
                         <label>Algo:</label>
                         <div class="button-group">
-                            <button id="algo147" class="algo-btn active" title="Algorithme 1-4-7">147</button>
-                            <button id="algoNew" class="algo-btn" title="Algorithme équilibré">?</button>
+                            <button id="algo147" class="algo-btn active" onclick="setAlgorithm('1-4-7')" title="Algorithme 1-4-7">147</button>
+                            <button id="algoNew" class="algo-btn" onclick="setAlgorithm('TBD')" title="Algorithme équilibré">?</button>
                         </div>
                     </div>
-                    <span class="header-separator">|</span>
-                    <button class="header-btn" id="constraintBtn" title="Contraintes NS fixe">🔒</button>
+                    <button class="header-btn" onclick="showConstraintControls()" title="Contraintes NS fixe">🔒</button>
                     <button class="header-btn" id="printBtn" title="Imprimer">🖨</button>
-                    <span class="header-separator">|</span>
-                    <button class="fullscreen-exit" id="fullscreenExit" title="Retour config">✕</button>
+                    <button class="fullscreen-exit" onclick="closeToConfig()" id="fullscreenExit" title="Retour config">✕</button>
                 </div>
             </div>
         </div>
@@ -1633,15 +1699,15 @@
         <div class="constraint-controls" id="constraintControls">
             <div style="margin-bottom: 8px; font-weight: bold; font-size: 0.9em;">Contraintes NS</div>
             <div style="font-size: 0.8em; margin-bottom: 8px;" id="constraintCount">0 paire(s) marquée(s)</div>
-            <button class="constraint-btn" id="redistributeBtn">🔄 Redistribuer</button>
-            <button class="constraint-btn" id="clearConstraintsBtn" style="background: #dc3545;">Effacer tout</button>
+            <button class="constraint-btn" onclick="redistributeWithConstraints()">🔄 Redistribuer</button>
+            <button class="constraint-btn" onclick="clearConstraints()" style="background: #dc3545;">Effacer tout</button>
         </div>
 
         <!-- Cartouche de modifications en attente -->
         <div class="pending-changes hidden" id="pendingChanges">
             <span>⚠️ Modifications non appliquées</span>
-            <button class="regen-btn" id="applyChangesBtn">✓ Appliquer</button>
-            <button class="cancel-btn" id="cancelChangesBtn">✕ Annuler</button>
+            <button class="regen-btn" onclick="applyPendingChanges()">✓ Appliquer</button>
+            <button class="cancel-btn" onclick="cancelPendingChanges()">✕ Annuler</button>
         </div>
 
         <div id="mitchellContainer" class="sections-grid">
@@ -1655,7 +1721,6 @@
 
     </div>
 
-    <!-- JavaScript externe pour compatibilité CSP -->
-    <script src="bridge-generator-app.js"></script>
+    <script src="bridge-loader.js"></script>
 </body>
 </html>

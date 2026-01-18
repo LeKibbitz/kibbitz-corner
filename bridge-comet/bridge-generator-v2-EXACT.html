@@ -1563,11 +1563,19 @@
                             Générer les sections
                         </button>
 
-                        <button id="loadTestDataBtn" type="button" style="background: #6c757d; margin-left: 10px;">
+                        <button id="loadTestDataBtn" style="background: #6c757d; margin-left: 10px;">
                             📋 Test 35 paires
                         </button>
-                        <button id="loadTestData80Btn" type="button" style="background: #17a2b8; margin-left: 10px;">
+                        <button id="loadTestData80Btn" style="background: #17a2b8; margin-left: 10px;">
                             📋 Test 80 paires
+                        </button>
+
+                        <button id="debugDisplay" style="background: #dc3545; margin-left: 10px;">
+                            🐛 Debug
+                        </button>
+
+                        <button id="testJSBtn" style="background: #ffc107; margin-left: 10px;">
+                            ⚡ Test JS
                         </button>
                     </div>
 
@@ -1578,17 +1586,20 @@
                     <h3>2. Mise en place des sections</h3>
                     <div id="sectionsContainer"></div>
                     <button class="print-button" id="printBtn">🖨️ Imprimer</button>
+                    <button id="showMitchellBtn" style="background: #28a745; margin-left: 10px;">
+                        📺 Affichage Mitchell
+                    </button>
                     <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px; font-size: 0.9em;">
                         <h5>🔗 Automatisation & Capture</h5>
                         <p>Outils d'automatisation pour ffbridge.fr et capture d'écran :</p>
                         <div style="margin: 10px 0;">
-                            <button id="showFFBExtractor" style="background: #007bff; color: white; border: none; padding: 6px 12px; border-radius: 4px; margin-right: 8px;">
+                            <button onclick="showFFBExtractor()" style="background: #007bff; color: white; border: none; padding: 6px 12px; border-radius: 4px; margin-right: 8px;">
                                 📋 Extracteur FFB
                             </button>
-                            <button id="initScreenCapture" style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; margin-right: 8px;">
+                            <button onclick="initScreenCapture()" style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; margin-right: 8px;">
                                 📷 Capture Écran
                             </button>
-                            <button id="setupN8NIntegration" style="background: #6f42c1; color: white; border: none; padding: 6px 12px; border-radius: 4px;">
+                            <button onclick="setupN8NIntegration()" style="background: #6f42c1; color: white; border: none; padding: 6px 12px; border-radius: 4px;">
                                 🌐 Config n8n
                             </button>
                         </div>
@@ -1617,15 +1628,15 @@
                     <div class="algo-control">
                         <label>Algo:</label>
                         <div class="button-group">
-                            <button id="algo147" class="algo-btn active" title="Algorithme 1-4-7">147</button>
-                            <button id="algoNew" class="algo-btn" title="Algorithme équilibré">?</button>
+                            <button id="algo147" class="algo-btn active" onclick="setAlgorithm('1-4-7')" title="Algorithme 1-4-7">147</button>
+                            <button id="algoNew" class="algo-btn" onclick="setAlgorithm('TBD')" title="Algorithme équilibré">?</button>
                         </div>
                     </div>
                     <span class="header-separator">|</span>
-                    <button class="header-btn" id="constraintBtn" title="Contraintes NS fixe">🔒</button>
+                    <button class="header-btn" onclick="showConstraintControls()" title="Contraintes NS fixe">🔒</button>
                     <button class="header-btn" id="printBtn" title="Imprimer">🖨</button>
                     <span class="header-separator">|</span>
-                    <button class="fullscreen-exit" id="fullscreenExit" title="Retour config">✕</button>
+                    <button class="fullscreen-exit" onclick="closeToConfig()" id="fullscreenExit" title="Retour config">✕</button>
                 </div>
             </div>
         </div>
@@ -1633,15 +1644,15 @@
         <div class="constraint-controls" id="constraintControls">
             <div style="margin-bottom: 8px; font-weight: bold; font-size: 0.9em;">Contraintes NS</div>
             <div style="font-size: 0.8em; margin-bottom: 8px;" id="constraintCount">0 paire(s) marquée(s)</div>
-            <button class="constraint-btn" id="redistributeBtn">🔄 Redistribuer</button>
-            <button class="constraint-btn" id="clearConstraintsBtn" style="background: #dc3545;">Effacer tout</button>
+            <button class="constraint-btn" onclick="redistributeWithConstraints()">🔄 Redistribuer</button>
+            <button class="constraint-btn" onclick="clearConstraints()" style="background: #dc3545;">Effacer tout</button>
         </div>
 
         <!-- Cartouche de modifications en attente -->
         <div class="pending-changes hidden" id="pendingChanges">
             <span>⚠️ Modifications non appliquées</span>
-            <button class="regen-btn" id="applyChangesBtn">✓ Appliquer</button>
-            <button class="cancel-btn" id="cancelChangesBtn">✕ Annuler</button>
+            <button class="regen-btn" onclick="applyPendingChanges()">✓ Appliquer</button>
+            <button class="cancel-btn" onclick="cancelPendingChanges()">✕ Annuler</button>
         </div>
 
         <div id="mitchellContainer" class="sections-grid">
@@ -1655,7 +1666,6 @@
 
     </div>
 
-    <!-- JavaScript externe pour compatibilité CSP -->
-    <script src="bridge-generator-app.js"></script>
+    <script src="bridge-loader.js"></script>
 </body>
 </html>

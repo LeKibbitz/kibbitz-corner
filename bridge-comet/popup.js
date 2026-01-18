@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const resultDiv = document.getElementById('result');
         resultDiv.innerHTML = '<strong>🧪 Test avec données factices...</strong>';
 
-        // Données factices pour test
+        // Données factices pour test (4 joueurs = 2 paires)
         const fakeData = [
             { name: 'M. WEBER Christian', amount: '5.00', license: '09890171', iv: '76' },
             { name: 'Mme MARTIN Sophie', amount: '6.00', license: '12345678', iv: '84' },
@@ -84,51 +84,9 @@ document.addEventListener('DOMContentLoaded', () => {
         ];
 
         console.log('🧪 TEST: Données factices créées:', fakeData);
-        resultDiv.innerHTML = '<strong>🔄 Test: stockage des données...</strong>';
 
-        // Vérifier chrome.storage
-        if (!chrome || !chrome.storage) {
-            resultDiv.innerHTML = '<strong>❌ chrome.storage non disponible!</strong>';
-            console.error('❌ chrome.storage non disponible');
-            return;
-        }
-
-        // Stocker et vérifier
-        chrome.storage.local.set({ 'ffbPlayersData': fakeData }, () => {
-            if (chrome.runtime.lastError) {
-                resultDiv.innerHTML = `<strong>❌ Erreur storage: ${chrome.runtime.lastError.message}</strong>`;
-                console.error('❌ Erreur storage:', chrome.runtime.lastError);
-                return;
-            }
-
-            console.log('✅ Données stockées avec succès');
-            resultDiv.innerHTML = '<strong>📖 Vérification du stockage...</strong>';
-
-            // Vérifier la lecture
-            chrome.storage.local.get(['ffbPlayersData'], (result) => {
-                console.log('🔍 Vérification storage:', result);
-
-                if (result.ffbPlayersData) {
-                    console.log('✅ Données vérifiées:', result.ffbPlayersData.length, 'joueurs');
-                    resultDiv.innerHTML = '<strong>🚀 Ouverture du générateur...</strong>';
-
-                    // Ouvrir le générateur
-                    chrome.tabs.create({
-                        url: chrome.runtime.getURL('bridge-section-generator-v2.html')
-                    }, (tab) => {
-                        if (chrome.runtime.lastError) {
-                            resultDiv.innerHTML = `<strong>❌ Erreur ouverture: ${chrome.runtime.lastError.message}</strong>`;
-                        } else {
-                            console.log('✅ Générateur ouvert, tab ID:', tab.id);
-                            resultDiv.innerHTML = '<strong>✅ Test lancé! Vérifiez la console du générateur</strong>';
-                        }
-                    });
-                } else {
-                    resultDiv.innerHTML = '<strong>❌ Erreur: données non retrouvées!</strong>';
-                    console.error('❌ Données non retrouvées dans storage');
-                }
-            });
-        });
+        // Utiliser la même méthode que generateBridgeDisplay (URL params)
+        generateBridgeDisplay(fakeData);
     });
 });
 
@@ -167,36 +125,24 @@ function generateBridgeDisplay(players) {
     console.log('🔍 DEBUG: generateBridgeDisplay called with:', players);
     const resultDiv = document.getElementById('result');
 
-    if (!chrome.storage) {
-        console.error('❌ chrome.storage not available');
-        resultDiv.innerHTML = '<strong>❌ chrome.storage non disponible</strong>';
-        return;
-    }
+    resultDiv.innerHTML = '<strong>🚀 Ouverture du générateur...</strong>';
 
-    resultDiv.innerHTML = '<strong>💾 Stockage des données...</strong>';
+    // Encode players data as URL parameter (more reliable than chrome.storage)
+    const encodedData = encodeURIComponent(JSON.stringify(players));
+    const generatorUrl = chrome.runtime.getURL('bridge-section-generator-v2.html') + '?data=' + encodedData;
 
-    // Use chrome.storage to pass data (more reliable than injection)
-    chrome.storage.local.set({ 'ffbPlayersData': players }, () => {
+    console.log('🔗 Opening generator with URL params, data length:', encodedData.length);
+
+    // Open generator with data in URL
+    chrome.tabs.create({
+        url: generatorUrl
+    }, (tab) => {
         if (chrome.runtime.lastError) {
-            console.error('❌ Storage error:', chrome.runtime.lastError);
-            resultDiv.innerHTML = `<strong>❌ Erreur storage: ${chrome.runtime.lastError.message}</strong>`;
-            return;
+            console.error('❌ Tab creation error:', chrome.runtime.lastError);
+            resultDiv.innerHTML = `<strong>❌ Erreur ouverture: ${chrome.runtime.lastError.message}</strong>`;
+        } else {
+            console.log('✅ Generator tab opened:', tab.id);
+            resultDiv.innerHTML = '<strong>✅ Générateur ouvert !</strong>';
         }
-
-        console.log('✅ Data stored in chrome.storage, opening generator...');
-        resultDiv.innerHTML = '<strong>🚀 Ouverture du générateur...</strong>';
-
-        // Open generator
-        chrome.tabs.create({
-            url: chrome.runtime.getURL('bridge-section-generator-v2.html')
-        }, (tab) => {
-            if (chrome.runtime.lastError) {
-                console.error('❌ Tab creation error:', chrome.runtime.lastError);
-                resultDiv.innerHTML = `<strong>❌ Erreur ouverture: ${chrome.runtime.lastError.message}</strong>`;
-            } else {
-                console.log('✅ Generator tab opened:', tab.id);
-                resultDiv.innerHTML = '<strong>✅ Générateur ouvert !</strong>';
-            }
-        });
     });
 }
