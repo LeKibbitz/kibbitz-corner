@@ -42,39 +42,51 @@
             color: #e0e0e0 !important;
         }
 
-        /* ALL TEXT uses same color as player names */
+        /* Dark mode text colors - ONLY for mitchell display */
         .dark-mode .player-name,
         .dark-mode .table-header,
         .dark-mode .section-title,
         .dark-mode h1, .dark-mode h2, .dark-mode h3,
         .dark-mode p, .dark-mode span:not(.constraint-indicator),
-        .header-content span,
-        .section-banner,
-        .section-letter,
-        .section-stats,
-        .section-stats-line,
-        .ns-text,
-        .eo-text,
-        .position-indicator,
-        .tournament-header,
-        .header-title,
-        .header-btn,
-        .section-btn,
-        .algo-btn,
-        .section-control label,
-        .algo-control label,
-        body,
-        * {
+        .dark-mode .header-content span,
+        .dark-mode .section-banner,
+        .dark-mode .section-letter,
+        .dark-mode .section-stats,
+        .dark-mode .section-stats-line,
+        .dark-mode .ns-text,
+        .dark-mode .eo-text,
+        .dark-mode .position-indicator,
+        .dark-mode .tournament-header,
+        .dark-mode .header-title,
+        .dark-mode .header-btn,
+        .dark-mode .section-btn,
+        .dark-mode .algo-btn,
+        .dark-mode .section-control label,
+        .dark-mode .algo-control label {
             color: #e0e0e0 !important;
         }
 
-        /* Override white color anywhere */
-        [style*="color: white"],
-        [style*="color:#fff"],
-        [style*="color:#ffffff"],
-        [style*="color: #fff"],
-        [style*="color: #ffffff"] {
-            color: #e0e0e0 !important;
+        /* Setup mode - readable dark text on light backgrounds */
+        .setup-mode {
+            background: #f5f5f5;
+        }
+
+        .setup-mode .input-section h3,
+        .setup-mode .section-selector label,
+        .setup-mode p,
+        .setup-mode h5 {
+            color: #333 !important;
+        }
+
+        .setup-mode textarea {
+            background: #fff;
+            color: #333;
+        }
+
+        .setup-mode select,
+        .setup-mode input {
+            background: #fff;
+            color: #333;
         }
 
         .dark-mode .table-card {
@@ -317,24 +329,52 @@
             display: flex;
             align-items: center;
             gap: 4px;
+            justify-content: center;
+            width: 100%;
         }
 
         .table-count-value {
-            font-size: 1.4em;
+            font-size: 1.8em;
             font-weight: 700;
-            min-width: 24px;
-            text-align: center;
+            min-width: 28px;
+            text-align: right;
+            flex-shrink: 0;
+            padding-right: 2px;
         }
 
         .table-icon {
-            font-size: 1.1em;
-            opacity: 0.9;
+            font-size: 1.4em;
+            opacity: 1.0;
+            line-height: 0.8;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 0px;
+            flex-shrink: 0;
+        }
+
+        .black-suit {
+            color: #000 !important;
+        }
+
+        .red-suit {
+            color: #ff0000 !important;
         }
 
         /* Section colors for table count */
-        .section-a .table-count-value, .section-a .table-icon { color: #e9d5ff; text-shadow: 0 0 8px rgba(168, 85, 247, 0.5); }
-        .section-b .table-count-value, .section-b .table-icon { color: #fce7f3; text-shadow: 0 0 8px rgba(236, 72, 153, 0.5); }
-        .section-c .table-count-value, .section-c .table-icon { color: #cffafe; text-shadow: 0 0 8px rgba(6, 182, 212, 0.5); }
+        .section-a .table-count-value { color: #e9d5ff; text-shadow: 0 0 8px rgba(168, 85, 247, 0.5); }
+        .section-b .table-count-value { color: #fce7f3; text-shadow: 0 0 8px rgba(236, 72, 153, 0.5); }
+        .section-c .table-count-value { color: #cffafe; text-shadow: 0 0 8px rgba(6, 182, 212, 0.5); }
+
+        /* Les symboles gardent leurs couleurs spécifiques peu importe la section */
+        .section-a .black-suit, .section-b .black-suit, .section-c .black-suit,
+        .black-suit {
+            color: #000000 !important;
+        }
+        .section-a .red-suit, .section-b .red-suit, .section-c .red-suit,
+        .red-suit {
+            color: #ff0000 !important;
+        }
 
         /* Flash effect for modified counters */
         .table-count-value.modified {
@@ -425,6 +465,7 @@
             justify-content: center;
             align-items: flex-start;
             overflow-y: auto;
+            width: 100%;
         }
 
         .sections-grid.two-sections {
@@ -433,11 +474,13 @@
 
         .sections-grid.three-sections {
             padding-right: 10px;
+            gap: 25px;
         }
 
         .three-sections .section-container {
             flex: 1;
-            max-width: 33%;
+            max-width: 32%;
+            min-width: 300px;
         }
 
         .section-container {
@@ -462,6 +505,12 @@
             overflow: hidden;
             border: none !important;
             backdrop-filter: none !important;
+            flex-shrink: 0;
+        }
+
+        .three-sections .section-banner {
+            width: 65px;
+            margin-right: 15px;
         }
 
         .section-letter {
@@ -712,16 +761,18 @@
 
         .table-card {
             background: rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
+            border-radius: 12px 12px 12px 12px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
             overflow: hidden;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid rgba(255,255,255,0.1);
+            border: none;
             backdrop-filter: blur(20px);
             display: flex;
             min-height: 60px;
             margin-bottom: 8px;
             position: relative;
+            margin-left: 0;
+            padding-left: 0;
         }
 
         .table-card::before {
@@ -741,27 +792,24 @@
 
         /* Section-specific table colors matching section banners EXACTLY */
         .section-a .table-card {
-            border-left: 4px solid #a855f7;
             background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%);
             color: #e0e0e0;
             box-shadow: 0 4px 20px rgba(168, 85, 247, 0.25);
-            border: 1px solid rgba(168, 85, 247, 0.2);
+            border: none;
         }
 
         .section-b .table-card {
-            border-left: 4px solid #ec4899;
             background: linear-gradient(135deg, rgba(236, 72, 153, 0.15) 0%, rgba(219, 39, 119, 0.15) 100%);
             color: #e0e0e0;
             box-shadow: 0 4px 20px rgba(236, 72, 153, 0.25);
-            border: 1px solid rgba(236, 72, 153, 0.2);
+            border: none;
         }
 
         .section-c .table-card {
-            border-left: 4px solid #06b6d4;
             background: linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(8, 145, 178, 0.15) 100%);
             color: #e0e0e0;
             box-shadow: 0 4px 20px rgba(6, 182, 212, 0.25);
-            border: 1px solid rgba(6, 182, 212, 0.2);
+            border: none;
         }
 
         /* Dark mode section table colors */
@@ -806,16 +854,24 @@
         .table-header {
             background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
             color: white;
-            padding: 10px 12px;
+            padding: 8px 6px;
             text-align: center;
-            font-weight: 600;
-            font-size: 1em;
+            font-weight: 700;
+            font-size: 1.4em;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 14px 14px 0 0;
-            min-height: 40px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px 0px 0px 12px;
+            min-height: 60px;
+            width: 45px;
+            min-width: 45px;
+            flex-shrink: 0;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            margin: 0;
+            margin-left: -3px;
+            margin-top: -2px;
+            margin-bottom: -2px;
+            border: none;
         }
 
         /* Section-specific table header colors matching section banners EXACTLY */
@@ -826,7 +882,7 @@
             text-shadow: none !important;
             box-shadow: none !important;
             border: none !important;
-            border-radius: 16px !important;
+            border-radius: 12px 0px 0px 12px !important;
         }
 
         .section-b .table-header {
@@ -836,7 +892,7 @@
             text-shadow: none !important;
             box-shadow: none !important;
             border: none !important;
-            border-radius: 16px !important;
+            border-radius: 12px 0px 0px 12px !important;
         }
 
         .section-c .table-header {
@@ -846,7 +902,7 @@
             text-shadow: none !important;
             box-shadow: none !important;
             border: none !important;
-            border-radius: 16px !important;
+            border-radius: 12px 0px 0px 12px !important;
         }
 
         /* Single section inherits from section-a/b/c - no override needed */
@@ -1029,7 +1085,10 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            align-items: center;
             line-height: 1.1;
+            text-align: center;
+            padding: 5px 0;
         }
 
         .player-name {
@@ -1039,11 +1098,9 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            line-height: 1.4;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            line-height: 1.3;
             letter-spacing: 0.5px;
+            margin: 1px 0;
         }
 
         /* Adaptive font size for long names */
@@ -1287,35 +1344,30 @@
         }
 
         .single-section .tables-grid {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        /* Two-column layout for single section with many tables */
-        .single-section.two-columns .tables-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 60px;
+            gap: 40px;
             max-width: 1600px;
+            margin: 0 auto;
             align-items: flex-start;
         }
 
-        .single-section.two-columns .column-left,
-        .single-section.two-columns .column-right {
+        .single-section .column-left,
+        .single-section .column-right {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px;
         }
 
-        .single-section.two-columns .section-container {
+        .single-section .section-container {
             max-width: 95%;
         }
 
         /* Responsive: Fall back to single column on small screens */
         @media (max-width: 1200px) {
-            .single-section.two-columns .tables-grid {
+            .single-section .tables-grid {
                 grid-template-columns: 1fr;
-                gap: 20px;
+                gap: 8px;
             }
         }
 
@@ -1575,27 +1627,7 @@
                 </div>
 
                 <div id="results" class="results" style="display: none;">
-                    <h3>2. Mise en place des sections</h3>
                     <div id="sectionsContainer"></div>
-                    <button class="print-button" id="printBtn">🖨️ Imprimer</button>
-                    <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px; font-size: 0.9em;">
-                        <h5>🔗 Automatisation & Capture</h5>
-                        <p>Outils d'automatisation pour ffbridge.fr et capture d'écran :</p>
-                        <div style="margin: 10px 0;">
-                            <button id="showFFBExtractor" style="background: #007bff; color: white; border: none; padding: 6px 12px; border-radius: 4px; margin-right: 8px;">
-                                📋 Extracteur FFB
-                            </button>
-                            <button id="initScreenCapture" style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; margin-right: 8px;">
-                                📷 Capture Écran
-                            </button>
-                            <button id="setupN8NIntegration" style="background: #6f42c1; color: white; border: none; padding: 6px 12px; border-radius: 4px;">
-                                🌐 Config n8n
-                            </button>
-                        </div>
-                        <div id="automationHelp" style="display: none; background: #fff; padding: 10px; border-radius: 4px; border: 1px solid #dee2e6; margin-top: 10px;">
-                            <!-- Dynamic help content -->
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -1621,10 +1653,8 @@
                             <button id="algoNew" class="algo-btn" title="Algorithme équilibré">?</button>
                         </div>
                     </div>
-                    <span class="header-separator">|</span>
                     <button class="header-btn" id="constraintBtn" title="Contraintes NS fixe">🔒</button>
-                    <button class="header-btn" id="printBtn" title="Imprimer">🖨</button>
-                    <span class="header-separator">|</span>
+                    <button class="header-btn" id="printBtnMitchell" title="Imprimer">🖨</button>
                     <button class="fullscreen-exit" id="fullscreenExit" title="Retour config">✕</button>
                 </div>
             </div>
@@ -1657,5 +1687,88 @@
 
     <!-- JavaScript externe pour compatibilité CSP -->
     <script src="bridge-generator-app.js"></script>
+
+    <script>
+    // Attendre le chargement complet et override avec force
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            console.log('🔄 FORCED Override après load complet');
+
+            // FORCER le remplacement des fonctions de test
+            window.loadTestData = function() {
+                console.log('🔍 FORCED loadTestData - Format FFB pur');
+                // PAS D'EN-TÊTE, PAS DE DATES, JUSTE LES JOUEURS
+                let testData = '';
+
+                for (let i = 1; i <= 35; i++) {
+                    const civilite = i % 2 === 1 ? 'M.' : 'Mme';
+                    const prenom = i % 2 === 1 ? 'Jean' : 'Marie';
+                    const nom = `PLAYER${i}A`;
+                    const fullName = `${nom} ${prenom}`;
+                    const iv = Math.floor(Math.random() * 40) + 50;
+                    const license = (9800000 + i).toString().padStart(8, '0');
+
+                    testData += `${civilite} ${fullName} (5.00 €)
+${license} ( IV = ${iv} )
+
+`;
+                }
+
+                document.getElementById('tournamentData').value = testData;
+                showStatus('✅ Données de test 35 joueurs chargées', 'success');
+            };
+
+            // FORCER override generateSections pour affichage Mitchell
+            window.generateSections = function() {
+                console.log('🔍 FORCED generateSections');
+                const data = document.getElementById('tournamentData').value;
+                const sectionCount = parseInt(document.getElementById('sectionCount').value);
+
+                if (!data.trim()) {
+                    showStatus('Veuillez entrer les données du tournoi', 'error');
+                    return;
+                }
+
+                try {
+                    parsedPairs = parseTournamentData(data);
+                    console.log('📊 Parsed pairs:', parsedPairs.length);
+
+                    if (parsedPairs.length === 0) {
+                        showStatus('Aucune paire valide trouvée dans les données', 'error');
+                        return;
+                    }
+
+                    currentSectionCount = sectionCount;
+                    mitchellData = mitchellDistribution(parsedPairs, sectionCount, false);
+
+                    // FORCER l'affichage Mitchell
+                    console.log('🚀 FORCING showMitchellDisplay');
+                    showMitchellDisplay();
+
+                } catch (error) {
+                    console.error('❌ Generation error:', error);
+                    showStatus('❌ Erreur lors de la génération: ' + error.message, 'error');
+                }
+            };
+
+            console.log('✅ FORCED Override complet');
+
+            // Remplacer aussi les event listeners des boutons
+            const testBtn35 = document.getElementById('loadTestDataBtn');
+            const testBtn80 = document.getElementById('loadTestData80Btn');
+            const generateBtn = document.getElementById('generateButton');
+
+            if (testBtn35) {
+                testBtn35.onclick = window.loadTestData;
+                console.log('✅ Bouton test 35 remplacé');
+            }
+
+            if (generateBtn) {
+                generateBtn.onclick = window.generateSections;
+                console.log('✅ Bouton générer remplacé');
+            }
+        }, 500);
+    });
+    </script>
 </body>
 </html>

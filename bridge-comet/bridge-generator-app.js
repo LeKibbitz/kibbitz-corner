@@ -186,7 +186,7 @@ function parseSimplifiedFormat(lines) {
 
         const playerMatch = line.match(/^(M\.|Mme)\s+(.+?)\s+\(\s*([\d.]+)\s*€\s*\)/);
         if (playerMatch) {
-            const fullName = playerMatch[2];
+            const fullName = playerMatch[2].trim();
             const amount = parseFloat(playerMatch[3]);
 
             let nextLineIndex = i + 1;
@@ -215,6 +215,7 @@ function parseSimplifiedFormat(lines) {
         i++;
     }
 
+    // GROUPER LES JOUEURS PAR PAIRES (J1+J2 = Paire 1, J3+J4 = Paire 2...)
     for (let j = 0; j < players.length; j += 2) {
         if (j + 1 < players.length) {
             pairs.push({
@@ -232,7 +233,8 @@ function parseSimplifiedFormat(lines) {
         }
     }
 
-    console.log(`📊 Parsed ${players.length} players into ${pairs.length} pairs (simplified format)`);
+    console.log(`📊 DEBUG: Parsed ${players.length} players into ${pairs.length} pairs (simplified format)`);
+    console.log(`📊 DEBUG: Expected from 39 players -> 19 pairs + 1 single`);
     return pairs;
 }
 
@@ -421,8 +423,8 @@ function generateSections() {
             'success'
         );
 
-        document.getElementById('results').style.display = 'block';
-        displayResults();
+        // Passer directement à l'affichage Mitchell
+        showMitchellDisplay();
 
     } catch (error) {
         console.error('❌ Generation error:', error);
@@ -493,7 +495,10 @@ function renderMitchellDisplay() {
                 <button class="table-count-btn" data-section="${sectionIndex}" data-delta="1" title="Plus de tables">▲</button>
                 <div class="table-count-display">
                     <span class="table-count-value">${section.length}</span>
-                    <span class="table-icon">♠♥</span>
+                    <span class="table-icon">
+                        <span class="top-suits"><span style="color: #ff0000 !important;">♥</span><span style="color: #000000 !important;">♠</span></span>
+                        <span class="bottom-suits"><span style="color: #000000 !important;">♣</span><span style="color: #ff0000 !important;">♦</span></span>
+                    </span>
                 </div>
                 <button class="table-count-btn" data-section="${sectionIndex}" data-delta="-1" title="Moins de tables">▼</button>
             </div>
@@ -506,13 +511,13 @@ function renderMitchellDisplay() {
                 <div class="section-stats">
                     <div class="section-stats-line">NS</div>
                     <div class="section-stats-line">~${nsAvgIV}</div>
-                    <div class="section-stats-line">EO</div>
                     <div class="section-stats-line">~${eoAvgIV}</div>
+                    <div class="section-stats-line">EO</div>
                 </div>
             </div>
             <div class="section-content">
                 <div class="tables-grid">
-                    ${section.map(table => renderTableCard(table, sectionIndex)).join('')}
+                    ${renderTablesContent(section, sectionIndex, mitchellData.length)}
                 </div>
             </div>
         `;
@@ -531,10 +536,31 @@ function renderMitchellDisplay() {
     console.log('✅ Mitchell display rendered');
 }
 
+function renderTablesContent(section, sectionIndex, totalSections) {
+    if (totalSections === 1) {
+        // Pour une section : diviser en deux colonnes
+        const midPoint = Math.ceil(section.length / 2);
+        const leftTables = section.slice(0, midPoint);
+        const rightTables = section.slice(midPoint);
+
+        return `
+            <div class="column-left">
+                ${leftTables.map(table => renderTableCard(table, sectionIndex)).join('')}
+            </div>
+            <div class="column-right">
+                ${rightTables.map(table => renderTableCard(table, sectionIndex)).join('')}
+            </div>
+        `;
+    } else {
+        // Pour plusieurs sections : affichage normal
+        return section.map(table => renderTableCard(table, sectionIndex)).join('');
+    }
+}
+
 function renderTableCard(table, sectionIndex) {
     return `
         <div class="table-card">
-            <div class="table-header">TABLE ${table.tableNumber}</div>
+            <div class="table-header">${table.tableNumber}</div>
             <div class="table-positions">
                 ${renderPosition(table.ns, 'ns', sectionIndex, table.tableNumber)}
                 ${renderPosition(table.eo, 'eo', sectionIndex, table.tableNumber)}
@@ -565,8 +591,44 @@ function renderPosition(pair, position, sectionIndex, tableNumber) {
         </div>
     ` : '';
 
-    const player1Display = `${pair.player1.name}`;
-    const player2Display = `${pair.player2.name}`;
+    // Format d'affichage: initiale prénom + nom de famille
+    const formatPlayerName = (fullName) => {
+        const parts = fullName.trim().split(' ');
+        if (parts.length >= 2) {
+            // Détecter les préfixes de noms composés et patterns courants
+            const prefixes = ['DE', 'LE', 'LA', 'DU', 'DES', 'VAN', 'VON', 'DA', 'DEL', 'VAN DER'];
+
+            let nom, prenom;
+
+            // Méthode 1: Chercher les patterns composés avec 2 mots de famille
+            if (parts.length >= 3) {
+                const firstTwo = parts[0] + ' ' + parts[1];
+                const firstTwoUpper = firstTwo.toUpperCase();
+
+                // Vérifier si les 2 premiers mots forment un nom composé connu
+                if (prefixes.some(prefix => firstTwoUpper.startsWith(prefix))) {
+                    nom = firstTwo;
+                    prenom = parts.slice(2).join(' ');
+                } else {
+                    // Méthode 2: Dernier mot = prénom, le reste = nom de famille
+                    prenom = parts[parts.length - 1];
+                    nom = parts.slice(0, -1).join(' ');
+                }
+            } else {
+                // Méthode 2: Dernier mot = prénom, le reste = nom de famille
+                prenom = parts[parts.length - 1];
+                nom = parts.slice(0, -1).join(' ');
+            }
+
+            // Format final: Initiale du prénom + nom de famille
+            const initialePrenom = prenom.charAt(0).toUpperCase() + '.';
+            return `${initialePrenom} ${nom.toUpperCase()}`;
+        }
+        return fullName;
+    };
+
+    const player1Display = formatPlayerName(pair.player1.name);
+    const player2Display = formatPlayerName(pair.player2.name);
 
     return `
         <div class="position ${positionClass}" data-pair-id="${pair.id}" data-position="${positionId}" data-section="${sectionIndex}" data-table="${tableNumber}" data-pos="${position}" draggable="true">
@@ -588,31 +650,46 @@ function renderPosition(pair, position, sectionIndex, tableNumber) {
 // ===================================================================
 
 function loadTestData() {
-    console.log('🔍 DEBUG: loadTestData() called');
-    let pairData = '';
+    console.log('🔍 DEBUG: loadTestData() called - Format FFB avec 35 paires (70 joueurs)');
+    let testData = '';
 
-    for (let i = 1; i <= 35; i++) {
-        const player1Name = `JOUEUR${i}A Jean`;
-        const player2Name = `JOUEUR${i}B Marie`;
-        const iv1 = Math.floor(Math.random() * 40) + 50;
-        const iv2 = Math.floor(Math.random() * 40) + 50;
+    // NOMS COMPOSÉS RÉALISTES POUR TESTER LE PARSING - 70 NOMS POUR 35 PAIRES
+    const nomsComposer = [
+        'DE CARLI Michel', 'LE COQ Françoise', 'DE LA TOUR Pierre', 'VAN DER BERG Marie',
+        'SAINT MARTIN Paul', 'DE COURIVON Sylvie', 'LA FONTAINE Jean', 'DU BOIS André',
+        'DE SAINT PIERRE Claire', 'LE GRAND Thomas', 'DE VILLIERS Sophie', 'VAN HOUTEN Lucas',
+        'SAINT GERMAIN Isabelle', 'DE MEYER Antoine', 'LA CROIX Nathalie', 'DU PONT Olivier',
+        'DE MONTMORENCY Valérie', 'LE BLANC François', 'DE BOURBON Julie', 'VAN DAMME Eric',
+        'SAINT LAURENT Martine', 'DE ROHAN Christophe', 'LA ROCQUE Véronique', 'DU JARDIN Alain',
+        'DE POLIGNAC Monique', 'LE ROUX Patricia', 'DE GUISE Bernard', 'VAN KLEEF Dominique',
+        'SAINT CLAIR Brigitte', 'DE BROGLIE Gérard', 'LA VALETTE Corinne', 'DU TERTRE Henri',
+        'DE NOAILLES Catherine', 'LE GOFF Philippe', 'DE MONTPENSIER Agnès', 'LE COMTE Thierry',
+        'VAN RIJN Elisabeth', 'DE MONTCLAIR François', 'LA MARQUISE Isabelle', 'DU FRESNE Antoine',
+        'SAINT ANDRÉ Valérie', 'DE BEAUMONT Claude', 'LE BARON Christine', 'VAN DYCK Laurent',
+        'DE SAVOIE Monique', 'LA PRINCESSE Hélène', 'DU CHÂTEAU Bernard', 'SAINT LOUIS Martine',
+        'DE RICHELIEU Pierre', 'LE DUC Marie', 'VAN BEETHOVEN Jean', 'DE MOZART Claire',
+        'LA COMTESSE Sophie', 'DU MANOIR Philippe', 'SAINT DENIS Alain', 'DE VERSAILLES Nicole',
+        'LE VICOMTE Henri', 'VAN GOGH Sylvie', 'DE REMBRANDT Louis', 'LA DUCHESSE Françoise',
+        'DU PALAIS André', 'SAINT HONORÉ Catherine', 'DE MALMAISON Georges', 'LE MARQUIS Brigitte',
+        'VAN HALEN Michel', 'DE BERGERAC Cyrano', 'LA FONTAINE Esther', 'DU LOUVRE Alexandre',
+        'SAINT TROPEZ Marina', 'DE MONACO Grace', 'LE PRINCE Albert', 'VAN DAMME Claude'
+    ];
 
-        pairData += `16/01/2026
-M. ${player1Name} (5,00 €)
-${9890000 + i * 2 - 1} ( IV = ${iv1} )
-Mme ${player2Name} (5,00 €)
-${9890000 + i * 2} ( IV = ${iv2} )
+    // FORMAT FFB SIMPLE - 70 joueurs pour 35 paires
+    for (let i = 0; i < 70; i++) {
+        const civilite = i % 2 === 0 ? 'M.' : 'Mme';
+        const fullName = nomsComposer[i];
+        const iv = Math.floor(Math.random() * 40) + 50;
+        const license = (9800000 + i + 1).toString().padStart(8, '0');
+
+        testData += `${civilite} ${fullName} (5.00 €)
+${license} ( IV = ${iv} )
+
 `;
     }
 
-    const testData = `Tournoi Bridge Club Nancy - Test 35 paires du 16/01/2026 à 14:15
-35 équipe(s)
-Nouvelle équipe
-Inscription	Joueur 1	Joueur 2	Actions
-${pairData}`;
-
     document.getElementById('tournamentData').value = testData;
-    showStatus('✅ Données de test 35 paires chargées', 'success');
+    showStatus('✅ Données de test: 35 paires (70 joueurs) chargées', 'success');
 }
 
 function loadTestData80() {
@@ -693,29 +770,113 @@ function adjustTableCount(sectionIndex, delta) {
 
     if (!mitchellData || !mitchellData[sectionIndex]) return;
 
-    const section = mitchellData[sectionIndex];
-    const newTableCount = section.length + delta;
+    const currentSection = mitchellData[sectionIndex];
+    const newTableCount = currentSection.length + delta;
 
-    if (newTableCount < 1) return;
+    // Interdire de descendre sous 1 table
+    if (newTableCount < 1) {
+        showStatus('❌ Impossible de descendre sous 1 table', 'error');
+        return;
+    }
 
+    // Calculer le total de tables actuelles
+    const totalTables = mitchellData.reduce((sum, section) => sum + section.length, 0);
+
+    // Trouver la section suivante à ajuster (celle de droite ou la première)
+    let targetSectionIndex = (sectionIndex + 1) % mitchellData.length;
+    let targetSection = mitchellData[targetSectionIndex];
+
+    // Si la section cible aurait 0 tables, chercher la suivante
+    while (targetSection.length - (-delta) <= 0 && targetSectionIndex !== sectionIndex) {
+        targetSectionIndex = (targetSectionIndex + 1) % mitchellData.length;
+        targetSection = mitchellData[targetSectionIndex];
+    }
+
+    // Vérifier si l'ajustement est possible
+    if (targetSection.length - (-delta) <= 0) {
+        showStatus('❌ Impossible de redistribuer: toutes les autres sections ont trop peu de tables', 'error');
+        return;
+    }
+
+    // Effectuer l'ajustement de la section courante
     if (delta > 0) {
+        // Ajouter des tables
         for (let i = 0; i < delta; i++) {
-            section.push({
-                tableNumber: section.length + 1,
+            currentSection.push({
+                tableNumber: currentSection.length + 1,
                 ns: null,
                 eo: null
             });
         }
     } else {
-        section.splice(section.length + delta);
+        // Retirer des tables
+        currentSection.splice(currentSection.length + delta);
     }
 
+    // Effectuer l'ajustement inverse sur la section cible
+    if (-delta > 0) {
+        // Ajouter des tables à la section cible
+        for (let i = 0; i < -delta; i++) {
+            targetSection.push({
+                tableNumber: targetSection.length + 1,
+                ns: null,
+                eo: null
+            });
+        }
+    } else {
+        // Retirer des tables de la section cible
+        targetSection.splice(targetSection.length + (-delta));
+    }
+
+    // Redistribuer les paires avec les nouvelles configurations de tables
     if (parsedPairs && parsedPairs.length > 0) {
-        mitchellData = mitchellDistribution(parsedPairs, currentSectionCount, nsConstraints.size > 0);
+        const newTableCounts = mitchellData.map(section => section.length);
+        mitchellData = redistributePairsWithCustomTableCounts(parsedPairs, newTableCounts, nsConstraints.size > 0);
     }
 
     renderMitchellDisplay();
-    showStatus(`Section ${String.fromCharCode(65 + sectionIndex)}: ${newTableCount} tables`, 'info');
+
+    const sectionLetter = String.fromCharCode(65 + sectionIndex);
+    const targetLetter = String.fromCharCode(65 + targetSectionIndex);
+    showStatus(`✅ ${sectionLetter}: ${newTableCount} tables, ${targetLetter}: ${targetSection.length} tables (total: ${totalTables})`, 'success');
+}
+
+function redistributePairsWithCustomTableCounts(pairs, tableCounts, useConstraints = false) {
+    console.log('🔄 Redistributing pairs with custom table counts:', tableCounts);
+
+    const sortedPairs = [...pairs].sort((a, b) => calculateCombinedIV(b) - calculateCombinedIV(a));
+
+    sortedPairs.forEach((pair, i) => {
+        if (!pair.id) pair.id = `pair_${i}`;
+        pair.combinedIV = calculateCombinedIV(pair);
+        pair.nsConstraint = useConstraints && nsConstraints.has(pair.id);
+    });
+
+    const sectionCount = tableCounts.length;
+    const sections = tableCounts.map((tableCount, sectionIndex) => {
+        return Array.from({ length: tableCount }, (_, i) => ({
+            tableNumber: i + 1,
+            ns: null,
+            eo: null
+        }));
+    });
+
+    try {
+        console.log('🔍 Calling generateMitchellPlacement with custom table counts...');
+        const result = generateMitchellPlacement(sections, sortedPairs, sectionCount, useConstraints);
+
+        if (result !== true) {
+            console.error('❌ generateMitchellPlacement failed');
+            throw new Error('Failed to generate Mitchell placement');
+        }
+
+        console.log('✅ Redistribution complete with custom table counts');
+        return sections;
+
+    } catch (error) {
+        console.error('❌ Redistribution failed:', error);
+        return generateSimpleFallback(sections, sortedPairs);
+    }
 }
 
 // ===================================================================
