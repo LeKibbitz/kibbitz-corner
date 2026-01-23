@@ -11,11 +11,11 @@ let currentSectionCount = 1;
 let nsConstraints = new Set();
 let currentPage = 1;
 let totalPages = 1;
-let tablesPerPage = 10;
+let tablesPerPage = 50;
 let autoPageInterval = null;
 let pendingTableCounts = null;
 let originalTableCounts = null;
-let currentAlgorithm = '147'; // Default
+let currentAlgorithm = 'equilibrated'; // Default to "?" algorithm
 let isDarkMode = false;
 
 // ===================================================================
@@ -39,55 +39,8 @@ function hideStatus() {
 }
 
 function showDataLoadedNotification(playerCount) {
-    const notification = document.createElement('div');
-    notification.id = 'ffb-load-notification';
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        color: white;
-        padding: 16px 24px;
-        border-radius: 12px;
-        box-shadow: 0 8px 32px rgba(16, 185, 129, 0.4);
-        z-index: 10000;
-        font-family: 'Inter', sans-serif;
-        animation: slideIn 0.3s ease-out;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    `;
-
-    notification.innerHTML = `
-        <span style="font-size: 24px;">✅</span>
-        <div>
-            <strong style="display: block; font-size: 14px;">Données FFB chargées</strong>
-            <span style="font-size: 12px; opacity: 0.9;">${playerCount} joueurs importés depuis l'extension</span>
-        </div>
-    `;
-
-    if (!document.getElementById('notification-styles')) {
-        const style = document.createElement('style');
-        style.id = 'notification-styles';
-        style.textContent = `
-            @keyframes slideIn {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-            @keyframes slideOut {
-                from { transform: translateX(0); opacity: 1; }
-                to { transform: translateX(100%); opacity: 0; }
-            }
-        `;
-        document.head.appendChild(style);
-    }
-
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-        notification.style.animation = 'slideOut 0.3s ease-in forwards';
-        setTimeout(() => notification.remove(), 300);
-    }, 4000);
+    // NOTIFICATION DISABLED - Pop-up removed
+    return;
 }
 
 function calculateCombinedIV(pair) {
@@ -134,30 +87,43 @@ function parseFFBFormatWithDates(lines) {
             continue;
         }
 
-        const playerMatch = line.match(/^(M\.|Mme)\s+(.+?)\s+\(\s*([\d.,]+)\s*€\s*\)/);
-        if (playerMatch) {
-            const fullName = playerMatch[2];
-            const amount = parseFloat(playerMatch[3].replace(',', '.'));
+        // Nouvelle approche : séparer préfixe, nom et montant
+        if (line.match(/^(M\.|Mme)\s+/) && line.match(/\(\s*[\d.,]+\s*€\s*\)$/)) {
+            const prefixMatch = line.match(/^(M\.|Mme)\s+/);
+            const amountMatch = line.match(/\(\s*([\d.,]+)\s*€\s*\)$/);
 
-            if (i + 1 < lines.length) {
-                const nextLine = lines[i + 1].trim();
-                const licenseMatch = nextLine.match(/(\d{8})\s*\(\s*IV\s*=\s*(\d+)\s*\)/);
+            if (prefixMatch && amountMatch) {
+                const prefix = prefixMatch[0];
+                const amount = parseFloat(amountMatch[1].replace(',', '.'));
 
-                if (licenseMatch) {
-                    const player = {
-                        name: fullName,
-                        license: licenseMatch[1],
-                        iv: parseInt(licenseMatch[2]),
-                        amount: amount
-                    };
+                // Extraire le nom entre le préfixe et le montant
+                const nameStart = prefix.length;
+                const nameEnd = line.lastIndexOf('(');
+                const fullName = line.substring(nameStart, nameEnd).trim();
 
-                    if (!currentPair.player1) {
-                        currentPair.player1 = player;
-                    } else if (!currentPair.player2) {
-                        currentPair.player2 = player;
+                console.log('🔍 Parsing:', line);
+                console.log('   Nom extrait:', fullName);
+
+                if (i + 1 < lines.length) {
+                    const nextLine = lines[i + 1].trim();
+                    const licenseMatch = nextLine.match(/(\d{8})\s*\(\s*IV\s*=\s*(\d+)\s*\)/);
+
+                    if (licenseMatch) {
+                        const player = {
+                            name: fullName,
+                            license: licenseMatch[1],
+                            iv: parseInt(licenseMatch[2]),
+                            amount: amount
+                        };
+
+                        if (!currentPair.player1) {
+                            currentPair.player1 = player;
+                        } else if (!currentPair.player2) {
+                            currentPair.player2 = player;
+                        }
+
+                        i++;
                     }
-
-                    i++;
                 }
             }
         }
@@ -184,30 +150,52 @@ function parseSimplifiedFormat(lines) {
             continue;
         }
 
-        const playerMatch = line.match(/^(M\.|Mme)\s+(.+?)\s+\(\s*([\d.]+)\s*€\s*\)/);
-        if (playerMatch) {
-            const fullName = playerMatch[2].trim();
-            const amount = parseFloat(playerMatch[3]);
+        // Debug: afficher toutes les lignes non vides pour voir les formats
+        if (line.trim()) {
+            console.log(`📋 Ligne brute ${i}:`, line);
+        }
 
-            let nextLineIndex = i + 1;
-            while (nextLineIndex < lines.length && !lines[nextLineIndex].trim()) {
-                nextLineIndex++;
-            }
+        // Debug: afficher toutes les lignes qui pourraient être des joueurs
+        if (line.includes('€') && (line.includes('M.') || line.includes('Mme'))) {
+            console.log('🔍 Ligne potentielle joueur (simplified):', line);
+        }
 
-            if (nextLineIndex < lines.length) {
-                const nextLine = lines[nextLineIndex].trim();
-                const licenseMatch = nextLine.match(/(\d{8})\s*\(\s*IV\s*=\s*(\d+)\s*\)/);
+        if (line.match(/^(M\.|Mme)\s+/) && line.match(/\(\s*[\d.,]+\s*€\s*\)$/)) {
+            const prefixMatch = line.match(/^(M\.|Mme)\s+/);
+            const amountMatch = line.match(/\(\s*([\d.,]+)\s*€\s*\)$/);
 
-                if (licenseMatch) {
-                    const player = {
-                        name: fullName,
-                        license: licenseMatch[1],
-                        iv: parseInt(licenseMatch[2]),
-                        amount: amount
-                    };
-                    players.push(player);
-                    i = nextLineIndex + 1;
-                    continue;
+            if (prefixMatch && amountMatch) {
+                const prefix = prefixMatch[0];
+                const amount = parseFloat(amountMatch[1].replace(',', '.'));
+
+                // Extraire le nom entre le préfixe et le montant
+                const nameStart = prefix.length;
+                const nameEnd = line.lastIndexOf('(');
+                const fullName = line.substring(nameStart, nameEnd).trim();
+
+                console.log('🔍 Parsing (simplified):', line);
+                console.log('   Nom extrait:', fullName);
+
+                let nextLineIndex = i + 1;
+                while (nextLineIndex < lines.length && !lines[nextLineIndex].trim()) {
+                    nextLineIndex++;
+                }
+
+                if (nextLineIndex < lines.length) {
+                    const nextLine = lines[nextLineIndex].trim();
+                    const licenseMatch = nextLine.match(/(\d{8})\s*\(\s*IV\s*=\s*(\d+)\s*\)/);
+
+                    if (licenseMatch) {
+                        const player = {
+                            name: fullName,
+                            license: licenseMatch[1],
+                            iv: parseInt(licenseMatch[2]),
+                            amount: amount
+                        };
+                        players.push(player);
+                        i = nextLineIndex + 1;
+                        continue;
+                    }
                 }
             }
         }
@@ -460,9 +448,10 @@ function renderMitchellDisplay() {
     container.innerHTML = '';
 
     const isSingleSection = currentSectionCount === 1;
-    const useTwoColumns = isSingleSection && mitchellData[0] && mitchellData[0].length > 10;
+    const useTwoColumns = isSingleSection && mitchellData[0] && mitchellData[0].length > 12;
 
     container.className = `sections-grid ${
+        currentSectionCount === 1 ? 'two-sections' :
         currentSectionCount === 2 ? 'two-sections' :
         currentSectionCount === 3 ? 'three-sections' : ''
     }`;
@@ -476,10 +465,23 @@ function renderMitchellDisplay() {
         document.body.classList.remove('single-section', 'two-columns');
     }
 
-    mitchellData.forEach((section, sectionIndex) => {
-        const sectionDiv = document.createElement('div');
-        sectionDiv.className = `section-container ${sectionColors[sectionIndex]}`;
-        sectionDiv.dataset.section = sectionIndex;
+    if (currentSectionCount === 1) {
+        // Cas 1 section : créer 2 sections (gauche avec bandeau, droite sans bandeau)
+        const section = mitchellData[0];
+        let leftTables, rightTables;
+
+        if (section.length < 11) {
+            leftTables = section;
+            rightTables = [];
+        } else {
+            leftTables = section.slice(0, 10);
+            rightTables = section.slice(10);
+        }
+
+        // Section gauche avec bandeau
+        const leftSectionDiv = document.createElement('div');
+        leftSectionDiv.className = `section-container section-a`;
+        leftSectionDiv.dataset.section = 0;
 
         const nsCount = section.filter(t => t.ns).length;
         const eoCount = section.filter(t => t.eo).length;
@@ -492,7 +494,7 @@ function renderMitchellDisplay() {
 
         const tableCountControl = `
             <div class="table-count-control">
-                <button class="table-count-btn" data-section="${sectionIndex}" data-delta="1" title="Plus de tables">▲</button>
+                <button class="table-count-btn" data-section="0" data-delta="1" title="Plus de tables">▲</button>
                 <div class="table-count-display">
                     <span class="table-count-value">${section.length}</span>
                     <span class="table-icon">
@@ -500,30 +502,109 @@ function renderMitchellDisplay() {
                         <span class="bottom-suits"><span style="color: #000000 !important;">♣</span><span style="color: #ff0000 !important;">♦</span></span>
                     </span>
                 </div>
-                <button class="table-count-btn" data-section="${sectionIndex}" data-delta="-1" title="Moins de tables">▼</button>
+                <button class="table-count-btn" data-section="0" data-delta="-1" title="Moins de tables">▼</button>
             </div>
         `;
 
-        sectionDiv.innerHTML = `
+        leftSectionDiv.innerHTML = `
             <div class="section-banner">
                 ${tableCountControl}
-                <div class="section-letter">${sectionNames[sectionIndex]}</div>
+                <div class="section-letter">A</div>
                 <div class="section-stats">
-                    <div class="section-stats-line">NS</div>
-                    <div class="section-stats-line">~${nsAvgIV}</div>
-                    <div class="section-stats-line">~${eoAvgIV}</div>
-                    <div class="section-stats-line">EO</div>
+                    <div class="section-stats-line"></div>
+                    <div class="section-stats-line">${Math.round(nsAvgIV)}</div>
+                    <div class="section-stats-line">IV</div>
+                    <div class="section-stats-line">${Math.round(eoAvgIV)}</div>
                 </div>
             </div>
             <div class="section-content">
                 <div class="tables-grid">
-                    ${renderTablesContent(section, sectionIndex, mitchellData.length)}
+                    ${renderTablesContent(leftTables, 0, 2)}
                 </div>
             </div>
         `;
 
-        container.appendChild(sectionDiv);
-    });
+        leftSectionDiv.setAttribute('data-section-letter', 'A');
+        leftSectionDiv.setAttribute('data-table-count', leftTables.length);
+        leftSectionDiv.setAttribute('data-ns-avg', Math.round(nsAvgIV));
+        leftSectionDiv.setAttribute('data-eo-avg', Math.round(eoAvgIV));
+        container.appendChild(leftSectionDiv);
+
+        // Section droite sans bandeau visible
+        if (rightTables.length > 0) {
+            const rightSectionDiv = document.createElement('div');
+            rightSectionDiv.className = `section-container section-a single-section-right`;
+            rightSectionDiv.dataset.section = 1;
+
+            rightSectionDiv.innerHTML = `
+                <div class="section-banner" style="visibility: hidden; width: 75px; margin-right: 20px;"></div>
+                <div class="section-content">
+                    <div class="tables-grid">
+                        ${renderTablesContent(rightTables, 0, 2)}
+                    </div>
+                </div>
+            `;
+
+            rightSectionDiv.setAttribute('data-table-count', rightTables.length);
+            container.appendChild(rightSectionDiv);
+        }
+    } else {
+        // Cas 2+ sections : logique normale
+        mitchellData.forEach((section, sectionIndex) => {
+            const sectionDiv = document.createElement('div');
+            sectionDiv.className = `section-container ${sectionColors[sectionIndex]}`;
+            sectionDiv.dataset.section = sectionIndex;
+
+            const nsCount = section.filter(t => t.ns).length;
+            const eoCount = section.filter(t => t.eo).length;
+            const nsAvgIV = section.length > 0 ? Math.round(
+                section.reduce((sum, table) => sum + (table.ns ? calculateCombinedIV(table.ns) : 0), 0) / nsCount
+            ) || 0 : 0;
+            const eoAvgIV = section.length > 0 ? Math.round(
+                section.reduce((sum, table) => sum + (table.eo ? calculateCombinedIV(table.eo) : 0), 0) / eoCount
+            ) || 0 : 0;
+
+            const tableCountControl = `
+                <div class="table-count-control">
+                    <button class="table-count-btn" data-section="${sectionIndex}" data-delta="1" title="Plus de tables">▲</button>
+                    <div class="table-count-display">
+                        <span class="table-count-value">${section.length}</span>
+                        <span class="table-icon">
+                            <span class="top-suits"><span style="color: #ff0000 !important;">♥</span><span style="color: #000000 !important;">♠</span></span>
+                            <span class="bottom-suits"><span style="color: #000000 !important;">♣</span><span style="color: #ff0000 !important;">♦</span></span>
+                        </span>
+                    </div>
+                    <button class="table-count-btn" data-section="${sectionIndex}" data-delta="-1" title="Moins de tables">▼</button>
+                </div>
+            `;
+
+            sectionDiv.innerHTML = `
+                <div class="section-banner">
+                    ${tableCountControl}
+                    <div class="section-letter">${sectionNames[sectionIndex]}</div>
+                    <div class="section-stats">
+                        <div class="section-stats-line"></div>
+                        <div class="section-stats-line">${Math.round(nsAvgIV)}</div>
+                        <div class="section-stats-line">IV</div>
+                        <div class="section-stats-line">${Math.round(eoAvgIV)}</div>
+                    </div>
+                </div>
+                <div class="section-content">
+                    <div class="tables-grid">
+                        ${renderTablesContent(section, sectionIndex, mitchellData.length)}
+                    </div>
+                </div>
+            `;
+
+            // Ajouter les attributs data pour l'impression APRÈS calcul des moyennes
+            sectionDiv.setAttribute('data-section-letter', sectionNames[sectionIndex]);
+            sectionDiv.setAttribute('data-table-count', section.length);
+            sectionDiv.setAttribute('data-ns-avg', Math.round(nsAvgIV));
+            sectionDiv.setAttribute('data-eo-avg', Math.round(eoAvgIV));
+
+            container.appendChild(sectionDiv);
+        });
+    }
 
     const totalPairs = parsedPairs.length;
     const totalIV = parsedPairs.reduce((sum, pair) => sum + calculateCombinedIV(pair), 0);
@@ -534,25 +615,323 @@ function renderMitchellDisplay() {
         `Bon tournoi au BCNJ - ${today} - ${totalPairs} paires, IV moyen ${avgIV}`;
 
     console.log('✅ Mitchell display rendered');
+
+    // Format player name for print: J. FULL_LASTNAME (first initial + full lastname)
+    function formatPlayerNameForPrint(fullName) {
+        if (!fullName) return 'J. PLAYER';
+
+        const parts = fullName.trim().split(' ');
+        if (parts.length >= 2) {
+            // Smart detection of compound first names
+            let prenom, nom;
+
+            // Séparer noms (MAJUSCULES) et prénoms (Première lettre majuscule)
+            let nomParts = [];
+            let prenomParts = [];
+
+            for (let i = 0; i < parts.length; i++) {
+                const part = parts[i];
+                if (part === part.toUpperCase() && part.length > 1) {
+                    // Tout en majuscules = nom
+                    nomParts.push(part);
+                } else {
+                    // Pas tout en majuscules = prénom
+                    prenomParts.push(part);
+                }
+            }
+
+            nom = nomParts.join(' ');
+
+            // Initiales des prénoms séparées par tiret + point à la fin
+            let initialesPrenom = '';
+            if (prenomParts.length > 0) {
+                initialesPrenom = prenomParts.map(part => part.charAt(0).toUpperCase()).join('-') + '.';
+            }
+
+            return `${initialesPrenom} ${nom}`;
+        }
+        return fullName.toUpperCase();
+    }
+
+    // CONFIGURER L'IMPRESSION ICI (pas inline à cause de CSP)
+    const printBtn = document.getElementById('printBtnMitchell');
+    if (printBtn) {
+        printBtn.onclick = function() {
+            console.log('🖨️ PRINT WITH SECTION HEADERS FOR ALL PAGES');
+
+            // Force Mitchell view
+            document.getElementById('setupView').style.display = 'none';
+            document.getElementById('mitchellView').style.display = 'block';
+
+            // Create print structure ONLY for sections with actual data
+            const sectionContainers = document.querySelectorAll('.section-container');
+            const sectionLetters = ['A', 'B', 'C'];
+
+            console.log(`📄 Found ${sectionContainers.length} sections with data`);
+
+            sectionContainers.forEach((container, index) => {
+                // Only create print page if this section has data
+                if (index < currentSectionCount && mitchellData[index] && mitchellData[index].length > 0) {
+                    const section = mitchellData[index];
+
+                    // Calculate section-specific averages
+                    const nsCount = section.filter(t => t.ns).length;
+                    const eoCount = section.filter(t => t.eo).length;
+                    const nsAvgIV = section.length > 0 ? Math.round(
+                        section.reduce((sum, table) => sum + (table.ns ? calculateCombinedIV(table.ns) : 0), 0) / nsCount
+                    ) || 0 : 0;
+                    const eoAvgIV = section.length > 0 ? Math.round(
+                        section.reduce((sum, table) => sum + (table.eo ? calculateCombinedIV(table.eo) : 0), 0) / eoCount
+                    ) || 0 : 0;
+
+                    // Create a container for this section's print content
+                    const printContainer = document.createElement('div');
+                    printContainer.className = 'print-section-container';
+                    printContainer.dataset.sectionIndex = index;
+
+                    // Create header section
+                    const headerSection = document.createElement('div');
+                    headerSection.style.cssText = 'padding: 20px; margin-bottom: -15px;';
+
+                    // Add tournament header
+                    const tournamentHeader = document.createElement('div');
+                    tournamentHeader.style.cssText = 'text-align: center; font-size: 24px; font-weight: bold; color: #333; font-family: Arial, sans-serif; margin-bottom: 10px;';
+                    // Calculate real data from current mitchell data - count actual pairs (relais possible)
+                    let totalPairs = 0;
+                    mitchellData.forEach(section => {
+                        section.forEach(table => {
+                            if (table.ns && table.ns.player1 && table.ns.player2) totalPairs++;
+                            if (table.eo && table.eo.player1 && table.eo.player2) totalPairs++;
+                        });
+                    });
+
+                    // Calculate IV average from pair IVs (sum of 2 players per pair)
+                    let pairIVs = [];
+                    mitchellData.forEach(section => {
+                        section.forEach(table => {
+                            // Calculate NS pair IV (sum of the 2 players)
+                            if (table.ns && table.ns.player1 && table.ns.player2) {
+                                const iv1 = Number(table.ns.player1.iv);
+                                const iv2 = Number(table.ns.player2.iv);
+                                if (!isNaN(iv1) && !isNaN(iv2)) {
+                                    pairIVs.push(iv1 + iv2);
+                                }
+                            }
+                            // Calculate EO pair IV (sum of the 2 players)
+                            if (table.eo && table.eo.player1 && table.eo.player2) {
+                                const iv1 = Number(table.eo.player1.iv);
+                                const iv2 = Number(table.eo.player2.iv);
+                                if (!isNaN(iv1) && !isNaN(iv2)) {
+                                    pairIVs.push(iv1 + iv2);
+                                }
+                            }
+                        });
+                    });
+
+                    const averageIV = pairIVs.length > 0 ? Math.round(pairIVs.reduce((sum, iv) => sum + iv, 0) / pairIVs.length) : 136;
+
+                    tournamentHeader.textContent = `BCNJ - 20/01/2026 - ${totalPairs} paires, IV moyen ${averageIV}`;
+                    headerSection.appendChild(tournamentHeader);
+
+                    // Add section header
+                    const sectionHeader = document.createElement('div');
+                    sectionHeader.style.cssText = 'text-align: center; font-size: 26px; font-weight: bold; color: #333; font-family: Arial, sans-serif; margin-bottom: 10px;';
+                    sectionHeader.textContent = `SECTION ${sectionLetters[index]}`;
+                    headerSection.appendChild(sectionHeader);
+
+                    // Add column headers with section-specific averages
+                    const columnHeaders = document.createElement('div');
+                    columnHeaders.style.cssText = 'text-align: center; font-size: 28px; font-weight: bold; color: #333; font-family: Arial, sans-serif; white-space: pre; margin-bottom: 0px;';
+                    columnHeaders.textContent = `          NS ~${nsAvgIV}          Table          EO ~${eoAvgIV}          `;
+                    headerSection.appendChild(columnHeaders);
+
+                    printContainer.appendChild(headerSection);
+
+                    // Add table numbers with team names - use remaining space
+                    const tableCount = section.length;
+                    // Calculate real available space: total page height - headers space
+                    const totalPageHeight = 1400;
+                    const headerSpace = 350; // Space taken by BCNJ + SECTION + NS/Table/EO headers
+                    // Calculate sizing: if less than 9 tables, use size as if 8 tables
+                    const sizingTableCount = tableCount < 9 ? 8 : tableCount;
+                    const availableHeight = totalPageHeight - headerSpace + (sizingTableCount * 2); // Add 2px per table to increase spacing
+                    const actualRowHeight = Math.floor(availableHeight / sizingTableCount); // Raw height
+                    const tableBoxSize = Math.max(40, Math.floor(actualRowHeight * 0.75)); // Smaller box (75% instead of 85%)
+                    const fontSize = Math.max(14, Math.min(28, Math.floor(tableBoxSize * 0.25))); // Font size based on box size, not row height
+                    const tableNumberSize = Math.floor(tableBoxSize * 0.5); // Font size proportional to box size
+                    const verticalSpacing = Math.floor((actualRowHeight - tableBoxSize) / 2); // Auto-adjust spacing to center smaller box
+                    const horizontalPadding = Math.max(15, Math.min(40, Math.floor(actualRowHeight * 0.15)));
+
+                    const tablesContainer = document.createElement('div');
+                    tablesContainer.style.cssText = 'padding: 0 20px; flex: 1;';
+
+                    section.forEach((table, tableIndex) => {
+                        const tableRow = document.createElement('div');
+                        const isLastTable = tableIndex === section.length - 1;
+                        const marginStyle = isLastTable ? `${verticalSpacing}px 0 0 0` : `${verticalSpacing}px 0`;
+                        tableRow.style.cssText = `display: grid; grid-template-columns: 2fr auto 2fr; align-items: center; margin: ${marginStyle}; width: 100%; gap: 20px;`;
+
+                        // Step 3: Use the pre-calculated table box size (not calculated per table)
+                        const teamHeight = tableBoxSize; // Use consistent box size calculated above
+
+                        // Function to calculate text width and adjust font size if needed
+                        const calculateOptimalFontSize = (text1, text2, baseFontSize, maxWidth) => {
+                            const estimateTextWidth = (text, fontSize) => {
+                                // Estimate condensed font width (roughly 0.6 * regular width)
+                                return text.length * fontSize * 0.45;
+                            };
+
+                            let adjustedSize = Math.floor(baseFontSize * 1.5);
+                            const longerText = text1.length > text2.length ? text1 : text2;
+
+                            while (estimateTextWidth(longerText, adjustedSize) > maxWidth && adjustedSize > 12) {
+                                adjustedSize -= 1;
+                            }
+
+                            return adjustedSize;
+                        };
+
+                        // Left team (NS) - Single line per player
+                        const nsTeam = document.createElement('div');
+                        let nsP1Name = 'J. PLAYER', nsP2Name = 'M. PLAYER';
+                        if (table.ns && table.ns.player1 && table.ns.player2) {
+                            nsP1Name = formatPlayerNameForPrint(table.ns.player1.name);
+                            nsP2Name = formatPlayerNameForPrint(table.ns.player2.name);
+                        }
+                        const nsFontSize = calculateOptimalFontSize(nsP1Name, nsP2Name, fontSize, 290);
+
+                        nsTeam.style.cssText = `text-align: right; font-size: ${nsFontSize}px; font-weight: bold; line-height: 1.1; padding-right: 0px; display: flex; flex-direction: column; gap: 0px; width: 300px; overflow: hidden; justify-self: end; font-family: Arial, 'Arial Narrow', 'Helvetica Condensed', sans-serif; font-stretch: condensed;`;
+                        nsTeam.innerHTML = `<div style="white-space: nowrap;">${nsP1Name}</div><div style="white-space: nowrap;">${nsP2Name}</div>`;
+
+                        // Table number - SQUARE shape (RÈGLE 5 - FIGÉ)
+                        const tableNumber = document.createElement('div');
+                        tableNumber.style.cssText = `height: ${tableBoxSize}px; width: ${tableBoxSize}px; display: flex; align-items: center; justify-content: center; border: 4px solid #333; font-size: ${tableNumberSize}px; font-weight: bold; background: white; text-align: center; justify-self: center; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);`;
+                        tableNumber.textContent = tableIndex + 1;
+
+                        // Right team (EO) - Single line per player
+                        const eoTeam = document.createElement('div');
+                        let eoP1Name = 'J. PLAYER', eoP2Name = 'M. PLAYER';
+                        if (table.eo && table.eo.player1 && table.eo.player2) {
+                            eoP1Name = formatPlayerNameForPrint(table.eo.player1.name);
+                            eoP2Name = formatPlayerNameForPrint(table.eo.player2.name);
+                        }
+                        const eoFontSize = calculateOptimalFontSize(eoP1Name, eoP2Name, fontSize, 290);
+
+                        eoTeam.style.cssText = `text-align: left; font-size: ${eoFontSize}px; font-weight: bold; line-height: 1.1; padding-left: 0px; display: flex; flex-direction: column; gap: 0px; width: 300px; overflow: hidden; font-family: Arial, 'Arial Narrow', 'Helvetica Condensed', sans-serif; font-stretch: condensed;`;
+                        eoTeam.innerHTML = `<div style="white-space: nowrap;">${eoP1Name}</div><div style="white-space: nowrap;">${eoP2Name}</div>`;
+
+                        tableRow.appendChild(nsTeam);
+                        tableRow.appendChild(tableNumber);
+                        tableRow.appendChild(eoTeam);
+                        tablesContainer.appendChild(tableRow);
+                    });
+
+                    printContainer.appendChild(tablesContainer);
+
+                    document.body.appendChild(printContainer);
+                    console.log(`✅ Created print container for SECTION ${sectionLetters[index]} with ${mitchellData[index].length} tables`);
+                } else {
+                    console.log(`⚠️ Skipped SECTION ${sectionLetters[index]} - no data`);
+                }
+            });
+
+            // Print
+            window.print();
+
+            // Clean up print containers after print
+            setTimeout(() => {
+                document.querySelectorAll('.print-section-container').forEach(el => el.remove());
+                console.log('🧹 Cleaned up print containers');
+            }, 100);
+        };
+        console.log('✅ Bouton imprimer configuré depuis JS externe');
+    }
 }
+
+// INITIALISATION AU CHARGEMENT (déplacé du HTML pour éviter CSP)
+window.addEventListener('load', function() {
+    setTimeout(function() {
+        console.log('🔄 INITIALISATION DEPUIS FICHIER EXTERNE');
+
+        // Override des fonctions
+        window.loadTestData = function() {
+            console.log('🔍 loadTestData externe - 35 PAIRES = 70 joueurs');
+            let testData = '';
+
+            // 35 paires = 70 joueurs !
+            for (let i = 1; i <= 70; i++) {
+                const civilite = i % 2 === 1 ? 'M.' : 'Mme';
+                const prenom = i % 2 === 1 ? 'Jean' : 'Marie';
+                const nom = `PLAYER${i}A`;
+                const fullName = `${nom} ${prenom}`;
+                const iv = Math.floor(Math.random() * 40) + 50;
+                const license = (9800000 + i).toString().padStart(8, '0');
+
+                testData += `${civilite} ${fullName} (5.00 €)
+${license} ( IV = ${iv} )
+
+`;
+            }
+
+            document.getElementById('tournamentData').value = testData;
+            showStatus('✅ Données de test 35 paires (70 joueurs) chargées', 'success');
+        };
+
+        window.generateSections = function() {
+            console.log('🔍 generateSections externe');
+            const data = document.getElementById('tournamentData').value;
+            const sectionCount = parseInt(document.getElementById('sectionCount').value);
+
+            if (!data.trim()) {
+                showStatus('Veuillez entrer les données du tournoi', 'error');
+                return;
+            }
+
+            try {
+                parsedPairs = parseTournamentData(data);
+                console.log('📊 Parsed pairs:', parsedPairs.length);
+
+                if (parsedPairs.length === 0) {
+                    showStatus('Aucune paire valide trouvée dans les données', 'error');
+                    return;
+                }
+
+                currentSectionCount = sectionCount;
+                mitchellData = mitchellDistribution(parsedPairs, sectionCount, false);
+
+                console.log('🚀 showMitchellDisplay externe');
+                showMitchellDisplay();
+
+            } catch (error) {
+                console.error('❌ Generation error:', error);
+                showStatus('❌ Erreur lors de la génération: ' + error.message, 'error');
+            }
+        };
+
+        // Event listeners
+        const testBtn35 = document.getElementById('loadTestDataBtn');
+        const generateBtn = document.getElementById('generateButton');
+
+        if (testBtn35) {
+            testBtn35.onclick = window.loadTestData;
+            console.log('✅ Bouton test 35 configuré');
+        }
+
+        if (generateBtn) {
+            generateBtn.onclick = window.generateSections;
+            console.log('✅ Bouton générer configuré');
+        }
+
+        console.log('✅ Init complète');
+    }, 500);
+});
 
 function renderTablesContent(section, sectionIndex, totalSections) {
     if (totalSections === 1) {
-        // Pour une section : diviser en deux colonnes
-        const midPoint = Math.ceil(section.length / 2);
-        const leftTables = section.slice(0, midPoint);
-        const rightTables = section.slice(midPoint);
-
-        return `
-            <div class="column-left">
-                ${leftTables.map(table => renderTableCard(table, sectionIndex)).join('')}
-            </div>
-            <div class="column-right">
-                ${rightTables.map(table => renderTableCard(table, sectionIndex)).join('')}
-            </div>
-        `;
+        // Pour 1 section : pas de colonnes internes, affichage simple
+        return section.map(table => renderTableCard(table, sectionIndex)).join('');
     } else {
-        // Pour plusieurs sections : affichage normal
+        // Pour 2+ sections : affichage normal
         return section.map(table => renderTableCard(table, sectionIndex)).join('');
     }
 }
@@ -595,33 +974,27 @@ function renderPosition(pair, position, sectionIndex, tableNumber) {
     const formatPlayerName = (fullName) => {
         const parts = fullName.trim().split(' ');
         if (parts.length >= 2) {
-            // Détecter les préfixes de noms composés et patterns courants
-            const prefixes = ['DE', 'LE', 'LA', 'DU', 'DES', 'VAN', 'VON', 'DA', 'DEL', 'VAN DER'];
+            // Nouvelle logique : le dernier mot est TOUJOURS le prénom
+            // Les mots précédents forment le nom (pouvant être composé)
+            let prenom, nom;
 
-            let nom, prenom;
+            prenom = parts[parts.length - 1]; // Dernier mot = prénom
+            nom = parts.slice(0, -1).join(' '); // Tous les autres mots = nom
 
-            // Méthode 1: Chercher les patterns composés avec 2 mots de famille
-            if (parts.length >= 3) {
-                const firstTwo = parts[0] + ' ' + parts[1];
-                const firstTwoUpper = firstTwo.toUpperCase();
-
-                // Vérifier si les 2 premiers mots forment un nom composé connu
-                if (prefixes.some(prefix => firstTwoUpper.startsWith(prefix))) {
-                    nom = firstTwo;
-                    prenom = parts.slice(2).join(' ');
+            // Formatage : initiale(s) prénom + nom en majuscules
+            const formatInitials = (firstName) => {
+                if (firstName.includes('-')) {
+                    const parts = firstName.split(/[-]+/);
+                    return parts.map(part => part.charAt(0).toUpperCase()).join('-') + '.';
+                } else if (firstName.includes(' ')) {
+                    const parts = firstName.split(/\s+/);
+                    return parts.map(part => part.charAt(0).toUpperCase()).join('-') + '.';
                 } else {
-                    // Méthode 2: Dernier mot = prénom, le reste = nom de famille
-                    prenom = parts[parts.length - 1];
-                    nom = parts.slice(0, -1).join(' ');
+                    return firstName.charAt(0).toUpperCase() + '.';
                 }
-            } else {
-                // Méthode 2: Dernier mot = prénom, le reste = nom de famille
-                prenom = parts[parts.length - 1];
-                nom = parts.slice(0, -1).join(' ');
-            }
+            };
 
-            // Format final: Initiale du prénom + nom de famille
-            const initialePrenom = prenom.charAt(0).toUpperCase() + '.';
+            const initialePrenom = formatInitials(prenom);
             return `${initialePrenom} ${nom.toUpperCase()}`;
         }
         return fullName;
@@ -933,9 +1306,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (urlData) {
         console.log('🔍 URL data detected, parsing...');
+        console.log('🔍 RAW URL DATA:', decodeURIComponent(urlData).substring(0, 500));
         try {
             const players = JSON.parse(decodeURIComponent(urlData));
             console.log('✅ FFB data from URL:', players.length, 'players');
+            console.log('🔍 DEBUG: All players from URL:', players.map(p => p.name));
 
             const formatted = players.map(p =>
                 `${p.name} (${p.amount} €)\n${p.license} ( IV = ${p.iv} )`
@@ -984,6 +1359,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Mitchell display controls
+    document.getElementById('refreshBtn')?.addEventListener('click', () => {
+        console.log('🔄 Regenerating original organization');
+        if (parsedPairs && parsedPairs.length > 0) {
+            // Clear any constraints
+            nsConstraints.clear();
+            document.getElementById('constraintCount').textContent = '0 paire(s) marquée(s)';
+
+            // Reset pairs to original state
+            parsedPairs.forEach(pair => {
+                pair.nsConstraint = false;
+                pair.mustBeNS = false;
+            });
+
+            // Regenerate with current section count
+            mitchellData = mitchellDistribution(parsedPairs, currentSectionCount, false);
+            renderMitchellDisplay();
+            showStatus('Organisation originale régénérée', 'success');
+        }
+    });
+
     document.getElementById('sections1')?.addEventListener('click', () => setSectionCount(1));
     document.getElementById('sections2')?.addEventListener('click', () => setSectionCount(2));
     document.getElementById('sections3')?.addEventListener('click', () => setSectionCount(3));
