@@ -149,24 +149,36 @@ function extractFFBData() {
 }
 
 function parsePlayer(text) {
-    // Extract name with title
-    const nameMatch = text.match(/(M\.|Mme)\s+([A-ZÁÉÈÊËÏÎÔÖÙÛÜŸÇ\s-]+?)\s+([A-Za-záéèêëïîôöùûüÿç\s-]+)/);
-    if (!nameMatch) return null;
+    console.log('🔍 Extension content.js - parsing:', text.substring(0, 100));
 
-    // Extract amount
-    const amountMatch = text.match(/\(\s*([0-9.]+)\s*€/);
-    if (!amountMatch) return null;
+    // Nettoyer le texte d'abord (supprimer \n suivis d'espaces)
+    const cleanText = text.replace(/\n\s+/g, ' ').trim();
+    console.log('🔍 Extension content.js - nettoyé:', cleanText.substring(0, 100));
 
-    // Extract license (8 digits)
-    const licenseMatch = text.match(/([0-9]{8})/);
+    // Nouvelle approche: extraire tout entre le titre et le montant
+    const fullNameMatch = cleanText.match(/(M\.|Mme)\s+(.+?)\s+\(\s*([0-9.]+)\s*€/);
+    if (!fullNameMatch) {
+        console.log('❌ Extension content.js - pas de match pour:', cleanText.substring(0, 50));
+        return null;
+    }
 
-    // Extract IV
-    const ivMatch = text.match(/IV\s*=\s*([0-9]+)/);
+    const title = fullNameMatch[1];
+    const fullName = fullNameMatch[2].trim();
+    const amount = fullNameMatch[3];
 
-    return {
-        name: `${nameMatch[1]} ${nameMatch[2].trim()} ${nameMatch[3].trim()}`,
-        amount: amountMatch[1],
+    // Extract license (8 digits) from original text
+    const licenseMatch = cleanText.match(/([0-9]{8})/);
+
+    // Extract IV from original text
+    const ivMatch = cleanText.match(/IV\s*=\s*([0-9]+)/);
+
+    const result = {
+        name: `${title} ${fullName}`,
+        amount: amount,
         license: licenseMatch ? licenseMatch[1] : '00000000',
         iv: ivMatch ? ivMatch[1] : '0'
     };
+
+    console.log('✅ Extension content.js - joueur parsé:', result);
+    return result;
 }

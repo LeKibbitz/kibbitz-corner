@@ -158,7 +158,7 @@
             backdrop-filter: blur(30px);
             border: 1px solid rgba(139, 92, 246, 0.3);
             color: #e0e0e0;
-            padding: 20px 30px;
+            padding: 11px 30px;
             box-shadow: 0 8px 40px rgba(99, 102, 241, 0.15), 0 4px 12px rgba(0, 0, 0, 0.3);
             z-index: 100;
             border-radius: 0 0 20px 20px;
@@ -196,11 +196,12 @@
             background-clip: text;
             letter-spacing: -0.02em;
             flex: 1;
+            padding: 3px 0;
         }
 
         .header-controls {
             display: flex;
-            gap: 15px;
+            gap: 0px;
             align-items: center;
         }
 
@@ -241,8 +242,8 @@
             padding: 5px 0;
         }
 
-        /* Effet Génie MacOS Dock - Smooth */
-        .header-btn, .section-btn, .algo-btn, .fullscreen-exit {
+        /* Effet Génie MacOS Dock - Smooth Wave */
+        .header-btn, .section-btn, .algo-btn, .fullscreen-exit, #refreshBtn {
             background: transparent;
             color: rgba(255,255,255,0.6);
             border: none;
@@ -250,26 +251,42 @@
             cursor: pointer;
             font-size: 1.1em;
             font-weight: 500;
-            transition: transform 0.2s ease-out, color 0.15s ease, text-shadow 0.15s ease;
+            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), color 0.3s ease, text-shadow 0.3s ease;
             white-space: nowrap;
             transform-origin: bottom center;
         }
 
-        .header-btn:hover, .section-btn:hover, .algo-btn:hover {
+        .header-btn:hover, .section-btn:hover, .algo-btn:hover, #refreshBtn:hover {
             color: rgba(255,255,255,0.95);
-            transform: scale(1.2) translateY(-2px);
-            text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            transform: scale(1.35) translateY(-4px);
+            text-shadow: 0 3px 12px rgba(0,0,0,0.4);
         }
 
-        /* Effet voisin smooth */
+        /* Effet vague douce - Smooth Wave */
         .header-btn:hover + .header-btn,
         .section-btn:hover + .section-btn,
         .algo-btn:hover + .algo-btn,
+        #refreshBtn:hover + .section-btn,
         .header-btn:has(+ .header-btn:hover),
         .section-btn:has(+ .section-btn:hover),
-        .algo-btn:has(+ .algo-btn:hover) {
+        .algo-btn:has(+ .algo-btn:hover),
+        .section-btn:has(+ #refreshBtn:hover) {
+            transform: scale(1.18) translateY(-2px);
+            color: rgba(255,255,255,0.8);
+            transition-delay: 0.05s;
+        }
+
+        /* Second level wave effect */
+        .header-btn:hover + .header-btn + .header-btn,
+        .section-btn:hover + .section-btn + .section-btn,
+        .algo-btn:hover + .algo-btn + .algo-btn,
+        #refreshBtn:hover + .section-btn + .section-btn,
+        .header-btn:has(+ .header-btn + .header-btn:hover),
+        .section-btn:has(+ .section-btn + .section-btn:hover),
+        .algo-btn:has(+ .algo-btn + .algo-btn:hover) {
             transform: scale(1.08) translateY(-1px);
             color: rgba(255,255,255,0.7);
+            transition-delay: 0.1s;
         }
 
         .header-btn.active, .section-btn.active, .algo-btn.active {
@@ -409,7 +426,7 @@
             padding: 12px 24px;
             border-radius: 30px;
             display: flex;
-            gap: 15px;
+            gap: 0px;
             align-items: center;
             box-shadow: 0 8px 32px rgba(0,0,0,0.4);
             backdrop-filter: blur(10px);
@@ -530,22 +547,27 @@
         }
 
         .section-stats {
-            padding: 15px 4px 10px 4px;
-            font-size: 1rem;
+            padding: 8px 4px 8px 4px;
+            font-size: 0.85rem;
             font-weight: 500;
-            line-height: 1.4;
+            line-height: 1.1;
             text-align: center;
             width: 100%;
             background: transparent;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 1px;
         }
 
         .section-stats-line {
-            margin: 3px 0;
-            font-size: 1em;
-            font-weight: 500;
+            margin: 0;
+            font-size: 0.95em; /* Taille de base uniforme */
+            font-weight: 700;
             text-align: center;
-            opacity: 0.85;
-            letter-spacing: 0.02em;
+            opacity: 1;
+            letter-spacing: 0.05em;
+            line-height: 1.1;
         }
 
         .section-stats-line:nth-child(1) {
@@ -553,50 +575,53 @@
             display: none;
         }
 
-        /* Labels NS/EO - subtle */
-        .section-stats-line:nth-child(2),
-        .section-stats-line:nth-child(4) {
-            font-size: 0.9em;
+        /* Ligne 2: 126 (valeur NS) */
+        .section-stats-line:nth-child(2) {
+            font-size: 0.8em;
             font-weight: 600;
-            opacity: 0.75;
-            letter-spacing: 0.1em;
+            margin-bottom: 1px;
+            line-height: 1.0;
+            opacity: 0.8;
         }
 
-        /* Values - emphasized */
-        .section-stats-line:nth-child(3),
-        .section-stats-line:nth-child(5) {
+        /* Ligne 3: IV (label) */
+        .section-stats-line:nth-child(3) {
+            font-size: 0.95em;
             font-weight: 700;
-            font-size: 1.3em;
-            opacity: 1;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1px;
+            line-height: 1.0;
         }
 
-        /* Section-specific text colors with nuances */
-        .section-a .section-stats-line {
-            color: #d8b4fe; /* Light purple - nuance of section A violet */
-            text-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
-        }
-        .section-a .section-stats-line:nth-child(3),
-        .section-a .section-stats-line:nth-child(5) {
-            color: #f3e8ff; /* Brighter purple for values */
-        }
-
-        .section-b .section-stats-line {
-            color: #fbcfe8; /* Light pink - nuance of section B rose */
-            text-shadow: 0 0 10px rgba(236, 72, 153, 0.5);
-        }
-        .section-b .section-stats-line:nth-child(3),
-        .section-b .section-stats-line:nth-child(5) {
-            color: #fce7f3; /* Brighter pink for values */
+        /* Ligne 4: ~111 (valeur EO avec symbole ~) */
+        .section-stats-line:nth-child(4) {
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-bottom: 1px;
+            line-height: 1.0;
+            opacity: 0.8;
         }
 
-        .section-c .section-stats-line {
-            color: #a5f3fc; /* Light cyan - nuance of section C */
-            text-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+        /* Section-specific text colors - same as section letter */
+        .section-a .section-stats-line,
+        .section-a .section-letter {
+            color: #ffffff; /* Same white as section letter */
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
         }
-        .section-c .section-stats-line:nth-child(3),
-        .section-c .section-stats-line:nth-child(5) {
-            color: #cffafe; /* Brighter cyan for values */
+
+        .section-b .section-stats-line,
+        .section-b .section-letter {
+            color: #ffffff; /* Same white as section letter */
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
         }
+
+        .section-c .section-stats-line,
+        .section-c .section-letter {
+            color: #ffffff; /* Same white as section letter */
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
 
         .section-title {
             background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
@@ -731,32 +756,36 @@
         }
 
         .section-a .relais-position {
-            background: linear-gradient(135deg, rgba(90, 60, 100, 0.4) 0%, rgba(70, 50, 80, 0.4) 100%) !important;
-            border-color: rgba(168, 85, 247, 0.4) !important;
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%) !important;
+            border-color: rgba(168, 85, 247, 0.6) !important;
         }
 
         .section-b .relais-position {
-            background: linear-gradient(135deg, rgba(100, 50, 70, 0.4) 0%, rgba(80, 40, 60, 0.4) 100%) !important;
-            border-color: rgba(236, 72, 153, 0.4) !important;
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.2) 0%, rgba(219, 39, 119, 0.2) 100%) !important;
+            border-color: rgba(236, 72, 153, 0.6) !important;
         }
 
         .section-c .relais-position {
-            background: linear-gradient(135deg, rgba(40, 80, 90, 0.4) 0%, rgba(30, 70, 80, 0.4) 100%) !important;
-            border-color: rgba(6, 182, 212, 0.4) !important;
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(8, 145, 178, 0.2) 100%) !important;
+            border-color: rgba(6, 182, 212, 0.6) !important;
         }
 
         .relais-position .empty-position {
             color: rgba(255,255,255,0.5);
             font-weight: bold;
             font-style: italic;
+            font-size: 1.7em;
+            line-height: 1.3;
+            letter-spacing: 0.5px;
         }
 
         .tables-grid {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 0px;
             width: 100%;
             flex: 1;
+            height: 100%;
         }
 
         .table-card {
@@ -770,6 +799,31 @@
             display: flex;
             min-height: 60px;
             margin-bottom: 8px;
+        }
+
+        /* Dynamic table height based on table count - optimized formulas */
+        .section-container[data-table-count="10"] .table-card { height: calc((100vh - 140px) / 10 - 6px); min-height: auto; }
+        .section-container[data-table-count="11"] .table-card { height: calc((100vh - 140px) / 11 - 6px); min-height: auto; }
+        .section-container[data-table-count="12"] .table-card { height: calc((100vh - 140px) / 12 - 6px); min-height: auto; }
+        .section-container[data-table-count="13"] .table-card { height: calc((100vh - 140px) / 13 - 6px); min-height: auto; }
+        .section-container[data-table-count="14"] .table-card { height: calc((100vh - 140px) / 13 - 6px); min-height: auto; }
+        .section-container[data-table-count="15"] .table-card { height: calc((100vh - 140px) / 14 - 6px); min-height: auto; }
+        .section-container[data-table-count="16"] .table-card { height: calc((100vh - 140px) / 15 - 6px); min-height: auto; }
+        .section-container[data-table-count="17"] .table-card { height: calc((100vh - 140px) / 16 - 6px); min-height: auto; }
+        .section-container[data-table-count="18"] .table-card { height: calc((100vh - 140px) / 17 - 6px); min-height: auto; }
+        .section-container[data-table-count="19"] .table-card,
+        .section-container[data-table-count="20"] .table-card { height: calc((100vh - 140px) / 18 - 6px); min-height: auto; }
+
+        /* 14 tables: margin-bottom 5px */
+        .section-container[data-table-count="14"] .table-card { margin-bottom: 5px; }
+
+        /* 15+ tables: margin-bottom 5px */
+        .section-container[data-table-count="15"] .table-card,
+        .section-container[data-table-count="16"] .table-card,
+        .section-container[data-table-count="17"] .table-card,
+        .section-container[data-table-count="18"] .table-card,
+        .section-container[data-table-count="19"] .table-card,
+        .section-container[data-table-count="20"] .table-card { margin-bottom: 5px; }
             position: relative;
             margin-left: 0;
             padding-left: 0;
@@ -857,7 +911,7 @@
             padding: 8px 6px;
             text-align: center;
             font-weight: 700;
-            font-size: 1.4em;
+            font-size: 1.8em;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1094,7 +1148,7 @@
         .player-name {
             font-weight: bold;
             color: #2c3e50;
-            font-size: 1.4em;
+            font-size: 1.7em;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -1102,6 +1156,7 @@
             letter-spacing: 0.5px;
             margin: 1px 0;
         }
+
 
         /* Adaptive font size for long names */
         .player-name.name-long {
@@ -1199,13 +1254,7 @@
         }
 
         .position-indicator {
-            position: absolute;
-            top: 4px;
-            right: 6px;
-            font-size: 0.7em;
-            font-weight: 700;
-            opacity: 0.8;
-            z-index: 2;
+            display: none;
         }
 
         .ns-text, .eo-text {
@@ -1335,39 +1384,109 @@
 
         /* Old controls styles removed - now in header */
 
-        .single-section .sections-grid {
-            justify-content: center;
+        /* Cas 1 section uniquement : hauteur fixe 70px */
+        .single-section .section-container .table-card {
+            height: 70px !important;
+            min-height: 70px !important;
         }
+
+        /* Masquer les curseurs d'ajustement du nombre de tables pour une seule section */
+        .single-section .table-count-btn {
+            display: none;
+        }
+
+        /* Compensation pour bandeau invisible dans section droite */
+        .single-section-right .section-content {
+            margin-left: -95px;
+        }
+
+
+
+
+
 
         .single-section .section-container {
-            max-width: 80%;
+            max-width: 100%;
         }
 
-        .single-section .tables-grid {
+        /* Adaptive layout for different table counts */
+
+        /* 2-3 sections: Progressive adjustments for more tables */
+
+
+
+
+        /* 2 ou 3 sections: margin-bottom réduit pour tous nombres de tables */
+        .sections-grid.two-sections .table-card,
+        .sections-grid.three-sections .table-card {
+            margin-bottom: 3px;
+        }
+
+        /* Single section: 2 columns for >10 tables */
+        .single-section .section-container[data-table-count="11"] .tables-grid,
+        .single-section .section-container[data-table-count="12"] .tables-grid,
+        .single-section .section-container[data-table-count="13"] .tables-grid,
+        .single-section .section-container[data-table-count="14"] .tables-grid,
+        .single-section .section-container[data-table-count="15"] .tables-grid,
+        .single-section .section-container[data-table-count="16"] .tables-grid,
+        .single-section .section-container[data-table-count="17"] .tables-grid,
+        .single-section .section-container[data-table-count="18"] .tables-grid,
+        .single-section .section-container[data-table-count="19"] .tables-grid,
+        .single-section .section-container[data-table-count="20"] .tables-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 40px;
-            max-width: 1600px;
-            margin: 0 auto;
-            align-items: flex-start;
+            gap: 0px;
+            height: 100%;
+            align-content: space-between;
         }
 
-        .single-section .column-left,
-        .single-section .column-right {
-            display: flex;
-            flex-direction: column;
+        /* Single section: 3 columns for >20 tables */
+        .single-section .section-container[data-table-count="21"] .tables-grid,
+        .single-section .section-container[data-table-count="22"] .tables-grid,
+        .single-section .section-container[data-table-count="23"] .tables-grid,
+        .single-section .section-container[data-table-count="24"] .tables-grid,
+        .single-section .section-container[data-table-count="25"] .tables-grid,
+        .single-section .section-container[data-table-count="26"] .tables-grid,
+        .single-section .section-container[data-table-count="27"] .tables-grid,
+        .single-section .section-container[data-table-count="28"] .tables-grid,
+        .single-section .section-container[data-table-count="29"] .tables-grid,
+        .single-section .section-container[data-table-count="30"] .tables-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0px;
+            height: 100%;
+            align-content: space-between;
+        }
+
+        /* Single section: Compact mode for >30 tables */
+        .single-section .section-container[data-table-count^="3"] .tables-grid,
+        .single-section .section-container[data-table-count^="4"] .tables-grid,
+        .single-section .section-container[data-table-count^="5"] .tables-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 8px;
+            height: 100%;
+            align-content: space-between;
         }
 
-        .single-section .section-container {
-            max-width: 95%;
+        .single-section .section-container[data-table-count^="3"] .table-card,
+        .single-section .section-container[data-table-count^="4"] .table-card,
+        .single-section .section-container[data-table-count^="5"] .table-card {
+            min-height: 40px;
+            max-height: 45px;
+        }
+
+        .single-section .section-container[data-table-count^="3"] .player-name,
+        .single-section .section-container[data-table-count^="4"] .player-name,
+        .single-section .section-container[data-table-count^="5"] .player-name {
+            font-size: 1.3em;
         }
 
         /* Responsive: Fall back to single column on small screens */
         @media (max-width: 1200px) {
             .single-section .tables-grid {
-                grid-template-columns: 1fr;
-                gap: 8px;
+                grid-template-columns: 1fr !important;
+                gap: 0px !important;
             }
         }
 
@@ -1421,7 +1540,7 @@
 
         .controls {
             display: flex;
-            gap: 20px;
+            gap: 0px;
             align-items: center;
             margin: 20px 0;
             flex-wrap: wrap;
@@ -1553,31 +1672,62 @@
         }
 
         @media print {
+            @page {
+                margin: 0;
+            }
+
             body {
                 background: white;
-                padding: 0;
+                color: black;
             }
 
-            .container {
-                box-shadow: none;
-                border-radius: 0;
-            }
-
-            .input-section,
-            .controls,
-            .print-button,
-            .controls-bar {
+            #setupView,
+            #mitchellView,
+            .tournament-header,
+            .sections-grid,
+            .header-controls,
+            .constraint-controls,
+            .pending-changes,
+            .page-controls {
                 display: none !important;
             }
 
-            .mitchell-display {
-                background: white;
+            .dynamic-section-header {
+                display: block !important;
             }
 
-            .table-card {
-                break-inside: avoid;
+
+            .section-container {
+                page-break-before: always;
+                position: relative;
+            }
+
+            .section-container:first-child {
+                page-break-before: auto;
+            }
+
+            .print-section-container {
+                display: block !important;
+                page-break-before: always;
+                height: 100vh;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .print-section-container:first-child {
+                page-break-before: auto;
             }
         }
+
+        /* Mode impression en mode normal aussi */
+        .printing-mode #setupView {
+            display: none !important;
+        }
+
+        .printing-mode #mitchellView {
+            display: block !important;
+        }
+
     </style>
 </head>
 <body>
@@ -1618,9 +1768,6 @@
                         <button id="loadTestDataBtn" type="button" style="background: #6c757d; margin-left: 10px;">
                             📋 Test 35 paires
                         </button>
-                        <button id="loadTestData80Btn" type="button" style="background: #17a2b8; margin-left: 10px;">
-                            📋 Test 80 paires
-                        </button>
                     </div>
 
                     <div id="status" class="status" style="display: none;"></div>
@@ -1641,16 +1788,10 @@
                     <div class="section-control">
                         <label>Sections:</label>
                         <div class="button-group">
+                            <button class="header-btn" id="refreshBtn" title="Régénérer l'organisation originale">🔄</button>
                             <button id="sections1" class="section-btn active" data-sections="1">1</button>
                             <button id="sections2" class="section-btn" data-sections="2">2</button>
                             <button id="sections3" class="section-btn" data-sections="3">3</button>
-                        </div>
-                    </div>
-                    <div class="algo-control">
-                        <label>Algo:</label>
-                        <div class="button-group">
-                            <button id="algo147" class="algo-btn active" title="Algorithme 1-4-7">147</button>
-                            <button id="algoNew" class="algo-btn" title="Algorithme équilibré">?</button>
                         </div>
                     </div>
                     <button class="header-btn" id="constraintBtn" title="Contraintes NS fixe">🔒</button>
@@ -1688,87 +1829,5 @@
     <!-- JavaScript externe pour compatibilité CSP -->
     <script src="bridge-generator-app.js"></script>
 
-    <script>
-    // Attendre le chargement complet et override avec force
-    window.addEventListener('load', function() {
-        setTimeout(function() {
-            console.log('🔄 FORCED Override après load complet');
-
-            // FORCER le remplacement des fonctions de test
-            window.loadTestData = function() {
-                console.log('🔍 FORCED loadTestData - Format FFB pur');
-                // PAS D'EN-TÊTE, PAS DE DATES, JUSTE LES JOUEURS
-                let testData = '';
-
-                for (let i = 1; i <= 35; i++) {
-                    const civilite = i % 2 === 1 ? 'M.' : 'Mme';
-                    const prenom = i % 2 === 1 ? 'Jean' : 'Marie';
-                    const nom = `PLAYER${i}A`;
-                    const fullName = `${nom} ${prenom}`;
-                    const iv = Math.floor(Math.random() * 40) + 50;
-                    const license = (9800000 + i).toString().padStart(8, '0');
-
-                    testData += `${civilite} ${fullName} (5.00 €)
-${license} ( IV = ${iv} )
-
-`;
-                }
-
-                document.getElementById('tournamentData').value = testData;
-                showStatus('✅ Données de test 35 joueurs chargées', 'success');
-            };
-
-            // FORCER override generateSections pour affichage Mitchell
-            window.generateSections = function() {
-                console.log('🔍 FORCED generateSections');
-                const data = document.getElementById('tournamentData').value;
-                const sectionCount = parseInt(document.getElementById('sectionCount').value);
-
-                if (!data.trim()) {
-                    showStatus('Veuillez entrer les données du tournoi', 'error');
-                    return;
-                }
-
-                try {
-                    parsedPairs = parseTournamentData(data);
-                    console.log('📊 Parsed pairs:', parsedPairs.length);
-
-                    if (parsedPairs.length === 0) {
-                        showStatus('Aucune paire valide trouvée dans les données', 'error');
-                        return;
-                    }
-
-                    currentSectionCount = sectionCount;
-                    mitchellData = mitchellDistribution(parsedPairs, sectionCount, false);
-
-                    // FORCER l'affichage Mitchell
-                    console.log('🚀 FORCING showMitchellDisplay');
-                    showMitchellDisplay();
-
-                } catch (error) {
-                    console.error('❌ Generation error:', error);
-                    showStatus('❌ Erreur lors de la génération: ' + error.message, 'error');
-                }
-            };
-
-            console.log('✅ FORCED Override complet');
-
-            // Remplacer aussi les event listeners des boutons
-            const testBtn35 = document.getElementById('loadTestDataBtn');
-            const testBtn80 = document.getElementById('loadTestData80Btn');
-            const generateBtn = document.getElementById('generateButton');
-
-            if (testBtn35) {
-                testBtn35.onclick = window.loadTestData;
-                console.log('✅ Bouton test 35 remplacé');
-            }
-
-            if (generateBtn) {
-                generateBtn.onclick = window.generateSections;
-                console.log('✅ Bouton générer remplacé');
-            }
-        }, 500);
-    });
-    </script>
 </body>
 </html>

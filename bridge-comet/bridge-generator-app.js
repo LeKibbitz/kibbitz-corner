@@ -15,7 +15,7 @@ let tablesPerPage = 50;
 let autoPageInterval = null;
 let pendingTableCounts = null;
 let originalTableCounts = null;
-let currentAlgorithm = 'equilibrated'; // Default to "?" algorithm
+// Only equilibrated algorithm is used now
 let isDarkMode = false;
 
 // ===================================================================
@@ -44,7 +44,9 @@ function showDataLoadedNotification(playerCount) {
 }
 
 function calculateCombinedIV(pair) {
-    return (pair.player1?.iv || 0) + (pair.player2?.iv || 0);
+    const iv1 = parseInt(pair.player1?.iv) || 0;
+    const iv2 = parseInt(pair.player2?.iv) || 0;
+    return iv1 + iv2;
 }
 
 function testJS() {
@@ -57,8 +59,11 @@ function testJS() {
 // ===================================================================
 
 function parseTournamentData(data) {
-    const lines = data.split('\n');
-    const hasDateFormat = lines.some(line => line.trim().match(/^\d{2}\/\d{2}\/\d{4}/));
+    // Nettoyer les données : supprimer tous les \n suivis d'espaces
+    const cleanedData = data.replace(/\n\s+/g, ' ');
+
+    const lines = cleanedData.split('\n');
+    const hasDateFormat = lines.some(line => line.trim().match(/^\d{1,2}\/\d{1,2}\/\d{4}/));
 
     if (hasDateFormat) {
         return parseFFBFormatWithDates(lines);
@@ -79,7 +84,7 @@ function parseFFBFormatWithDates(lines) {
             continue;
         }
 
-        if (line.match(/^\d{2}\/\d{2}\/\d{4}/)) {
+        if (line.match(/^\d{1,2}\/\d{1,2}\/\d{4}/)) {
             if (currentPair && currentPair.player1 && currentPair.player2) {
                 pairs.push(currentPair);
             }
@@ -150,16 +155,8 @@ function parseSimplifiedFormat(lines) {
             continue;
         }
 
-        // Debug: afficher toutes les lignes non vides pour voir les formats
-        if (line.trim()) {
-            console.log(`📋 Ligne brute ${i}:`, line);
-        }
 
-        // Debug: afficher toutes les lignes qui pourraient être des joueurs
-        if (line.includes('€') && (line.includes('M.') || line.includes('Mme'))) {
-            console.log('🔍 Ligne potentielle joueur (simplified):', line);
-        }
-
+        // Format simple sur une ligne (M./Mme NOM Prénom (montant €))
         if (line.match(/^(M\.|Mme)\s+/) && line.match(/\(\s*[\d.,]+\s*€\s*\)$/)) {
             const prefixMatch = line.match(/^(M\.|Mme)\s+/);
             const amountMatch = line.match(/\(\s*([\d.,]+)\s*€\s*\)$/);
@@ -173,9 +170,8 @@ function parseSimplifiedFormat(lines) {
                 const nameEnd = line.lastIndexOf('(');
                 const fullName = line.substring(nameStart, nameEnd).trim();
 
-                console.log('🔍 Parsing (simplified):', line);
-                console.log('   Nom extrait:', fullName);
 
+                // Chercher la licence sur la ligne suivante
                 let nextLineIndex = i + 1;
                 while (nextLineIndex < lines.length && !lines[nextLineIndex].trim()) {
                     nextLineIndex++;
@@ -221,8 +217,6 @@ function parseSimplifiedFormat(lines) {
         }
     }
 
-    console.log(`📊 DEBUG: Parsed ${players.length} players into ${pairs.length} pairs (simplified format)`);
-    console.log(`📊 DEBUG: Expected from 39 players -> 19 pairs + 1 single`);
     return pairs;
 }
 
@@ -279,54 +273,12 @@ function mitchellDistribution(pairs, sectionCount, useConstraints = false) {
     }
 }
 
-function generateMitchellSequence(totalTables) {
-    const round1 = [];
-    const round2 = [];
-    const round3 = [];
-
-    for (let i = 1; i <= totalTables; i += 3) round1.push(i);
-    for (let i = 2; i <= totalTables; i += 3) round2.push(i);
-    for (let i = 3; i <= totalTables; i += 3) round3.push(i);
-
-    return [...round1, ...round2, ...round3];
-}
 
 function generateMitchellPlacement(sections, sortedPairs, sectionCount, useConstraints) {
     console.log('🔍 MITCHELL: Placement algorithm starting');
-
-    if (currentAlgorithm === '147') {
-        return generateTrueMitchellDistribution(sections, sortedPairs, sectionCount);
-    } else {
-        return generateEquilibratedDistribution(sections, sortedPairs, sectionCount);
-    }
+    return generateEquilibratedDistribution(sections, sortedPairs, sectionCount);
 }
 
-function generateTrueMitchellDistribution(sections, sortedPairs, sectionCount) {
-    console.log('🔄 TRUE MITCHELL: Génération selon règles Mitchell officielles');
-
-    let pairIndex = 0;
-
-    for (let sectionIdx = 0; sectionIdx < sections.length; sectionIdx++) {
-        const section = sections[sectionIdx];
-        const mitchellSeq = generateMitchellSequence(section.length);
-
-        for (let tableIdx of mitchellSeq) {
-            const table = section[tableIdx - 1];
-            if (table && pairIndex < sortedPairs.length) {
-                table.ns = sortedPairs[pairIndex++];
-            }
-        }
-
-        for (let tableIdx of mitchellSeq) {
-            const table = section[tableIdx - 1];
-            if (table && pairIndex < sortedPairs.length) {
-                table.eo = sortedPairs[pairIndex++];
-            }
-        }
-    }
-
-    return true;
-}
 
 function generateEquilibratedDistribution(sections, sortedPairs, sectionCount) {
     console.log('🔄 EQUILIBRATED: Distribution équilibrée');
@@ -383,7 +335,6 @@ function generateSimpleFallback(sections, sortedPairs) {
 // ===================================================================
 
 function generateSections() {
-    console.log('🔍 DEBUG: generateSections() appelée');
     const data = document.getElementById('tournamentData').value;
     const sectionCount = parseInt(document.getElementById('sectionCount').value);
 
@@ -393,7 +344,10 @@ function generateSections() {
     }
 
     try {
-        parsedPairs = parseTournamentData(data);
+        // Si parsedPairs existe déjà (depuis l'URL), l'utiliser directement
+        if (!parsedPairs || parsedPairs.length === 0) {
+            parsedPairs = parseTournamentData(data);
+        }
 
         if (parsedPairs.length === 0) {
             showStatus('Aucune paire valide trouvée dans les données', 'error');
@@ -403,6 +357,7 @@ function generateSections() {
         currentSectionCount = sectionCount;
         mitchellData = mitchellDistribution(parsedPairs, sectionCount, false);
 
+        // IV moyen global = (somme des IV combinés) / (nombre de paires)
         const totalIV = parsedPairs.reduce((sum, pair) => sum + calculateCombinedIV(pair), 0);
         const avgIV = Math.round(totalIV / parsedPairs.length);
 
@@ -620,7 +575,13 @@ function renderMitchellDisplay() {
     function formatPlayerNameForPrint(fullName) {
         if (!fullName) return 'J. PLAYER';
 
-        const parts = fullName.trim().split(' ');
+        // Supprimer les titres M./Mme en début de nom (même logique que formatPlayerName)
+        let cleanName = fullName.trim();
+        if (cleanName.startsWith('M. ') || cleanName.startsWith('Mme ')) {
+            cleanName = cleanName.replace(/^(M\.|Mme)\s+/, '');
+        }
+
+        const parts = cleanName.split(' ');
         if (parts.length >= 2) {
             // Smart detection of compound first names
             let prenom, nom;
@@ -877,36 +838,6 @@ ${license} ( IV = ${iv} )
             showStatus('✅ Données de test 35 paires (70 joueurs) chargées', 'success');
         };
 
-        window.generateSections = function() {
-            console.log('🔍 generateSections externe');
-            const data = document.getElementById('tournamentData').value;
-            const sectionCount = parseInt(document.getElementById('sectionCount').value);
-
-            if (!data.trim()) {
-                showStatus('Veuillez entrer les données du tournoi', 'error');
-                return;
-            }
-
-            try {
-                parsedPairs = parseTournamentData(data);
-                console.log('📊 Parsed pairs:', parsedPairs.length);
-
-                if (parsedPairs.length === 0) {
-                    showStatus('Aucune paire valide trouvée dans les données', 'error');
-                    return;
-                }
-
-                currentSectionCount = sectionCount;
-                mitchellData = mitchellDistribution(parsedPairs, sectionCount, false);
-
-                console.log('🚀 showMitchellDisplay externe');
-                showMitchellDisplay();
-
-            } catch (error) {
-                console.error('❌ Generation error:', error);
-                showStatus('❌ Erreur lors de la génération: ' + error.message, 'error');
-            }
-        };
 
         // Event listeners
         const testBtn35 = document.getElementById('loadTestDataBtn');
@@ -918,7 +849,7 @@ ${license} ( IV = ${iv} )
         }
 
         if (generateBtn) {
-            generateBtn.onclick = window.generateSections;
+            generateBtn.onclick = generateSections;
             console.log('✅ Bouton générer configuré');
         }
 
@@ -972,14 +903,40 @@ function renderPosition(pair, position, sectionIndex, tableNumber) {
 
     // Format d'affichage: initiale prénom + nom de famille
     const formatPlayerName = (fullName) => {
-        const parts = fullName.trim().split(' ');
+        // Supprimer les titres M./Mme en début de nom
+        let cleanName = fullName.trim();
+        if (cleanName.startsWith('M. ') || cleanName.startsWith('Mme ')) {
+            cleanName = cleanName.replace(/^(M\.|Mme)\s+/, '');
+        }
+
+        const parts = cleanName.split(' ');
         if (parts.length >= 2) {
-            // Nouvelle logique : le dernier mot est TOUJOURS le prénom
-            // Les mots précédents forment le nom (pouvant être composé)
+            // Logique améliorée pour gérer les noms et prénoms composés
             let prenom, nom;
 
-            prenom = parts[parts.length - 1]; // Dernier mot = prénom
-            nom = parts.slice(0, -1).join(' '); // Tous les autres mots = nom
+            // Séparer noms (MAJUSCULES) et prénoms (Première lettre majuscule)
+            let nomParts = [];
+            let prenomParts = [];
+
+            for (let i = 0; i < parts.length; i++) {
+                const part = parts[i];
+                if (part === part.toUpperCase() && part.length > 1 && /^[A-Z]+$/.test(part)) {
+                    // Tout en majuscules = nom
+                    nomParts.push(part);
+                } else {
+                    // Pas tout en majuscules = prénom
+                    prenomParts.push(part);
+                }
+            }
+
+            // Si aucune détection claire, fallback vers l'ancienne logique
+            if (nomParts.length === 0) {
+                prenom = parts[parts.length - 1];
+                nom = parts.slice(0, -1).join(' ');
+            } else {
+                nom = nomParts.join(' ');
+                prenom = prenomParts.join(' ') || parts[parts.length - 1];
+            }
 
             // Formatage : initiale(s) prénom + nom en majuscules
             const formatInitials = (firstName) => {
@@ -1065,33 +1022,6 @@ ${license} ( IV = ${iv} )
     showStatus('✅ Données de test: 35 paires (70 joueurs) chargées', 'success');
 }
 
-function loadTestData80() {
-    console.log('🔍 DEBUG: loadTestData80() called');
-    let pairData = '';
-
-    for (let i = 1; i <= 80; i++) {
-        const player1Name = `PLAYER${i}A Pierre`;
-        const player2Name = `PLAYER${i}B Marie`;
-        const iv1 = Math.floor(Math.random() * 50) + 40;
-        const iv2 = Math.floor(Math.random() * 50) + 40;
-
-        pairData += `16/01/2026
-M. ${player1Name} (5,00 €)
-${9800000 + i * 2 - 1} ( IV = ${iv1} )
-Mme ${player2Name} (5,00 €)
-${9800000 + i * 2} ( IV = ${iv2} )
-`;
-    }
-
-    const testData = `Tournoi Bridge Club Nancy - Test 80 paires du 16/01/2026 à 14:15
-80 équipe(s)
-Nouvelle équipe
-Inscription	Joueur 1	Joueur 2	Actions
-${pairData}`;
-
-    document.getElementById('tournamentData').value = testData;
-    showStatus('✅ Données de test 80 paires chargées', 'success');
-}
 
 // ===================================================================
 // 7. CONTRÔLES SECTIONS ET ALGORITHMES
@@ -1117,26 +1047,6 @@ function setSectionCount(count) {
     }
 }
 
-function setAlgorithm(algo) {
-    console.log('🔄 Changing algorithm to:', algo);
-
-    currentAlgorithm = algo === '1-4-7' ? '147' : 'equilibrated';
-
-    document.querySelectorAll('.algo-btn').forEach(btn => btn.classList.remove('active'));
-    if (algo === '1-4-7') {
-        document.getElementById('algo147').classList.add('active');
-    } else {
-        document.getElementById('algoNew').classList.add('active');
-    }
-
-    if (parsedPairs && parsedPairs.length > 0) {
-        mitchellData = mitchellDistribution(parsedPairs, currentSectionCount, nsConstraints.size > 0);
-        renderMitchellDisplay();
-        showStatus(`Algorithme ${algo === '1-4-7' ? 'Mitchell 147' : 'Équilibré'} appliqué`, 'success');
-    } else {
-        showStatus(`Algorithme changé: ${algo}`, 'info');
-    }
-}
 
 function adjustTableCount(sectionIndex, delta) {
     console.log('🔄 Adjust table count for section', sectionIndex, 'by', delta);
@@ -1312,6 +1222,31 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('✅ FFB data from URL:', players.length, 'players');
             console.log('🔍 DEBUG: All players from URL:', players.map(p => p.name));
 
+
+            // Convertir directement en paires au lieu de passer par le parsing texte
+            const pairs = [];
+            for (let i = 0; i < players.length; i += 2) {
+                if (i + 1 < players.length) {
+                    pairs.push({
+                        number: Math.floor(i / 2) + 1,
+                        player1: players[i],
+                        player2: players[i + 1],
+                        id: `pair_${Math.floor(i / 2) + 1}`
+                    });
+                } else {
+                    // Joueur impair
+                    pairs.push({
+                        number: Math.floor(i / 2) + 1,
+                        player1: players[i],
+                        player2: { name: 'Sans partenaire', license: '00000000', iv: 0, amount: 0 },
+                        id: `pair_${Math.floor(i / 2) + 1}`
+                    });
+                }
+            }
+
+            // Stocker les paires pour une utilisation directe
+            parsedPairs = pairs;
+
             const formatted = players.map(p =>
                 `${p.name} (${p.amount} €)\n${p.license} ( IV = ${p.iv} )`
             ).join('\n\n');
@@ -1335,9 +1270,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listeners
     const generateBtn = document.getElementById('generateButton');
     const testBtn35 = document.getElementById('loadTestDataBtn');
-    const testBtn80 = document.getElementById('loadTestData80Btn');
 
-    console.log('🔍 DEBUG: Elements found:', {generateBtn, testBtn35, testBtn80});
+    console.log('🔍 DEBUG: Elements found:', {generateBtn, testBtn35});
 
     if (generateBtn) {
         generateBtn.addEventListener('click', generateSections);
@@ -1349,13 +1283,6 @@ document.addEventListener('DOMContentLoaded', () => {
             loadTestData();
         });
         console.log('✅ loadTestDataBtn listener attached');
-    }
-    if (testBtn80) {
-        testBtn80.addEventListener('click', () => {
-            console.log('🔍 DEBUG: Test 80 button clicked');
-            loadTestData80();
-        });
-        console.log('✅ loadTestData80Btn listener attached');
     }
 
     // Mitchell display controls
@@ -1382,9 +1309,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('sections1')?.addEventListener('click', () => setSectionCount(1));
     document.getElementById('sections2')?.addEventListener('click', () => setSectionCount(2));
     document.getElementById('sections3')?.addEventListener('click', () => setSectionCount(3));
-
-    document.getElementById('algo147')?.addEventListener('click', () => setAlgorithm('1-4-7'));
-    document.getElementById('algoNew')?.addEventListener('click', () => setAlgorithm('TBD'));
 
     document.getElementById('constraintBtn')?.addEventListener('click', showConstraintControls);
     document.getElementById('fullscreenExit')?.addEventListener('click', closeToConfig);

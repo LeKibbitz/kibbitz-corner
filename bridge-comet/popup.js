@@ -3,14 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultDiv = document.getElementById('result');
     resultDiv.innerHTML = '<strong>🟢 Extension chargée!</strong>';
 
-    // Test ultra simple
-    document.getElementById('simple').addEventListener('click', () => {
-        alert('🎯 EXTENSION FONCTIONNE!');
-        console.log('🎯 Bouton simple cliqué');
-        resultDiv.innerHTML = '<strong>✅ Test simple OK!</strong>';
-    });
-
-    // Bouton d'extraction normal
+    // Bouton d'extraction principal
     document.getElementById('extract').addEventListener('click', () => {
         chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
             const currentTab = tabs[0];
@@ -70,24 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Bouton de test avec données factices
-    document.getElementById('test').addEventListener('click', () => {
-        const resultDiv = document.getElementById('result');
-        resultDiv.innerHTML = '<strong>🧪 Test avec données factices...</strong>';
-
-        // Données factices pour test (4 joueurs = 2 paires)
-        const fakeData = [
-            { name: 'M. WEBER Christian', amount: '5.00', license: '09890171', iv: '76' },
-            { name: 'Mme MARTIN Sophie', amount: '6.00', license: '12345678', iv: '84' },
-            { name: 'M. DURAND Pierre', amount: '7.50', license: '87654321', iv: '92' },
-            { name: 'Mme BERNARD Claire', amount: '5.50', license: '11111111', iv: '68' }
-        ];
-
-        console.log('🧪 TEST: Données factices créées:', fakeData);
-
-        // Utiliser la même méthode que generateBridgeDisplay (URL params)
-        generateBridgeDisplay(fakeData);
-    });
 });
 
 function parseExtractedData(rawData) {
