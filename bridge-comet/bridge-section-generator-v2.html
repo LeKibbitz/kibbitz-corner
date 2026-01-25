@@ -158,7 +158,7 @@
             backdrop-filter: blur(30px);
             border: 1px solid rgba(139, 92, 246, 0.3);
             color: #e0e0e0;
-            padding: 11px 30px;
+            padding: 20px 30px;
             box-shadow: 0 8px 40px rgba(99, 102, 241, 0.15), 0 4px 12px rgba(0, 0, 0, 0.3);
             z-index: 100;
             border-radius: 0 0 20px 20px;
@@ -196,12 +196,11 @@
             background-clip: text;
             letter-spacing: -0.02em;
             flex: 1;
-            padding: 3px 0;
         }
 
         .header-controls {
             display: flex;
-            gap: 0px;
+            gap: 15px;
             align-items: center;
         }
 
@@ -242,8 +241,8 @@
             padding: 5px 0;
         }
 
-        /* Effet Génie MacOS Dock - Smooth Wave */
-        .header-btn, .section-btn, .algo-btn, .fullscreen-exit, #refreshBtn {
+        /* Effet Génie MacOS Dock - Smooth */
+        .header-btn, .section-btn, .algo-btn, .fullscreen-exit {
             background: transparent;
             color: rgba(255,255,255,0.6);
             border: none;
@@ -251,42 +250,26 @@
             cursor: pointer;
             font-size: 1.1em;
             font-weight: 500;
-            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), color 0.3s ease, text-shadow 0.3s ease;
+            transition: transform 0.2s ease-out, color 0.15s ease, text-shadow 0.15s ease;
             white-space: nowrap;
             transform-origin: bottom center;
         }
 
-        .header-btn:hover, .section-btn:hover, .algo-btn:hover, #refreshBtn:hover {
+        .header-btn:hover, .section-btn:hover, .algo-btn:hover {
             color: rgba(255,255,255,0.95);
-            transform: scale(1.35) translateY(-4px);
-            text-shadow: 0 3px 12px rgba(0,0,0,0.4);
+            transform: scale(1.2) translateY(-2px);
+            text-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
 
-        /* Effet vague douce - Smooth Wave */
+        /* Effet voisin smooth */
         .header-btn:hover + .header-btn,
         .section-btn:hover + .section-btn,
         .algo-btn:hover + .algo-btn,
-        #refreshBtn:hover + .section-btn,
         .header-btn:has(+ .header-btn:hover),
         .section-btn:has(+ .section-btn:hover),
-        .algo-btn:has(+ .algo-btn:hover),
-        .section-btn:has(+ #refreshBtn:hover) {
-            transform: scale(1.18) translateY(-2px);
-            color: rgba(255,255,255,0.8);
-            transition-delay: 0.05s;
-        }
-
-        /* Second level wave effect */
-        .header-btn:hover + .header-btn + .header-btn,
-        .section-btn:hover + .section-btn + .section-btn,
-        .algo-btn:hover + .algo-btn + .algo-btn,
-        #refreshBtn:hover + .section-btn + .section-btn,
-        .header-btn:has(+ .header-btn + .header-btn:hover),
-        .section-btn:has(+ .section-btn + .section-btn:hover),
-        .algo-btn:has(+ .algo-btn + .algo-btn:hover) {
+        .algo-btn:has(+ .algo-btn:hover) {
             transform: scale(1.08) translateY(-1px);
             color: rgba(255,255,255,0.7);
-            transition-delay: 0.1s;
         }
 
         .header-btn.active, .section-btn.active, .algo-btn.active {
@@ -426,12 +409,80 @@
             padding: 12px 24px;
             border-radius: 30px;
             display: flex;
-            gap: 0px;
+            gap: 15px;
             align-items: center;
             box-shadow: 0 8px 32px rgba(0,0,0,0.4);
             backdrop-filter: blur(10px);
             z-index: 1000;
             animation: slideUp 0.3s ease-out;
+        }
+
+        /* Contrôles d'échange de paires */
+        .swap-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, rgba(243, 156, 18, 0.95) 0%, rgba(230, 126, 34, 0.95) 100%);
+            padding: 15px 20px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: none;
+            color: white;
+            font-weight: 600;
+        }
+
+        .swap-controls.active {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+            animation: slideInRight 0.3s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .swap-btn {
+            background: rgba(46, 204, 113, 0.9);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .swap-btn:hover {
+            background: rgba(46, 204, 113, 1);
+            transform: scale(1.05);
+        }
+
+        .swap-btn:disabled {
+            background: rgba(149, 165, 166, 0.6);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .cancel-swap-btn {
+            background: rgba(231, 76, 60, 0.8);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .cancel-swap-btn:hover {
+            background: rgba(231, 76, 60, 1);
+            transform: scale(1.05);
         }
 
         @keyframes slideUp {
@@ -547,27 +598,22 @@
         }
 
         .section-stats {
-            padding: 8px 4px 8px 4px;
-            font-size: 0.85rem;
+            padding: 15px 4px 10px 4px;
+            font-size: 1rem;
             font-weight: 500;
-            line-height: 1.1;
+            line-height: 1.4;
             text-align: center;
             width: 100%;
             background: transparent;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            gap: 1px;
         }
 
         .section-stats-line {
-            margin: 0;
-            font-size: 0.95em; /* Taille de base uniforme */
-            font-weight: 700;
+            margin: 3px 0;
+            font-size: 1em;
+            font-weight: 500;
             text-align: center;
-            opacity: 1;
-            letter-spacing: 0.05em;
-            line-height: 1.1;
+            opacity: 0.85;
+            letter-spacing: 0.02em;
         }
 
         .section-stats-line:nth-child(1) {
@@ -575,53 +621,50 @@
             display: none;
         }
 
-        /* Ligne 2: 126 (valeur NS) */
-        .section-stats-line:nth-child(2) {
-            font-size: 0.8em;
-            font-weight: 600;
-            margin-bottom: 1px;
-            line-height: 1.0;
-            opacity: 0.8;
-        }
-
-        /* Ligne 3: IV (label) */
-        .section-stats-line:nth-child(3) {
-            font-size: 0.95em;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-bottom: 1px;
-            line-height: 1.0;
-        }
-
-        /* Ligne 4: ~111 (valeur EO avec symbole ~) */
+        /* Labels NS/EO - subtle */
+        .section-stats-line:nth-child(2),
         .section-stats-line:nth-child(4) {
-            font-size: 0.8em;
+            font-size: 0.9em;
             font-weight: 600;
-            margin-bottom: 1px;
-            line-height: 1.0;
-            opacity: 0.8;
+            opacity: 0.75;
+            letter-spacing: 0.1em;
         }
 
-        /* Section-specific text colors - same as section letter */
-        .section-a .section-stats-line,
-        .section-a .section-letter {
-            color: #ffffff; /* Same white as section letter */
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        /* Values - emphasized */
+        .section-stats-line:nth-child(3),
+        .section-stats-line:nth-child(5) {
+            font-weight: 700;
+            font-size: 1.3em;
+            opacity: 1;
         }
 
-        .section-b .section-stats-line,
-        .section-b .section-letter {
-            color: #ffffff; /* Same white as section letter */
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        /* Section-specific text colors with nuances */
+        .section-a .section-stats-line {
+            color: #d8b4fe; /* Light purple - nuance of section A violet */
+            text-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+        }
+        .section-a .section-stats-line:nth-child(3),
+        .section-a .section-stats-line:nth-child(5) {
+            color: #f3e8ff; /* Brighter purple for values */
         }
 
-        .section-c .section-stats-line,
-        .section-c .section-letter {
-            color: #ffffff; /* Same white as section letter */
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        .section-b .section-stats-line {
+            color: #fbcfe8; /* Light pink - nuance of section B rose */
+            text-shadow: 0 0 10px rgba(236, 72, 153, 0.5);
+        }
+        .section-b .section-stats-line:nth-child(3),
+        .section-b .section-stats-line:nth-child(5) {
+            color: #fce7f3; /* Brighter pink for values */
         }
 
+        .section-c .section-stats-line {
+            color: #a5f3fc; /* Light cyan - nuance of section C */
+            text-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+        }
+        .section-c .section-stats-line:nth-child(3),
+        .section-c .section-stats-line:nth-child(5) {
+            color: #cffafe; /* Brighter cyan for values */
+        }
 
         .section-title {
             background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
@@ -756,36 +799,32 @@
         }
 
         .section-a .relais-position {
-            background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%) !important;
-            border-color: rgba(168, 85, 247, 0.6) !important;
+            background: linear-gradient(135deg, rgba(90, 60, 100, 0.4) 0%, rgba(70, 50, 80, 0.4) 100%) !important;
+            border-color: rgba(168, 85, 247, 0.4) !important;
         }
 
         .section-b .relais-position {
-            background: linear-gradient(135deg, rgba(236, 72, 153, 0.2) 0%, rgba(219, 39, 119, 0.2) 100%) !important;
-            border-color: rgba(236, 72, 153, 0.6) !important;
+            background: linear-gradient(135deg, rgba(100, 50, 70, 0.4) 0%, rgba(80, 40, 60, 0.4) 100%) !important;
+            border-color: rgba(236, 72, 153, 0.4) !important;
         }
 
         .section-c .relais-position {
-            background: linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(8, 145, 178, 0.2) 100%) !important;
-            border-color: rgba(6, 182, 212, 0.6) !important;
+            background: linear-gradient(135deg, rgba(40, 80, 90, 0.4) 0%, rgba(30, 70, 80, 0.4) 100%) !important;
+            border-color: rgba(6, 182, 212, 0.4) !important;
         }
 
         .relais-position .empty-position {
             color: rgba(255,255,255,0.5);
             font-weight: bold;
             font-style: italic;
-            font-size: 1.7em;
-            line-height: 1.3;
-            letter-spacing: 0.5px;
         }
 
         .tables-grid {
             display: flex;
             flex-direction: column;
-            gap: 0px;
+            gap: 8px;
             width: 100%;
             flex: 1;
-            height: 100%;
         }
 
         .table-card {
@@ -799,31 +838,6 @@
             display: flex;
             min-height: 60px;
             margin-bottom: 8px;
-        }
-
-        /* Dynamic table height based on table count - optimized formulas */
-        .section-container[data-table-count="10"] .table-card { height: calc((100vh - 140px) / 10 - 6px); min-height: auto; }
-        .section-container[data-table-count="11"] .table-card { height: calc((100vh - 140px) / 11 - 6px); min-height: auto; }
-        .section-container[data-table-count="12"] .table-card { height: calc((100vh - 140px) / 12 - 6px); min-height: auto; }
-        .section-container[data-table-count="13"] .table-card { height: calc((100vh - 140px) / 13 - 6px); min-height: auto; }
-        .section-container[data-table-count="14"] .table-card { height: calc((100vh - 140px) / 13 - 6px); min-height: auto; }
-        .section-container[data-table-count="15"] .table-card { height: calc((100vh - 140px) / 14 - 6px); min-height: auto; }
-        .section-container[data-table-count="16"] .table-card { height: calc((100vh - 140px) / 15 - 6px); min-height: auto; }
-        .section-container[data-table-count="17"] .table-card { height: calc((100vh - 140px) / 16 - 6px); min-height: auto; }
-        .section-container[data-table-count="18"] .table-card { height: calc((100vh - 140px) / 17 - 6px); min-height: auto; }
-        .section-container[data-table-count="19"] .table-card,
-        .section-container[data-table-count="20"] .table-card { height: calc((100vh - 140px) / 18 - 6px); min-height: auto; }
-
-        /* 14 tables: margin-bottom 5px */
-        .section-container[data-table-count="14"] .table-card { margin-bottom: 5px; }
-
-        /* 15+ tables: margin-bottom 5px */
-        .section-container[data-table-count="15"] .table-card,
-        .section-container[data-table-count="16"] .table-card,
-        .section-container[data-table-count="17"] .table-card,
-        .section-container[data-table-count="18"] .table-card,
-        .section-container[data-table-count="19"] .table-card,
-        .section-container[data-table-count="20"] .table-card { margin-bottom: 5px; }
             position: relative;
             margin-left: 0;
             padding-left: 0;
@@ -911,7 +925,7 @@
             padding: 8px 6px;
             text-align: center;
             font-weight: 700;
-            font-size: 1.8em;
+            font-size: 1.4em;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1148,7 +1162,7 @@
         .player-name {
             font-weight: bold;
             color: #2c3e50;
-            font-size: 1.7em;
+            font-size: 1.4em;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -1156,7 +1170,6 @@
             letter-spacing: 0.5px;
             margin: 1px 0;
         }
-
 
         /* Adaptive font size for long names */
         .player-name.name-long {
@@ -1214,7 +1227,8 @@
             text-align: center;
         }
 
-        .ns-constraint .constraint-indicator {
+        .ns-constraint .constraint-indicator,
+        .eo-constraint .constraint-indicator {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -1224,14 +1238,15 @@
             margin-right: 8px;
             font-size: 0.7em;
             min-width: 25px;
-            background: rgba(33, 150, 243, 0.1);
+            background: transparent;
             border-radius: 4px;
             padding: 2px;
         }
 
-        .dark-mode .ns-constraint .constraint-indicator {
+        .dark-mode .ns-constraint .constraint-indicator,
+        .dark-mode .eo-constraint .constraint-indicator {
             color: #3498db;
-            background: rgba(52, 152, 219, 0.2);
+            background: transparent;
         }
 
         .ns-constraint .pair-info {
@@ -1253,8 +1268,20 @@
             display: none;
         }
 
+        /* Afficher l'indicateur de contrainte pour les paires NS et EO contraintes */
+        .ns-constraint .constraint-indicator,
+        .eo-constraint .constraint-indicator {
+            display: flex !important;
+        }
+
         .position-indicator {
-            display: none;
+            position: absolute;
+            top: 4px;
+            right: 6px;
+            font-size: 0.7em;
+            font-weight: 700;
+            opacity: 0.8;
+            z-index: 2;
         }
 
         .ns-text, .eo-text {
@@ -1270,6 +1297,21 @@
         .ns-text {
             font-size: 0.8em;
             font-weight: bold;
+        }
+
+        .lock-icon-large {
+            font-size: 1.6em;
+            font-weight: normal;
+            position: relative;
+        }
+
+        .ns-superscript {
+            font-size: 0.6em;
+            font-weight: bold;
+            color: inherit;
+            position: relative;
+            top: -0.5em;
+            left: 0.1em;
         }
 
         /* Section-specific NS/EO text colors */
@@ -1314,6 +1356,79 @@
 
         .position.clickable {
             cursor: pointer;
+        }
+
+        /* Drag & drop styling - toujours actif */
+        .position[data-pair-id] {
+            cursor: grab;
+        }
+
+        .position[data-pair-id]:active {
+            cursor: grabbing;
+        }
+
+        /* Drag states */
+        .position.dragging {
+            opacity: 0.6;
+            transform: rotate(2deg) scale(1.05);
+            z-index: 1000;
+            cursor: grabbing;
+        }
+
+        /* Coloration des cibles selon écart IV - bordures plus visibles */
+        .position.swap-target-excellent {
+            border: 3px solid #27ae60 !important;
+        }
+
+        .position.swap-target-good {
+            border: 3px solid #f39c12 !important;
+        }
+
+        .position.swap-target-poor {
+            border: 3px solid #e74c3c !important;
+        }
+
+        .position.swap-target-forbidden {
+            border: 3px solid #95a5a6 !important;
+            opacity: 0.5;
+            cursor: not-allowed !important;
+        }
+
+        /* Animation subtile pour toutes les cibles */
+        .position[class*="swap-target-"] {
+            animation: pulse-target 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-target {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        /* Affichage des IV pendant le drag */
+        .position .drag-iv-display {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 8px;
+            z-index: 15;
+            display: none;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .position.dragging .drag-iv-display,
+        .position[class*="swap-target-"] .drag-iv-display {
+            display: block;
+        }
+
+        /* IV de la paire en cours de déplacement */
+        .position.dragging .drag-iv-display {
+            background: rgba(52, 152, 219, 0.9);
+            border-color: rgba(52, 152, 219, 0.5);
         }
 
         .constraint-controls {
@@ -1384,109 +1499,63 @@
 
         /* Old controls styles removed - now in header */
 
-        /* Cas 1 section uniquement : hauteur fixe 70px */
-        .single-section .section-container .table-card {
-            height: 70px !important;
-            min-height: 70px !important;
+        .single-section .sections-grid {
+            justify-content: center;
         }
-
-        /* Masquer les curseurs d'ajustement du nombre de tables pour une seule section */
-        .single-section .table-count-btn {
-            display: none;
-        }
-
-        /* Compensation pour bandeau invisible dans section droite */
-        .single-section-right .section-content {
-            margin-left: -95px;
-        }
-
-
-
-
-
 
         .single-section .section-container {
-            max-width: 100%;
+            max-width: 80%;
         }
 
-        /* Adaptive layout for different table counts */
-
-        /* 2-3 sections: Progressive adjustments for more tables */
-
-
-
-
-        /* 2 ou 3 sections: margin-bottom réduit pour tous nombres de tables */
-        .sections-grid.two-sections .table-card,
-        .sections-grid.three-sections .table-card {
-            margin-bottom: 3px;
+        .single-section .tables-grid {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 40px !important;
+            max-width: 1600px !important;
+            margin: 0 auto !important;
+            align-items: flex-start !important;
         }
 
-        /* Single section: 2 columns for >10 tables */
-        .single-section .section-container[data-table-count="11"] .tables-grid,
-        .single-section .section-container[data-table-count="12"] .tables-grid,
-        .single-section .section-container[data-table-count="13"] .tables-grid,
-        .single-section .section-container[data-table-count="14"] .tables-grid,
-        .single-section .section-container[data-table-count="15"] .tables-grid,
-        .single-section .section-container[data-table-count="16"] .tables-grid,
-        .single-section .section-container[data-table-count="17"] .tables-grid,
-        .single-section .section-container[data-table-count="18"] .tables-grid,
-        .single-section .section-container[data-table-count="19"] .tables-grid,
-        .single-section .section-container[data-table-count="20"] .tables-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0px;
-            height: 100%;
-            align-content: space-between;
+        .single-section .table-card {
+            width: 100% !important;
         }
 
-        /* Single section: 3 columns for >20 tables */
-        .single-section .section-container[data-table-count="21"] .tables-grid,
-        .single-section .section-container[data-table-count="22"] .tables-grid,
-        .single-section .section-container[data-table-count="23"] .tables-grid,
-        .single-section .section-container[data-table-count="24"] .tables-grid,
-        .single-section .section-container[data-table-count="25"] .tables-grid,
-        .single-section .section-container[data-table-count="26"] .tables-grid,
-        .single-section .section-container[data-table-count="27"] .tables-grid,
-        .single-section .section-container[data-table-count="28"] .tables-grid,
-        .single-section .section-container[data-table-count="29"] .tables-grid,
-        .single-section .section-container[data-table-count="30"] .tables-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 0px;
-            height: 100%;
-            align-content: space-between;
+        /* Garder l'affichage et les curseurs du contrôle de table en mode single-section */
+        .single-section .table-count-control {
+            display: flex !important;
         }
 
-        /* Single section: Compact mode for >30 tables */
-        .single-section .section-container[data-table-count^="3"] .tables-grid,
-        .single-section .section-container[data-table-count^="4"] .tables-grid,
-        .single-section .section-container[data-table-count^="5"] .tables-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+        .single-section .table-count-btn {
+            opacity: 0 !important;
+        }
+
+
+        .single-section .column-left,
+        .single-section .column-right {
+            display: flex;
+            flex-direction: column;
             gap: 8px;
-            height: 100%;
-            align-content: space-between;
         }
 
-        .single-section .section-container[data-table-count^="3"] .table-card,
-        .single-section .section-container[data-table-count^="4"] .table-card,
-        .single-section .section-container[data-table-count^="5"] .table-card {
-            min-height: 40px;
-            max-height: 45px;
+        /* Ancienne règle grid supprimée - remplacée par flex pour centrage */
+
+        .single-section .section-container {
+            max-width: 95%;
         }
 
-        .single-section .section-container[data-table-count^="3"] .player-name,
-        .single-section .section-container[data-table-count^="4"] .player-name,
-        .single-section .section-container[data-table-count^="5"] .player-name {
-            font-size: 1.3em;
+
+        /* Masquer complètement les contrôles de la section droite en mode single-section */
+        .single-section-right .section-banner {
+            display: none !important;
         }
+
+        /* Règle déplacée plus haut pour plus de clarté */
 
         /* Responsive: Fall back to single column on small screens */
         @media (max-width: 1200px) {
             .single-section .tables-grid {
-                grid-template-columns: 1fr !important;
-                gap: 0px !important;
+                grid-template-columns: 1fr;
+                gap: 8px;
             }
         }
 
@@ -1540,7 +1609,7 @@
 
         .controls {
             display: flex;
-            gap: 0px;
+            gap: 20px;
             align-items: center;
             margin: 20px 0;
             flex-wrap: wrap;
@@ -1672,62 +1741,60 @@
         }
 
         @media print {
+            /* Supprimer les en-têtes et pieds de page par défaut du navigateur */
             @page {
                 margin: 0;
+                size: A4;
             }
 
             body {
-                background: white;
-                color: black;
+                background: white !important;
+                padding: 0;
+                margin: 0;
             }
 
-            #setupView,
-            #mitchellView,
+            .container {
+                box-shadow: none;
+                border-radius: 0;
+            }
+
+            .input-section,
+            .controls,
+            .print-button,
+            .controls-bar,
+            .setup-mode,
             .tournament-header,
             .sections-grid,
-            .header-controls,
-            .constraint-controls,
-            .pending-changes,
-            .page-controls {
+            .mitchell-display {
                 display: none !important;
             }
 
-            .dynamic-section-header {
-                display: block !important;
-            }
-
-
-            .section-container {
-                page-break-before: always;
-                position: relative;
-            }
-
-            .section-container:first-child {
-                page-break-before: auto;
-            }
-
+            /* Chaque section d'impression sur une page séparée */
             .print-section-container {
                 display: block !important;
                 page-break-before: always;
+                page-break-after: always;
+                width: 100vw;
                 height: 100vh;
-                position: relative;
-                overflow: hidden;
+                background: white !important;
+                color: #000 !important;
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
             }
 
             .print-section-container:first-child {
                 page-break-before: auto;
             }
-        }
 
-        /* Mode impression en mode normal aussi */
-        .printing-mode #setupView {
-            display: none !important;
+            /* Forcer le noir et blanc pour l'impression */
+            .print-section-container * {
+                background: white !important;
+                color: #000 !important;
+                border-color: #000 !important;
+                box-shadow: none !important;
+            }
         }
-
-        .printing-mode #mitchellView {
-            display: block !important;
-        }
-
     </style>
 </head>
 <body>
@@ -1768,6 +1835,9 @@
                         <button id="loadTestDataBtn" type="button" style="background: #6c757d; margin-left: 10px;">
                             📋 Test 35 paires
                         </button>
+                        <button id="loadTestData80Btn" type="button" style="background: #17a2b8; margin-left: 10px;">
+                            📋 Test 80 paires
+                        </button>
                     </div>
 
                     <div id="status" class="status" style="display: none;"></div>
@@ -1785,10 +1855,10 @@
             <div class="header-content">
                 <span id="tournamentTitle">Tournoi #1</span>
                 <div class="header-controls">
+                    <button class="header-btn" id="refreshBtn" title="Redistribuer">🔄</button>
                     <div class="section-control">
                         <label>Sections:</label>
                         <div class="button-group">
-                            <button class="header-btn" id="refreshBtn" title="Régénérer l'organisation originale">🔄</button>
                             <button id="sections1" class="section-btn active" data-sections="1">1</button>
                             <button id="sections2" class="section-btn" data-sections="2">2</button>
                             <button id="sections3" class="section-btn" data-sections="3">3</button>
@@ -1796,14 +1866,28 @@
                     </div>
                     <button class="header-btn" id="constraintBtn" title="Contraintes NS fixe">🔒</button>
                     <button class="header-btn" id="printBtnMitchell" title="Imprimer">🖨</button>
-                    <button class="fullscreen-exit" id="fullscreenExit" title="Retour config">✕</button>
                 </div>
             </div>
         </div>
 
         <div class="constraint-controls" id="constraintControls">
-            <div style="margin-bottom: 8px; font-weight: bold; font-size: 0.9em;">Contraintes NS</div>
+            <div style="margin-bottom: 8px; font-weight: bold; font-size: 0.9em;">🔒 Contraintes NS fixe</div>
+
+            <!-- Type de contrainte -->
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 8px; font-size: 0.85em;">Mode:</div>
+                <label style="display: block; margin-bottom: 5px; font-size: 0.8em;">
+                    <input type="radio" name="constraintMode" value="sectionA" checked>
+                    Section A obligatoirement
+                </label>
+                <label style="display: block; font-size: 0.8em;">
+                    <input type="radio" name="constraintMode" value="anySection">
+                    N'importe quelle section
+                </label>
+            </div>
+
             <div style="font-size: 0.8em; margin-bottom: 8px;" id="constraintCount">0 paire(s) marquée(s)</div>
+            <div style="font-size: 0.75em; color: #666; margin-bottom: 8px;" id="constraintLimit"></div>
             <button class="constraint-btn" id="redistributeBtn">🔄 Redistribuer</button>
             <button class="constraint-btn" id="clearConstraintsBtn" style="background: #dc3545;">Effacer tout</button>
         </div>
@@ -1814,6 +1898,7 @@
             <button class="regen-btn" id="applyChangesBtn">✓ Appliquer</button>
             <button class="cancel-btn" id="cancelChangesBtn">✕ Annuler</button>
         </div>
+
 
         <div id="mitchellContainer" class="sections-grid">
         </div>
@@ -1829,5 +1914,87 @@
     <!-- JavaScript externe pour compatibilité CSP -->
     <script src="bridge-generator-app.js"></script>
 
+    <script>
+    // Attendre le chargement complet et override avec force
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            console.log('🔄 FORCED Override après load complet');
+
+            // FORCER le remplacement des fonctions de test
+            window.loadTestData = function() {
+                console.log('🔍 FORCED loadTestData - Format FFB pur');
+                // PAS D'EN-TÊTE, PAS DE DATES, JUSTE LES JOUEURS
+                let testData = '';
+
+                for (let i = 1; i <= 35; i++) {
+                    const civilite = i % 2 === 1 ? 'M.' : 'Mme';
+                    const prenom = i % 2 === 1 ? 'Jean' : 'Marie';
+                    const nom = `PLAYER${i}A`;
+                    const fullName = `${nom} ${prenom}`;
+                    const iv = Math.floor(Math.random() * 40) + 50;
+                    const license = (9800000 + i).toString().padStart(8, '0');
+
+                    testData += `${civilite} ${fullName} (5.00 €)
+${license} ( IV = ${iv} )
+
+`;
+                }
+
+                document.getElementById('tournamentData').value = testData;
+                showStatus('✅ Données de test 35 joueurs chargées', 'success');
+            };
+
+            // FORCER override generateSections pour affichage Mitchell
+            window.generateSections = function() {
+                console.log('🔍 FORCED generateSections');
+                const data = document.getElementById('tournamentData').value;
+                const sectionCount = parseInt(document.getElementById('sectionCount').value);
+
+                if (!data.trim()) {
+                    showStatus('Veuillez entrer les données du tournoi', 'error');
+                    return;
+                }
+
+                try {
+                    parsedPairs = parseTournamentData(data);
+                    console.log('📊 Parsed pairs:', parsedPairs.length);
+
+                    if (parsedPairs.length === 0) {
+                        showStatus('Aucune paire valide trouvée dans les données', 'error');
+                        return;
+                    }
+
+                    currentSectionCount = sectionCount;
+                    mitchellData = mitchellDistribution(parsedPairs, sectionCount, false);
+
+                    // FORCER l'affichage Mitchell - utilise la fonction externe
+                    console.log('🚀 FORCING showMitchellDisplay');
+                    showMitchellDisplay();
+
+                } catch (error) {
+                    console.error('❌ Generation error:', error);
+                    showStatus('❌ Erreur lors de la génération: ' + error.message, 'error');
+                }
+            };
+
+            console.log('✅ FORCED Override complet');
+
+            // Remplacer aussi les event listeners des boutons
+            const testBtn35 = document.getElementById('loadTestDataBtn');
+            const testBtn80 = document.getElementById('loadTestData80Btn');
+            const generateBtn = document.getElementById('generateButton');
+
+            if (testBtn35) {
+                testBtn35.onclick = window.loadTestData;
+                console.log('✅ Bouton test 35 remplacé');
+            }
+
+            if (generateBtn) {
+                generateBtn.onclick = window.generateSections;
+                console.log('✅ Bouton générer remplacé');
+            }
+        }, 500);
+    });
+    </script>
 </body>
 </html>
