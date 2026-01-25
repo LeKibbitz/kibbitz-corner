@@ -19,24 +19,22 @@
 ## 📂 Repository Structure
 
 ```
-├── bridge-extension/          # 🃏 Bridge Generator V2 - Chrome/Firefox Extension
-│   ├── ffb-service/          # Node.js service for FFBClubNet automation
-│   ├── popup.html/js/css     # Extension UI
-│   ├── manifest.json         # Chrome/Firefox manifests
-│   └── bridge-generator.html # Bridge tournament generator
+├── bridge-comet/             # 🃏 Bridge Generator Suite - Advanced tournament tools
+│   ├── bridge-section-generator-v2.html # Main tournament generator
+│   ├── bridge-generator-app.js          # Core application logic
+│   └── archive/              # Previous versions and extensions
 ├── examples/                 # Algorithm analysis and comparisons
 │   ├── milp-vs-ffb-iv-pp-pe-ranking.md  # MILP vs FFB comparison
 │   └── vacances-bleues-milp-proof.md    # Mathematical proof with real data
 ├── workflows/                # n8n workflow exports (JSON)
-├── scripts/                  # Utility scripts
-├── sql/                      # Database schemas & migrations
-├── docs/                     # Documentation
-└── assets/                   # Images, logos, media
+├── scripts/                  # Utility scripts (parsing, automation)
+├── _archive/                 # Archived projects and documentation
+└── _bmad/                    # Business Meta-Analysis & Design framework
 ```
 
-## 🃏 Bridge Generator V2 - Featured Project
+## 🃏 Bridge Comet - Featured Project
 
-Advanced bridge tournament generator with Chrome/Firefox extension and FFBClubNet automation.
+Advanced bridge tournament generator suite with MILP optimization and FFB integration.
 
 ### Features
 - **🎯 Smart Section Distribution** - Optimized player distribution with MILP vs FFB algorithm comparison
@@ -49,20 +47,16 @@ Advanced bridge tournament generator with Chrome/Firefox extension and FFBClubNe
 ### Quick Start
 ```bash
 # Clone repository
-git clone https://github.com/your-username/kibbitz-corner.git
+git clone https://github.com/LeKibbitz/kibbitz-corner.git
 
-# Install bridge extension in Chrome
-# 1. Open chrome://extensions/
-# 2. Enable Developer mode
-# 3. Click "Load unpacked" → select bridge-extension/
+# Access Bridge Generator
+open bridge-comet/bridge-section-generator-v2.html
 
-# Setup FFBClubNet automation (Windows only)
-cd bridge-extension/ffb-service
-npm install
-npm run install-service
+# Run MILP algorithm analysis
+node scripts/parse-vacances-bleues.js
 ```
 
-[📖 Read full documentation](bridge-extension/README.md) | [🎮 User Guide](docs/USER_GUIDE.md)
+[📊 MILP vs FFB Analysis](examples/milp-vs-ffb-iv-pp-pe-ranking.md) | [🏆 Vacances Bleues Proof](examples/vacances-bleues-milp-proof.md)
 
 ## 🛠️ Tech Stack
 
@@ -92,11 +86,10 @@ AI phone assistant for sports facility reservations (Tennis, Squash, Badminton).
 
 ## 📖 Documentation
 
-- [🎮 User Guide (English)](docs/USER_GUIDE_EN.md)
-- [🎮 Guide Utilisateur (Français)](docs/USER_GUIDE_FR.md)
-- [🔧 Bridge Extension README](bridge-extension/README.md)
-- [🏗️ FFB Service Documentation](bridge-extension/ffb-service/README.md)
-- [🛡️ Security Guidelines](docs/SECURITY.md)
+- [🃏 Bridge Comet Documentation](bridge-comet/README.md)
+- [📊 MILP Algorithm Analysis](examples/milp-vs-ffb-iv-pp-pe-ranking.md)
+- [🏆 Real Tournament Proof](examples/vacances-bleues-milp-proof.md)
+- [📱 Project Setup Guide](CLAUDE.md)
 
 ### 🧮 Algorithm Analysis
 - [📊 MILP vs FFB Ranking Analysis](examples/milp-vs-ffb-iv-pp-pe-ranking.md) - Comprehensive comparison of MILP optimization vs FFB Swiss system for bridge tournaments
