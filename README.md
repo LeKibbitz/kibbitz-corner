@@ -12,7 +12,7 @@
 - **⚡ Workflow Automation** - n8n workflows connecting your tools
 - **🎙️ Voice AI Assistants** - Vapi + Claude for 24/7 personalized phone assistants
 - **📧 AI Newsletters** - Automated content generation with Claude
-- **🃏 Bridge Tournament Tools** - Advanced bridge section generator & FFBClubNet automation
+- **🃏 Bridge Tournament Tools** - Advanced algorithms (MILP vs FFB), section generators & FFBClubNet automation
 - **🎮 Discord Bots** - Custom integrations for communities
 - **🗄️ Data Infrastructure** - Supabase, PostgreSQL, APIs, Docker, Cloud
 
@@ -24,6 +24,9 @@
 │   ├── popup.html/js/css     # Extension UI
 │   ├── manifest.json         # Chrome/Firefox manifests
 │   └── bridge-generator.html # Bridge tournament generator
+├── examples/                 # Algorithm analysis and comparisons
+│   ├── milp-vs-ffb-iv-pp-pe-ranking.md  # MILP vs FFB comparison
+│   └── vacances-bleues-milp-proof.md    # Mathematical proof with real data
 ├── workflows/                # n8n workflow exports (JSON)
 ├── scripts/                  # Utility scripts
 ├── sql/                      # Database schemas & migrations
@@ -36,8 +39,9 @@
 Advanced bridge tournament generator with Chrome/Firefox extension and FFBClubNet automation.
 
 ### Features
-- **🎯 Smart Section Distribution** - Optimized player distribution across sections
+- **🎯 Smart Section Distribution** - Optimized player distribution with MILP vs FFB algorithm comparison
 - **📊 Real-time Visualization** - Interactive charts and tables
+- **🧮 Advanced Algorithm Analysis** - IV gap optimization, tournament equity calculations
 - **🔧 FFBClubNet Integration** - Automated CSV import/export via Windows service
 - **🌐 Cross-browser Extension** - Chrome & Firefox support
 - **📱 Responsive Design** - Works on all devices
@@ -93,6 +97,10 @@ AI phone assistant for sports facility reservations (Tennis, Squash, Badminton).
 - [🔧 Bridge Extension README](bridge-extension/README.md)
 - [🏗️ FFB Service Documentation](bridge-extension/ffb-service/README.md)
 - [🛡️ Security Guidelines](docs/SECURITY.md)
+
+### 🧮 Algorithm Analysis
+- [📊 MILP vs FFB Ranking Analysis](examples/milp-vs-ffb-iv-pp-pe-ranking.md) - Comprehensive comparison of MILP optimization vs FFB Swiss system for bridge tournaments
+- [🏆 Vacances Bleues MILP Proof](examples/vacances-bleues-milp-proof.md) - Mathematical proof of MILP superiority in rotation-based tournaments
 
 ## 🤝 Contributing
 
