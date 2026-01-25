@@ -1,0 +1,95 @@
+
+PSEUDO-CODE — ÉQUILIBRAGE MULTI-SECTIONS GÉNÉRALISÉ
+
+ENTRÉES
+- P : ensemble des paires
+  chaque paire i a :
+    - poids[i]
+    - contraintes optionnelles :
+        * NS_only (booléen)
+        * section_allowed ⊆ {1..N}
+- N_max : nombre maximal de sections autorisées
+- LINES = {NS, EO}
+- MAX_DIFF = 1   # écart maximum autorisé entre lignes comparables
+
+VARIABLES DE DÉCISION
+
+Affectation
+x[i][s][l] ∈ {0,1}
+= 1 si la paire i est affectée à la section s, ligne l
+
+Activation
+y[s] ∈ {0,1}          # section s utilisée
+z[s][l] ∈ {0,1}      # ligne l de la section s utilisée
+
+Cardinalités
+c[s][l] = Σ_i x[i][s][l]
+
+Parité
+odd[s][l] ∈ {0,1}    # 1 si c[s][l] est impair
+k[s][l] ∈ N          # variable auxiliaire
+
+CONTRAINTES
+
+1. Affectation unique
+∀ i :
+    Σ_s,l x[i][s][l] = 1
+
+2. Activation logique
+∀ i,s,l :
+    x[i][s][l] ≤ z[s][l]
+∀ s,l :
+    z[s][l] ≤ y[s]
+
+3. Capacités équilibrées (tolérance ±1)
+∀ (s,l),(s',l') comparables :
+    | c[s][l] - c[s'][l'] | ≤ MAX_DIFF
+
+4. Contraintes métier
+
+NS uniquement
+si NS_only(i) :
+    ∀ s :
+        x[i][s][EO] = 0
+
+Sections autorisées
+si s ∉ section_allowed(i) :
+    ∀ l :
+        x[i][s][l] = 0
+
+5. Définition de la parité
+∀ s,l :
+    c[s][l] - 2 * k[s][l] = odd[s][l]
+
+CALCULS
+
+LINE_SUM[s][l] = Σ_i poids[i] * x[i][s][l]
+
+FONCTION OBJECTIF (HIÉRARCHISÉE)
+
+Objectif 1 — Minimiser le nombre de sections utilisées
+min Σ_s y[s]
+
+Objectif 2 — Minimiser le nombre de lignes impaires
+min Σ_s,l odd[s][l]
+
+Objectif 3 — Équilibrage des forces
+TARGET_AVG = (Σ_i poids[i]) / (2 * nombre_de_sections)
+min Σ_s,l (LINE_SUM[s][l] - TARGET_AVG)^2
+
+ALGORITHME
+
+initialiser modèle MILP / MIQP
+ajouter variables x, y, z, odd, k
+ajouter contraintes 1 à 5
+ajouter objectifs hiérarchisés (lexicographiques)
+
+solution = SOLVE(model)
+
+SORTIE
+
+Pour chaque section :
+- lignes NS et EO
+- nombre de paires par ligne
+- parité
+- total IV et écart à la moyenne

@@ -1,0 +1,244 @@
+{
+  "name": "Newsletter Preferences Monitor",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "options": {
+          "allowUnauthorizedCerts": false
+        }
+      },
+      "id": "email_trigger",
+      "name": "Email Trigger",
+      "type": "n8n-nodes-base.emailReadImap",
+      "position": [256, 208],
+      "typeVersion": 2.1,
+      "credentials": {
+        "imap": {
+          "id": "email_monitor_creds",
+          "name": "thomas.joannes@lekibbitz.fr IMAP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.from }}",
+              "rightValue": "newsletters@",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "leftValue": "={{ $json.subject }}",
+              "rightValue": "Configuration Newsletter",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "filter_newsletter_replies",
+      "name": "Filter Newsletter Replies",
+      "type": "n8n-nodes-base.if",
+      "position": [480, 208],
+      "typeVersion": 2.3
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extraire l'email de l'expéditeur\nconst fromEmail = $input.item.json.from;\nconst emailMatch = fromEmail.match(/<([^>]+)>/) || [null, fromEmail];\nconst cleanEmail = emailMatch[1] || fromEmail;\n\n// Nettoyer et analyser le contenu\nconst content = $input.item.json.text || $input.item.json.html || '';\nconst subject = $input.item.json.subject || '';\n\n// Détecter le type de message\nlet messageType = 'preferences';\nif (subject.includes('Vote -')) {\n  messageType = 'vote';\n} else if (content.toLowerCase().includes('désabonner') || content.toLowerCase().includes('unsubscribe')) {\n  messageType = 'unsubscribe';\n}\n\n// Extraire les préférences basiques\nconst preferences = {\n  email: cleanEmail,\n  messageType: messageType,\n  subject: subject,\n  content: content,\n  timestamp: new Date().toISOString(),\n  \n  // Analyse basique du contenu\n  wantsMore: [],\n  wantsLess: [],\n  newSources: [],\n  rawContent: content\n};\n\n// Extraire les sujets mentionnés\nconst techKeywords = [\n  'n8n', 'automatisation', 'supabase', 'no-code', 'ai', 'ia', \n  'claude', 'openai', 'workflow', 'discord', 'vapi', 'voice',\n  'finance', 'crypto', 'blockchain', 'react', 'javascript',\n  'python', 'docker', 'kubernetes', 'aws', 'hosting'\n];\n\ntechKeywords.forEach(keyword => {\n  if (content.toLowerCase().includes(keyword)) {\n    if (content.toLowerCase().includes(`plus.*${keyword}`) || \n        content.toLowerCase().includes(`${keyword}.*plus`) ||\n        content.toLowerCase().includes(`ajoute.*${keyword}`)) {\n      preferences.wantsMore.push(keyword);\n    } else if (content.toLowerCase().includes(`moins.*${keyword}`) || \n               content.toLowerCase().includes(`${keyword}.*moins`) ||\n               content.toLowerCase().includes(`enlève.*${keyword}`)) {\n      preferences.wantsLess.push(keyword);\n    }\n  }\n});\n\nreturn { preferences };"
+      },
+      "id": "analyze_preferences",
+      "name": "Analyze Preferences",
+      "type": "n8n-nodes-base.code",
+      "position": [704, 208],
+      "typeVersion": 2.1
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO newsletter_user_preferences (email, message_type, subject, content, wants_more, wants_less, new_sources, raw_content, processed_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) ON CONFLICT (email, processed_at) DO UPDATE SET message_type = $2, subject = $3, content = $4, wants_more = $5, wants_less = $6, new_sources = $7, raw_content = $8;",
+        "additionalFields": {
+          "queryParameters": [
+            "={{ $json.preferences.email }}",
+            "={{ $json.preferences.messageType }}",
+            "={{ $json.preferences.subject }}",
+            "={{ $json.preferences.content }}",
+            "={{ JSON.stringify($json.preferences.wantsMore) }}",
+            "={{ JSON.stringify($json.preferences.wantsLess) }}",
+            "={{ JSON.stringify($json.preferences.newSources) }}",
+            "={{ $json.preferences.rawContent }}",
+            "={{ $json.preferences.timestamp }}"
+          ]
+        },
+        "options": {}
+      },
+      "id": "save_preferences",
+      "name": "Save Preferences",
+      "type": "n8n-nodes-base.postgres",
+      "position": [928, 208],
+      "typeVersion": 2.5,
+      "credentials": {
+        "postgres": {
+          "id": "o9ZHFV56HWz8w7cp",
+          "name": "Supabase Kibbitz Corner"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "claude-3-haiku-20240307",
+        "options": {},
+        "text": "=Analyse ce message de préférence newsletter et génère une configuration JSON structurée :\n\n**Email utilisateur :** {{ $('Analyze Preferences').item.json.preferences.email }}\n**Sujet :** {{ $('Analyze Preferences').item.json.preferences.subject }}\n**Message :**\n{{ $('Analyze Preferences').item.json.preferences.content }}\n\n**Instructions :**\n1. Identifie les sujets que l'utilisateur veut VOIR PLUS\n2. Identifie les sujets que l'utilisateur veut VOIR MOINS\n3. Identifie les nouvelles sources/plateformes demandées\n4. Suggère des mots-clés pour le filtrage RSS\n5. Génère un score de priorité (1-10) pour chaque préférence\n\n**Format de réponse (JSON uniquement) :**\n```json\n{\n  \"email\": \"user@example.com\",\n  \"wantsMore\": [\n    {\"topic\": \"n8n\", \"priority\": 9, \"keywords\": [\"n8n\", \"automation\", \"workflow\"]},\n    {\"topic\": \"supabase\", \"priority\": 8, \"keywords\": [\"supabase\", \"database\", \"backend\"]}\n  ],\n  \"wantsLess\": [\n    {\"topic\": \"crypto\", \"priority\": 7, \"keywords\": [\"bitcoin\", \"cryptocurrency\", \"blockchain\"]}\n  ],\n  \"newSources\": [\n    {\"name\": \"n8n blog\", \"url\": \"https://n8n.io/blog/feed\", \"priority\": 9}\n  ],\n  \"filters\": {\n    \"include\": [\"automation\", \"no-code\", \"supabase\"],\n    \"exclude\": [\"crypto\", \"trading\", \"investment\"]\n  },\n  \"confidence\": 0.85\n}\n```"
+      },
+      "id": "ai_analysis",
+      "name": "AI Analysis",
+      "type": "n8n-nodes-base.openAi",
+      "position": [1152, 208],
+      "typeVersion": 1.4,
+      "credentials": {
+        "openAiApi": {
+          "id": "claude_api_creds",
+          "name": "Claude API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE newsletter_subscribers SET metadata = metadata || $2 WHERE email = $1;",
+        "additionalFields": {
+          "queryParameters": [
+            "={{ $('Analyze Preferences').item.json.preferences.email }}",
+            "={{ $('AI Analysis').item.json.choices[0].message.content }}"
+          ]
+        },
+        "options": {}
+      },
+      "id": "update_user_config",
+      "name": "Update User Config",
+      "type": "n8n-nodes-base.postgres",
+      "position": [1376, 208],
+      "typeVersion": 2.5,
+      "credentials": {
+        "postgres": {
+          "id": "o9ZHFV56HWz8w7cp",
+          "name": "Supabase Kibbitz Corner"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "newsletters@lekibbitz.fr",
+        "toEmail": "={{ $('Analyze Preferences').item.json.preferences.email }}",
+        "subject": "✅ Tes préférences newsletter ont été mises à jour !",
+        "html": "<!DOCTYPE html><html lang=\"fr\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"></head><body style=\"margin:0;padding:0;background:#0a0a0a;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#fff;\"><div style=\"max-width:640px;margin:0 auto;padding:40px 20px;\"><div style=\"background:linear-gradient(135deg,#22c55e 0%,#16a34a 100%);border-radius:20px 20px 0 0;padding:48px 32px;text-align:center;\"><h1 style=\"margin:0;font-size:32px;font-weight:800;color:#fff;\">C'est noté ! ✅</h1><p style=\"margin:12px 0 0;font-size:16px;color:rgba(255,255,255,0.9);\">Tes préférences ont été mises à jour</p></div><div style=\"background:#161616;border:1px solid #333;border-top:none;padding:40px 32px;\"><p style=\"font-size:16px;line-height:1.7;color:#ccc;margin:0 0 24px;\">Salut ! J'ai bien reçu tes préférences et ton profil newsletter a été mis à jour.</p><div style=\"background:linear-gradient(135deg,rgba(34,197,94,0.1),rgba(22,163,74,0.1));border:1px solid rgba(34,197,94,0.3);border-radius:16px;padding:24px;margin-bottom:32px;\"><h2 style=\"margin:0 0 12px;font-size:18px;color:#22c55e;\">📝 Récapitulatif de tes préférences</h2><p style=\"margin:0;font-size:14px;line-height:1.7;color:#bbb;\">{{ $('Analyze Preferences').item.json.preferences.content }}</p></div><div style=\"height:1px;background:linear-gradient(90deg,transparent,#333,transparent);margin:32px 0;\"></div><p style=\"font-size:14px;line-height:1.7;color:#aaa;margin:0 0 16px;\">⏰ <strong>Dès demain</strong>, ta newsletter sera personnalisée selon tes nouvelles préférences.</p><p style=\"font-size:14px;line-height:1.7;color:#aaa;margin:0 0 24px;\">Tu peux toujours ajuster en répondant à ce mail !</p><a href=\"mailto:newsletters@lekibbitz.fr?subject=Modification%20Newsletter\" style=\"display:inline-block;background:#22c55e;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px;\">Modifier à nouveau</a></div><div style=\"background:#111;border:1px solid #222;border-top:none;border-radius:0 0 20px 20px;padding:32px;text-align:center;\"><p style=\"margin:0 0 16px;font-size:13px;color:#444;\">Thomas - <a href=\"https://lekibbitz.fr\" style=\"color:#a855f7;text-decoration:none;\">Kibbitz' Corner</a></p></div></div></body></html>",
+        "options": {
+          "replyTo": "thomas.joannes@lekibbitz.fr"
+        }
+      },
+      "id": "send_confirmation",
+      "name": "Send Confirmation",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [1600, 208],
+      "typeVersion": 2.1,
+      "credentials": {
+        "smtp": {
+          "id": "T3bi8G1zGnTM0Yqa",
+          "name": "Hostinger SMTP - Newsletter"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Email Trigger": {
+      "main": [
+        [
+          {
+            "node": "Filter Newsletter Replies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Newsletter Replies": {
+      "main": [
+        [
+          {
+            "node": "Analyze Preferences",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Preferences": {
+      "main": [
+        [
+          {
+            "node": "Save Preferences",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Preferences": {
+      "main": [
+        [
+          {
+            "node": "AI Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Analysis": {
+      "main": [
+        [
+          {
+            "node": "Update User Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update User Config": {
+      "main": [
+        [
+          {
+            "node": "Send Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "a0b359ae789d4b6649ae6913b4ad3c22a5524e8fe7cfa7d008c4b9648e830c47"
+  }
+}

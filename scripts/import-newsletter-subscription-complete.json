@@ -1,0 +1,173 @@
+{
+  "name": "Newsletter Subscription Complete",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "newsletter",
+        "responseMode": "lastNode",
+        "options": {
+          "allowedOrigins": "https://lekibbitz.fr,https://www.lekibbitz.fr"
+        }
+      },
+      "id": "webhook",
+      "name": "Newsletter Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        256,
+        208
+      ],
+      "typeVersion": 2,
+      "webhookId": "newsletter-sub"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO newsletter_subscribers (email, source, metadata) VALUES ($1, $2, '{}') ON CONFLICT (email) DO UPDATE SET status = 'active', unsubscribed_at = NULL, metadata = newsletter_subscribers.metadata || '{\"resubscribed\": true}' RETURNING id, email, status;",
+        "additionalFields": {
+          "queryParameters": [
+            "{{ $json.email }}",
+            "{{ $json.source || 'website' }}"
+          ]
+        },
+        "options": {}
+      },
+      "id": "insert_db",
+      "name": "Save to Database",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        480,
+        208
+      ],
+      "typeVersion": 2.5,
+      "credentials": {
+        "postgres": {
+          "id": "o9ZHFV56HWz8w7cp",
+          "name": "Supabase Kibbitz Corner"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, title, content_html FROM newsletters WHERE status = 'sent' ORDER BY sent_at DESC LIMIT 1;",
+        "options": {}
+      },
+      "id": "get_last_newsletter",
+      "name": "Get Last Newsletter",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        704,
+        208
+      ],
+      "typeVersion": 2.5,
+      "credentials": {
+        "postgres": {
+          "id": "o9ZHFV56HWz8w7cp",
+          "name": "Supabase Kibbitz Corner"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "newsletters@lekibbitz.fr",
+        "toEmail": "={{ $('Save to Database').item.json.email }}",
+        "subject": "Bienvenue dans Kibbitz' Corner ! 🎉",
+        "html": "<!DOCTYPE html><html lang=\"fr\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"></head><body style=\"margin:0;padding:0;background:#0a0a0a;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#fff;\"><div style=\"max-width:640px;margin:0 auto;padding:40px 20px;\"><div style=\"background:linear-gradient(135deg,#a855f7 0%,#ec4899 50%,#f76c5e 100%);border-radius:20px 20px 0 0;padding:48px 32px;text-align:center;\"><img src=\"https://lekibbitz.fr/assets/logo-final-frame.png\" alt=\"Kibbitz' Corner\" style=\"width:120px;height:120px;margin-bottom:20px;border-radius:16px;\"><h1 style=\"margin:0;font-size:32px;font-weight:800;color:#fff;\">Bienvenue !</h1><p style=\"margin:12px 0 0;font-size:16px;color:rgba(255,255,255,0.9);\">Ta newsletter IA personnalisée t'attend</p></div><div style=\"background:#161616;border:1px solid #333;border-top:none;padding:40px 32px;\"><p style=\"font-size:18px;line-height:1.7;color:#ccc;margin:0 0 24px;\">Salut <strong style=\"color:#fff;\">{{ $('Save to Database').item.json.email }}</strong> !</p><p style=\"font-size:16px;line-height:1.7;color:#aaa;margin:0 0 32px;\">Tu viens de rejoindre <strong style=\"color:#a855f7;\">Kibbitz' Corner</strong>, et je suis ravi de t'accueillir. Ici, c'est <strong style=\"color:#fff;\">TA</strong> newsletter - tu la configures exactement comme tu veux.</p><div style=\"background:linear-gradient(135deg,rgba(168,85,247,0.1),rgba(236,72,153,0.1));border:1px solid rgba(168,85,247,0.3);border-radius:16px;padding:24px;margin-bottom:32px;\"><h2 style=\"margin:0 0 12px;font-size:20px;color:#fff;\">Le concept</h2><p style=\"margin:0;font-size:15px;line-height:1.7;color:#bbb;\">Chaque jour, je scanne <strong style=\"color:#fff;\">15+ sources</strong> (RSS, Reddit, Google News...) et je génère un résumé IA des actus tech qui comptent. Mais la magie, c'est que <strong style=\"color:#a855f7;\">tu choisis ce qui t'intéresse</strong>.</p></div><div style=\"height:1px;background:linear-gradient(90deg,transparent,#333,transparent);margin:32px 0;\"></div><h3 style=\"margin:0 0 16px;font-size:18px;color:#fff;\">Configure ta newsletter par email</h3><p style=\"font-size:14px;line-height:1.7;color:#aaa;margin:0 0 16px;\">Réponds simplement à <strong style=\"color:#a855f7;\">newsletters@lekibbitz.fr</strong> avec tes préférences :</p><div style=\"background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:20px;margin-bottom:24px;\"><p style=\"margin:0;font-size:14px;line-height:1.8;color:#ccc;font-style:italic;\">\"Je veux plus d'actus sur n8n et l'automatisation, moins de finance tech. Ajoute des sources sur le no-code et Supabase.\"</p></div><a href=\"mailto:newsletters@lekibbitz.fr?subject=Configuration%20Newsletter&body=%F0%9F%93%8B%20MES%20PREFERENCES%0A%0A%E2%9C%85%20Sujets%20que%20je%20veux%20voir%20:%0A-%20%0A%0A%E2%9D%8C%20Sujets%20en%20trop%20:%0A-%20%0A%0A%F0%9F%94%97%20Sources%20%C3%A0%20ajouter%20:%0A-%20\" style=\"display:inline-block;background:linear-gradient(135deg,#a855f7,#ec4899);color:#fff;text-decoration:none;padding:14px 28px;border-radius:10px;font-weight:600;font-size:15px;\">Configurer mes préférences</a><div style=\"height:1px;background:linear-gradient(90deg,transparent,#333,transparent);margin:32px 0;\"></div><h3 style=\"margin:0 0 16px;font-size:18px;color:#fff;\">Nouvelles fonctionnalités en réflexion</h3><p style=\"font-size:14px;line-height:1.7;color:#aaa;margin:0 0 20px;\">Vote pour ce qui t'intéresse :</p><table style=\"width:100%;border-collapse:separate;border-spacing:0 8px;\"><tr><td style=\"background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:16px;\"><a href=\"mailto:newsletters@lekibbitz.fr?subject=Vote%20-%20Resume%20Audio\" style=\"text-decoration:none;color:#fff;\"><strong>🎧 Résumé audio</strong><br><span style=\"font-size:13px;color:#888;\">Écoute ta newsletter en podcast</span></a></td></tr><tr><td style=\"background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:16px;\"><a href=\"mailto:newsletters@lekibbitz.fr?subject=Vote%20-%20Playlists%20Multiples\" style=\"text-decoration:none;color:#fff;\"><strong>📅 Playlists multiples</strong><br><span style=\"font-size:13px;color:#888;\">Newsletter différente selon le jour</span></a></td></tr><tr><td style=\"background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:16px;\"><a href=\"mailto:newsletters@lekibbitz.fr?subject=Vote%20-%20Appel%20Vocal\" style=\"text-decoration:none;color:#fff;\"><strong>📞 Appel vocal IA</strong><br><span style=\"font-size:13px;color:#888;\">Discute des actus avec l'IA par téléphone</span></a></td></tr></table><div style=\"height:1px;background:linear-gradient(90deg,transparent,#333,transparent);margin:32px 0;\"></div><div style=\"background:linear-gradient(135deg,rgba(34,197,94,0.1),rgba(132,204,22,0.1));border:1px solid rgba(34,197,94,0.3);border-radius:16px;padding:24px;text-align:center;\"><h3 style=\"margin:0 0 12px;font-size:18px;color:#22c55e;\">Ton premier Daily AI Report</h3><p style=\"margin:0 0 16px;font-size:14px;color:#aaa;\">Voici le dernier numéro pour te donner un aperçu :</p><a href=\"https://lekibbitz.fr/newsletter/{{ $('Get Last Newsletter').item.json.id || 'latest' }}\" style=\"display:inline-block;background:#22c55e;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px;\">Lire le dernier Daily</a></div></div><div style=\"background:#111;border:1px solid #222;border-top:none;border-radius:0 0 20px 20px;padding:32px;text-align:center;\"><p style=\"margin:0 0 16px;font-size:14px;color:#666;\">À demain pour ton premier Daily !</p><p style=\"margin:0 0 16px;font-size:13px;color:#444;\">Thomas - <a href=\"https://lekibbitz.fr\" style=\"color:#a855f7;text-decoration:none;\">Kibbitz' Corner</a></p><p style=\"margin:0;font-size:12px;color:#444;\"><a href=\"https://n8n.lekibbitz.fr/webhook/newsletter/unsubscribe?email={{ $('Save to Database').item.json.email }}\" style=\"color:#666;text-decoration:none;\">Se désabonner</a></p></div></div></body></html>",
+        "options": {
+          "replyTo": "thomas.joannes@lekibbitz.fr"
+        }
+      },
+      "id": "send_welcome_email",
+      "name": "Send Welcome Email",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [
+        928,
+        208
+      ],
+      "typeVersion": 2.1,
+      "credentials": {
+        "smtp": {
+          "id": "T3bi8G1zGnTM0Yqa",
+          "name": "Hostinger SMTP - Newsletter"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"success\": true, \"message\": \"Inscription réussie ! Vérifiez votre email.\", \"email\": \"{{ $('Save to Database').item.json.email }}\", \"welcome_sent\": true}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "success_response",
+      "name": "Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1152,
+        208
+      ],
+      "typeVersion": 1.1
+    }
+  ],
+  "connections": {
+    "Newsletter Webhook": {
+      "main": [
+        [
+          {
+            "node": "Save to Database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save to Database": {
+      "main": [
+        [
+          {
+            "node": "Get Last Newsletter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Last Newsletter": {
+      "main": [
+        [
+          {
+            "node": "Send Welcome Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Welcome Email": {
+      "main": [
+        [
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "a0b359ae789d4b6649ae6913b4ad3c22a5524e8fe7cfa7d008c4b9648e830c47"
+  }
+}

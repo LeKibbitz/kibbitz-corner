@@ -1,0 +1,105 @@
+{
+  "name": "Email Monitor for Preferences",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "email-received",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook_email",
+      "name": "Email Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [256, 208],
+      "typeVersion": 2,
+      "webhookId": "email-received"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO newsletter_user_preferences (email, message_type, subject, content, raw_content) VALUES ($1, 'email_preference', $2, $3, $4) RETURNING id;",
+        "additionalFields": {
+          "queryParameters": [
+            "={{ $json.from || $json.email }}",
+            "={{ $json.subject || 'Email Preference Update' }}",
+            "={{ $json.content || $json.message || $json.text }}",
+            "={{ JSON.stringify($json) }}"
+          ]
+        },
+        "options": {}
+      },
+      "id": "save_preference",
+      "name": "Save Email Preference",
+      "type": "n8n-nodes-base.postgres",
+      "position": [480, 208],
+      "typeVersion": 2.5,
+      "credentials": {
+        "postgres": {
+          "id": "o9ZHFV56HWz8w7cp",
+          "name": "Supabase Kibbitz Corner"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "newsletters@lekibbitz.fr",
+        "toEmail": "={{ $json.from || $json.email || 'thomas.joannes@gmail.com' }}",
+        "subject": "✅ Préférences newsletter mises à jour !",
+        "html": "<!DOCTYPE html><html><body style=\"font-family: Arial; max-width: 600px; margin: 0 auto; padding: 20px;\"><div style=\"background: linear-gradient(135deg, #22c55e, #16a34a); padding: 30px; border-radius: 15px; text-align: center;\"><h1 style=\"color: white; margin: 0;\">✅ C'est noté !</h1><p style=\"color: white;\">Tes préférences ont été mises à jour</p></div><div style=\"padding: 20px;\"><h3>📝 Récapitulatif</h3><p><strong>Ton message :</strong><br>{{ $json.content || $json.message || 'Demande de modification reçue' }}</p><p>⏰ <strong>Dès demain</strong>, ta newsletter sera personnalisée selon tes nouvelles préférences.</p></div><div style=\"text-align: center; margin-top: 20px;\"><a href=\"mailto:newsletters@lekibbitz.fr\" style=\"background: #22c55e; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none;\">Modifier à nouveau</a></div></body></html>",
+        "options": {
+          "replyTo": "thomas.joannes@lekibbitz.fr"
+        }
+      },
+      "id": "send_confirmation",
+      "name": "Send Confirmation",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [704, 208],
+      "typeVersion": 2.1,
+      "credentials": {
+        "smtp": {
+          "id": "T3bi8G1zGnTM0Yqa",
+          "name": "Hostinger SMTP - Newsletter"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"success\": true, \"message\": \"Email traité et confirmation envoyée\", \"timestamp\": \"{{ new Date().toISOString() }}\"}"
+      },
+      "id": "respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [928, 208],
+      "typeVersion": 1.1
+    }
+  ],
+  "connections": {
+    "Email Webhook": {
+      "main": [[{
+        "node": "Save Email Preference",
+        "type": "main",
+        "index": 0
+      }]]
+    },
+    "Save Email Preference": {
+      "main": [[{
+        "node": "Send Confirmation",
+        "type": "main",
+        "index": 0
+      }]]
+    },
+    "Send Confirmation": {
+      "main": [[{
+        "node": "Respond",
+        "type": "main",
+        "index": 0
+      }]]
+    }
+  },
+  "pinData": {},
+  "settings": {},
+  "staticData": {}
+}

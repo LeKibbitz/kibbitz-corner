@@ -1,0 +1,16 @@
+{
+  "tournament": "Vacances Bleues Expert 2026 - ROTATION CORRIGÉE",
+  "configuration": {
+    "sections": 2,
+    "tables_per_section": 12,
+    "total_pairs": 48,
+    "seances": 3,
+    "tours_per_seance": 11,
+    "non_rencontrees_per_seance": 1
+  },
+  "ffb_variance": 15.47,
+  "milp_variance": 0,
+  "improvement": "100% variance reduction",
+  "total_pairs": 48,
+  "analysis_complete": true
+}

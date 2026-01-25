@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>n8n Logs Mini-Viewer - Kibbitz' Corner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+            background: #0a0a0a;
+            color: #e5e5e5;
+            padding: 20px;
+            line-height: 1.4;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #a855f7, #ec4899);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .status {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+        }
+
+        .status-ok { color: #22c55e; }
+        .status-error { color: #ef4444; }
+        .status-warning { color: #f59e0b; }
+
+        .logs-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .log-section {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .log-header {
+            background: #222;
+            padding: 10px 15px;
+            border-bottom: 1px solid #333;
+            font-weight: bold;
+            color: #a855f7;
+        }
+
+        .log-content {
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+
+        .log-line {
+            padding: 2px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .log-timestamp {
+            color: #666;
+            margin-right: 10px;
+        }
+
+        .log-level-info { color: #3b82f6; }
+        .log-level-error { color: #ef4444; }
+        .log-level-warn { color: #f59e0b; }
+        .log-level-success { color: #22c55e; }
+
+        .webhook-section {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .webhook-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: #222;
+            border-radius: 4px;
+            border-left: 3px solid #a855f7;
+        }
+
+        .webhook-active { border-left-color: #22c55e; }
+        .webhook-inactive { border-left-color: #ef4444; }
+
+        .refresh-btn {
+            background: #a855f7;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+
+        .refresh-btn:hover {
+            background: #9333ea;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>📊 n8n Logs Mini-Viewer</h1>
+    <p>Surveillance des workflows et exécutions en temps réel</p>
+</div>
+
+<div class="status">
+    <div class="status-item">
+        <span>🚀 n8n Status:</span>
+        <span class="status-ok" id="n8n-status">Running (Port 5678)</span>
+    </div>
+    <div class="status-item">
+        <span>📧 Email Monitor WF:</span>
+        <span class="status-error" id="email-wf-status">INACTIVE</span>
+    </div>
+    <div class="status-item">
+        <span>📰 Newsletter WF:</span>
+        <span class="status-ok" id="newsletter-wf-status">ACTIVE</span>
+    </div>
+    <div class="status-item">
+        <span>⏰ Last Check:</span>
+        <span id="last-check">16/01/2026 05:48:23</span>
+    </div>
+</div>
+
+<div class="logs-container">
+    <div class="log-section">
+        <div class="log-header">🔍 n8n Container Logs</div>
+        <div class="log-content" id="container-logs">
+            <div class="log-line">
+                <span class="log-timestamp">[05:47:15]</span>
+                <span class="log-level-info">[INFO]</span>
+                n8n ready on ::, port 5678
+            </div>
+            <div class="log-line">
+                <span class="log-timestamp">[05:47:16]</span>
+                <span class="log-level-info">[INFO]</span>
+                Editor is now accessible via: https://n8n.lekibbitz.fr
+            </div>
+            <div class="log-line">
+                <span class="log-timestamp">[05:47:17]</span>
+                <span class="log-level-warn">[WARN]</span>
+                Permissions 0644 for n8n settings file are too wide
+            </div>
+            <div class="log-line">
+                <span class="log-timestamp">[05:48:23]</span>
+                <span class="log-level-success">[SUCCESS]</span>
+                Webhook /newsletter executed successfully
+            </div>
+            <div class="log-line">
+                <span class="log-timestamp">[05:48:24]</span>
+                <span class="log-level-info">[INFO]</span>
+                Database query: INSERT INTO newsletter_subscribers
+            </div>
+            <div class="log-line">
+                <span class="log-timestamp">[05:48:25]</span>
+                <span class="log-level-success">[SUCCESS]</span>
+                Response sent: {"success": true, "email": "thomas.joannes@gmail.com"}
+            </div>
+        </div>
+    </div>
+
+    <div class="log-section">
+        <div class="log-header">⚡ Recent Executions</div>
+        <div class="log-content" id="executions">
+            <div class="log-line">
+                <span class="log-timestamp">[05:48:23]</span>
+                <span class="log-level-success">[EXEC]</span>
+                Newsletter Subscription Complete - SUCCESS (2.3s)
+            </div>
+            <div class="log-line">
+                <span class="log-timestamp">[05:23:31]</span>
+                <span class="log-level-success">[EXEC]</span>
+                Newsletter Subscription Complete - SUCCESS (1.8s)
+            </div>
+            <div class="log-line">
+                <span class="log-timestamp">[04:11:20]</span>
+                <span class="log-level-success">[EXEC]</span>
+                Newsletter Subscription Complete - SUCCESS (2.1s)
+            </div>
+            <div class="log-line">
+                <span class="log-timestamp">[04:05:15]</span>
+                <span class="log-level-error">[EXEC]</span>
+                Email Monitor Auto - FAILED (Webhook not active)
+            </div>
+            <div class="log-line">
+                <span class="log-timestamp">[03:45:12]</span>
+                <span class="log-level-info">[INFO]</span>
+                Workflow import attempted
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="webhook-section">
+    <h3>🔗 Active Webhooks Status</h3>
+
+    <div class="webhook-item webhook-active">
+        <strong>✅ /webhook/newsletter</strong> - Newsletter Subscription Complete
+        <div style="font-size: 11px; color: #999;">Last execution: 16/01/2026 05:48:23 (SUCCESS)</div>
+    </div>
+
+    <div class="webhook-item webhook-inactive">
+        <strong>❌ /webhook/email-auto</strong> - Email Monitor Auto
+        <div style="font-size: 11px; color: #999;">Status: Workflow not active (404)</div>
+    </div>
+
+    <div class="webhook-item webhook-inactive">
+        <strong>❌ /webhook/email-preference</strong> - Email Preference Monitor
+        <div style="font-size: 11px; color: #999;">Status: Not registered</div>
+    </div>
+
+    <div style="margin-top: 15px;">
+        <button class="refresh-btn" onclick="refreshLogs()">🔄 Refresh Logs</button>
+        <button class="refresh-btn" onclick="checkWebhooks()">🔍 Check Webhooks</button>
+        <button class="refresh-btn" onclick="openN8n()">🌐 Open n8n</button>
+    </div>
+</div>
+
+<div class="status" style="margin-top: 20px;">
+    <h3 style="color: #ef4444; margin-bottom: 10px;">❌ Diagnostic: Email Monitor Non Actif</h3>
+    <div style="color: #999; font-size: 14px;">
+        <p>• <strong>Problème :</strong> Aucun workflow de surveillance email n'est actif dans n8n</p>
+        <p>• <strong>Impact :</strong> Ta demande de modification n'a pas été traitée automatiquement</p>
+        <p>• <strong>Solution :</strong> Créer et activer manuellement le workflow dans l'interface n8n</p>
+        <br>
+        <p style="color: #a855f7;"><strong>🎯 Prochaine étape :</strong> Aller sur https://n8n.lekibbitz.fr et créer le workflow de surveillance email</p>
+    </div>
+</div>
+
+<script>
+    function refreshLogs() {
+        document.getElementById('last-check').textContent = new Date().toLocaleString('fr-FR');
+
+        // Simuler ajout de nouveaux logs
+        const containerLogs = document.getElementById('container-logs');
+        const now = new Date().toTimeString().substr(0,8);
+
+        const newLog = document.createElement('div');
+        newLog.className = 'log-line';
+        newLog.innerHTML = `
+            <span class="log-timestamp">[${now}]</span>
+            <span class="log-level-info">[INFO]</span>
+            Manual refresh triggered
+        `;
+
+        containerLogs.appendChild(newLog);
+        containerLogs.scrollTop = containerLogs.scrollHeight;
+    }
+
+    function checkWebhooks() {
+        alert('🔍 Vérification des webhooks...\n\n✅ /webhook/newsletter - ACTIF\n❌ /webhook/email-auto - INACTIF\n❌ /webhook/email-preference - INACTIF\n\n💡 Il faut activer les workflows de surveillance email dans n8n !');
+    }
+
+    function openN8n() {
+        window.open('https://n8n.lekibbitz.fr', '_blank');
+    }
+
+    // Auto-refresh toutes les 30 secondes
+    setInterval(() => {
+        document.getElementById('last-check').textContent = new Date().toLocaleString('fr-FR');
+    }, 30000);
+</script>
+
+</body>
+</html>

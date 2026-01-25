@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horloge Mondiale</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #e94560;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        label {
+            color: #fff;
+            font-size: 1.1rem;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        select {
+            width: 100%;
+            padding: 15px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            cursor: pointer;
+            margin-bottom: 30px;
+        }
+
+        .time-display {
+            text-align: center;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+        }
+
+        .city-name {
+            color: #e94560;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .time {
+            color: #fff;
+            font-size: 4rem;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+        }
+
+        .date {
+            color: #aaa;
+            font-size: 1.2rem;
+            margin-top: 10px;
+        }
+
+        .timezone-info {
+            color: #888;
+            font-size: 0.9rem;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Horloge Mondiale</h1>
+
+        <label for="city-select">Choisissez une ville :</label>
+        <select id="city-select">
+            <optgroup label="Europe">
+                <option value="Europe/Paris">Paris, France</option>
+                <option value="Europe/London">Londres, Royaume-Uni</option>
+                <option value="Europe/Berlin">Berlin, Allemagne</option>
+                <option value="Europe/Madrid">Madrid, Espagne</option>
+                <option value="Europe/Rome">Rome, Italie</option>
+                <option value="Europe/Amsterdam">Amsterdam, Pays-Bas</option>
+                <option value="Europe/Brussels">Bruxelles, Belgique</option>
+                <option value="Europe/Zurich">Zurich, Suisse</option>
+                <option value="Europe/Moscow">Moscou, Russie</option>
+                <option value="Europe/Athens">Athènes, Grèce</option>
+            </optgroup>
+            <optgroup label="Amérique du Nord">
+                <option value="America/New_York">New York, USA</option>
+                <option value="America/Los_Angeles">Los Angeles, USA</option>
+                <option value="America/Chicago">Chicago, USA</option>
+                <option value="America/Toronto">Toronto, Canada</option>
+                <option value="America/Vancouver">Vancouver, Canada</option>
+                <option value="America/Mexico_City">Mexico, Mexique</option>
+            </optgroup>
+            <optgroup label="Amérique du Sud">
+                <option value="America/Sao_Paulo">São Paulo, Brésil</option>
+                <option value="America/Buenos_Aires">Buenos Aires, Argentine</option>
+                <option value="America/Lima">Lima, Pérou</option>
+                <option value="America/Bogota">Bogota, Colombie</option>
+            </optgroup>
+            <optgroup label="Asie">
+                <option value="Asia/Tokyo">Tokyo, Japon</option>
+                <option value="Asia/Shanghai">Shanghai, Chine</option>
+                <option value="Asia/Hong_Kong">Hong Kong</option>
+                <option value="Asia/Singapore">Singapour</option>
+                <option value="Asia/Seoul">Séoul, Corée du Sud</option>
+                <option value="Asia/Dubai">Dubaï, EAU</option>
+                <option value="Asia/Bangkok">Bangkok, Thaïlande</option>
+                <option value="Asia/Kolkata">Mumbai, Inde</option>
+                <option value="Asia/Jakarta">Jakarta, Indonésie</option>
+            </optgroup>
+            <optgroup label="Océanie">
+                <option value="Australia/Sydney">Sydney, Australie</option>
+                <option value="Australia/Melbourne">Melbourne, Australie</option>
+                <option value="Pacific/Auckland">Auckland, Nouvelle-Zélande</option>
+            </optgroup>
+            <optgroup label="Afrique">
+                <option value="Africa/Cairo">Le Caire, Égypte</option>
+                <option value="Africa/Johannesburg">Johannesburg, Afrique du Sud</option>
+                <option value="Africa/Casablanca">Casablanca, Maroc</option>
+                <option value="Africa/Lagos">Lagos, Nigeria</option>
+            </optgroup>
+        </select>
+
+        <div class="time-display">
+            <div class="city-name" id="city-name">Paris, France</div>
+            <div class="time" id="time">00:00:00</div>
+            <div class="date" id="date">--</div>
+            <div class="timezone-info" id="timezone-info">--</div>
+        </div>
+    </div>
+
+    <script>
+        const citySelect = document.getElementById('city-select');
+        const timeDisplay = document.getElementById('time');
+        const dateDisplay = document.getElementById('date');
+        const cityNameDisplay = document.getElementById('city-name');
+        const timezoneInfoDisplay = document.getElementById('timezone-info');
+
+        function updateTime() {
+            const timezone = citySelect.value;
+            const cityName = citySelect.options[citySelect.selectedIndex].text;
+
+            const now = new Date();
+
+            const timeOptions = {
+                timeZone: timezone,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            };
+
+            const dateOptions = {
+                timeZone: timezone,
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            };
+
+            const timeString = now.toLocaleTimeString('fr-FR', timeOptions);
+            const dateString = now.toLocaleDateString('fr-FR', dateOptions);
+
+            // Get UTC offset
+            const utcDate = new Date(now.toLocaleString('en-US', { timeZone: 'UTC' }));
+            const tzDate = new Date(now.toLocaleString('en-US', { timeZone: timezone }));
+            const offset = (tzDate - utcDate) / (1000 * 60 * 60);
+            const offsetStr = offset >= 0 ? `UTC+${offset}` : `UTC${offset}`;
+
+            timeDisplay.textContent = timeString;
+            dateDisplay.textContent = dateString.charAt(0).toUpperCase() + dateString.slice(1);
+            cityNameDisplay.textContent = cityName;
+            timezoneInfoDisplay.textContent = `Fuseau horaire: ${timezone} (${offsetStr})`;
+        }
+
+        citySelect.addEventListener('change', updateTime);
+
+        // Update every second
+        updateTime();
+        setInterval(updateTime, 1000);
+    </script>
+</body>
+</html>

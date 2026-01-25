@@ -1,0 +1,62 @@
+# Paires de test - 24 paires réelles pour algorithme Bridge
+
+Paire 1: BARBOT Pierre (IV: 60) + COGLIATI Hélène (IV: 52) = IV combiné: 112
+Paire 2: SELLIES Jocelyne (IV: 38) + SELLIES Jean-Noel (IV: 22) = IV combiné: 60
+Paire 3: LE PENNEC Frédéric (IV: 76) + THIEBAUT Yann (IV: 84) = IV combiné: 160
+Paire 4: DA SILVA Marie Françoise (IV: 40) + BOBRIE Marc (IV: 32) = IV combiné: 72
+Paire 5: BARTHELEMY Catherine (IV: 56) + BOBRIE Colette (IV: 38) = IV combiné: 94
+Paire 6: SCHOUMERT Robert (IV: 52) + HOEFLER Vincent (IV: 48) = IV combiné: 100
+Paire 7: EHMANN Nicole (IV: 44) + REMY Catherine (IV: 38) = IV combiné: 82
+Paire 8: FAVÉ Catherine (IV: 92) + MILION Chantal (IV: 64) = IV combiné: 156
+Paire 9: HEISSAT Alain (IV: 38) + GOULLET Dominique (IV: 56) = IV combiné: 94
+Paire 10: BRIOLA Jacques (IV: 40) + KIEFFER Michel (IV: 32) = IV combiné: 72
+Paire 11: GREFF Clemence (IV: 56) + DUVERNOY Marie Françoise (IV: 56) = IV combiné: 112
+Paire 12: DESJARDINS Valérie (IV: 84) + THIEBAUT Denis (IV: 76) = IV combiné: 160
+Paire 13: DIVOUX Anne (IV: 92) + SARGOS Francois Michel (IV: 100) = IV combiné: 192
+Paire 14: WACHTEL Rodolphe (IV: 56) + HEIM Brigitte (IV: 76) = IV combiné: 132
+Paire 15: BARBOT Philippe (IV: 84) + REGNIER Yael (IV: 84) = IV combiné: 168
+Paire 16: NIMSGERN Monique (IV: 92) + BECKER Brigitte (IV: 92) = IV combiné: 184
+Paire 17: VROONE Marcelle (IV: 56) + MECHAIN Valérie (IV: 52) = IV combiné: 108
+Paire 18: JAYTENER Isabelle (IV: 56) + MARCHAND Marc (IV: 38) = IV combiné: 94
+Paire 19: JAYTENER Martial (IV: 76) + PARENTELLI Adeline (IV: 68) = IV combiné: 144
+Paire 20: PEROT Sylvie (IV: 52) + PEROT Michel (IV: 56) = IV combiné: 108
+Paire 21: NICOLETTA Marie-Jose (IV: 68) + FERRETTI Nicole (IV: 76) = IV combiné: 144
+Paire 22: CABIROL Annick (IV: 60) + CABIROL Claude (IV: 60) = IV combiné: 120
+Paire 23: CHOTTIN Philippe (IV: 100) + LANGLAIS Florent (IV: 100) = IV combiné: 200
+Paire 24: DIETERLING Isabelle (IV: 44) + DIETERLING Pierre (IV: 40) = IV combiné: 84
+
+# Statistiques
+Total paires: 24
+IV total: 2956
+IV moyen: 123.2
+
+# Répartition par IV combiné (ordre décroissant):
+1. Paire 23: CHOTTIN/LANGLAIS = 200
+2. Paire 13: DIVOUX/SARGOS = 192
+3. Paire 16: NIMSGERN/BECKER = 184
+4. Paire 15: BARBOT/REGNIER = 168
+5. Paire 3: LE PENNEC/THIEBAUT = 160
+6. Paire 12: DESJARDINS/THIEBAUT = 160
+7. Paire 8: FAVÉ/MILION = 156
+8. Paire 19: JAYTENER/PARENTELLI = 144
+9. Paire 21: NICOLETTA/FERRETTI = 144
+10. Paire 14: WACHTEL/HEIM = 132
+11. Paire 22: CABIROL/CABIROL = 120
+12. Paire 1: BARBOT/COGLIATI = 112
+13. Paire 11: GREFF/DUVERNOY = 112
+14. Paire 17: VROONE/MECHAIN = 108
+15. Paire 20: PEROT/PEROT = 108
+16. Paire 6: SCHOUMERT/HOEFLER = 100
+17. Paire 5: BARTHELEMY/BOBRIE = 94
+18. Paire 9: HEISSAT/GOULLET = 94
+19. Paire 18: JAYTENER/MARCHAND = 94
+20. Paire 24: DIETERLING/DIETERLING = 84
+21. Paire 7: EHMANN/REMY = 82
+22. Paire 4: DA SILVA/BOBRIE = 72
+23. Paire 10: BRIOLA/KIEFFER = 72
+24. Paire 2: SELLIES/SELLIES = 60
+
+# Notes pour algorithme
+- Contraintes NS à définir selon variante
+- Sections cibles: 2 (12 tables par section)
+- Objectif: toutes les moyennes ≈ 123.2
