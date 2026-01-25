@@ -1,0 +1,390 @@
+{
+  "total_pairs": 48,
+  "configuration": "2x12 tables, 3 rounds, 11 tours",
+  "sorted_pairs": [
+    {
+      "rank": 1,
+      "name": "MASINI/BECKER",
+      "iv": 178,
+      "pp": 1572,
+      "pe": 549277,
+      "club": "Nancy - Jarville"
+    },
+    {
+      "rank": 2,
+      "name": "BELUT/VILLEVIEILLE",
+      "iv": 172,
+      "pp": 1157,
+      "pe": 560360,
+      "club": "Nancy - Jarville"
+    },
+    {
+      "rank": 3,
+      "name": "HELD/COCCO",
+      "iv": 166,
+      "pp": 1173,
+      "pe": 455683,
+      "club": "Nancy - Jarville"
+    },
+    {
+      "rank": 4,
+      "name": "LAMBERT/LAMBERT",
+      "iv": 166,
+      "pp": 1089,
+      "pe": 441671,
+      "club": "Nancy - Jarville"
+    },
+    {
+      "rank": 5,
+      "name": "SEURIN/SEURIN",
+      "iv": 166,
+      "pp": 986,
+      "pe": 444972,
+      "club": "Bridge Club Thionville"
+    },
+    {
+      "rank": 6,
+      "name": "STREICHER/DEMARIA",
+      "iv": 166,
+      "pp": 945,
+      "pe": 530112,
+      "club": "Bridge Club Spinalien"
+    },
+    {
+      "rank": 7,
+      "name": "JAYTENER/GIRY",
+      "iv": 166,
+      "pp": 748,
+      "pe": 389444,
+      "club": "Bridge Club Thionville"
+    },
+    {
+      "rank": 8,
+      "name": "CORBARIEU/JAKIMOW",
+      "iv": 160,
+      "pp": 685,
+      "pe": 388911,
+      "club": "de Metz C.S.A.G."
+    },
+    {
+      "rank": 9,
+      "name": "MILION/JUNG",
+      "iv": 154,
+      "pp": 718,
+      "pe": 298219,
+      "club": "de Metz C.S.A.G."
+    },
+    {
+      "rank": 10,
+      "name": "GOUBEAUX/HOUDOT",
+      "iv": 154,
+      "pp": 714,
+      "pe": 293283,
+      "club": "Club des Ducs"
+    },
+    {
+      "rank": 11,
+      "name": "THIESER/REUTER",
+      "iv": 154,
+      "pp": 529,
+      "pe": 354782,
+      "club": "club Rollon Gadelle"
+    },
+    {
+      "rank": 12,
+      "name": "WINCZEWSKI/WEBER",
+      "iv": 154,
+      "pp": 503,
+      "pe": 313716,
+      "club": "Nancy - Jarville"
+    },
+    {
+      "rank": 13,
+      "name": "NOEL/REGNAUD",
+      "iv": 154,
+      "pp": 496,
+      "pe": 336951,
+      "club": "Nancy - Jarville"
+    },
+    {
+      "rank": 14,
+      "name": "LOSSON/LOSSON",
+      "iv": 154,
+      "pp": 490,
+      "pe": 488844,
+      "club": "club Rollon Gadelle"
+    },
+    {
+      "rank": 15,
+      "name": "LAVIGNE/BOURGUIGNON",
+      "iv": 154,
+      "pp": 473,
+      "pe": 306510,
+      "club": "Bridge Club Spinalien"
+    },
+    {
+      "rank": 16,
+      "name": "VINCENOT/VINCENOT",
+      "iv": 154,
+      "pp": 426,
+      "pe": 315447,
+      "club": "Nancy - Jarville"
+    },
+    {
+      "rank": 17,
+      "name": "AUBRIOT/JACQUOT",
+      "iv": 154,
+      "pp": 414,
+      "pe": 342041,
+      "club": "Nancy - Jarville"
+    },
+    {
+      "rank": 18,
+      "name": "NICOLETTA/LOUETTE",
+      "iv": 154,
+      "pp": 404,
+      "pe": 354210,
+      "club": "Bridge Club Thionville"
+    },
+    {
+      "rank": 19,
+      "name": "TINE/PERRIN",
+      "iv": 154,
+      "pp": 399,
+      "pe": 499692,
+      "club": "Bridge Nancy Ville"
+    },
+    {
+      "rank": 20,
+      "name": "HEIM/HEIM",
+      "iv": 148,
+      "pp": 449,
+      "pe": 286245,
+      "club": "de Metz C.S.A.G."
+    },
+    {
+      "rank": 21,
+      "name": "STEPHANY/COLLARD",
+      "iv": 148,
+      "pp": 408,
+      "pe": 276189,
+      "club": "Nancy - Jarville"
+    },
+    {
+      "rank": 22,
+      "name": "PARENTELLI/THIEBAUT",
+      "iv": 148,
+      "pp": 392,
+      "pe": 280122,
+      "club": "de Metz C.S.A.G."
+    },
+    {
+      "rank": 23,
+      "name": "MANGEOT/GALMICHE",
+      "iv": 148,
+      "pp": 352,
+      "pe": 314326,
+      "club": "Etoile Bridge Club"
+    },
+    {
+      "rank": 24,
+      "name": "OTT/ROSENFELD",
+      "iv": 148,
+      "pp": 350,
+      "pe": 235649,
+      "club": "club Rollon Gadelle"
+    },
+    {
+      "rank": 25,
+      "name": "DELACOUR/PAGE",
+      "iv": 142,
+      "pp": 336,
+      "pe": 282557,
+      "club": "du Pays Haut"
+    },
+    {
+      "rank": 26,
+      "name": "DE CARLI/SIMON",
+      "iv": 142,
+      "pp": 324,
+      "pe": 306782,
+      "club": "Nancy - Jarville"
+    },
+    {
+      "rank": 27,
+      "name": "MELINE/NANTY",
+      "iv": 142,
+      "pp": 320,
+      "pe": 314367,
+      "club": "Val de Meuse"
+    },
+    {
+      "rank": 28,
+      "name": "LABRUSSE/MANSUY",
+      "iv": 142,
+      "pp": 295,
+      "pe": 320590,
+      "club": "Bridge Nancy Ville"
+    },
+    {
+      "rank": 29,
+      "name": "MOSCHKOWITZ/LITAIZE",
+      "iv": 142,
+      "pp": 289,
+      "pe": 266479,
+      "club": "Nancy - Jarville"
+    },
+    {
+      "rank": 30,
+      "name": "BELLOTTO/BELLOTTO",
+      "iv": 142,
+      "pp": 284,
+      "pe": 257453,
+      "club": "Nancy - Jarville"
+    },
+    {
+      "rank": 31,
+      "name": "HAYDONT/CUNAT",
+      "iv": 142,
+      "pp": 273,
+      "pe": 241049,
+      "club": "Etoile Bridge Club"
+    },
+    {
+      "rank": 32,
+      "name": "LEVEILLE/JEANDEMANGE",
+      "iv": 142,
+      "pp": 271,
+      "pe": 258800,
+      "club": "Etoile Bridge Club"
+    },
+    {
+      "rank": 33,
+      "name": "GAUCHER/KLAJNERMAN",
+      "iv": 142,
+      "pp": 196,
+      "pe": 161308,
+      "club": "Nancy - Jarville"
+    },
+    {
+      "rank": 34,
+      "name": "MARCHAL/PIERRAT",
+      "iv": 136,
+      "pp": 270,
+      "pe": 299902,
+      "club": "Etoile Bridge Club"
+    },
+    {
+      "rank": 35,
+      "name": "SIEBENALER/SIEBENALER",
+      "iv": 136,
+      "pp": 270,
+      "pe": 254662,
+      "club": "Bridge Club Thionville"
+    },
+    {
+      "rank": 36,
+      "name": "ROTH/SEYVE",
+      "iv": 136,
+      "pp": 248,
+      "pe": 266691,
+      "club": "club Rollon Gadelle"
+    },
+    {
+      "rank": 37,
+      "name": "HENRION/FLORENTIN",
+      "iv": 136,
+      "pp": 231,
+      "pe": 242199,
+      "club": "Val de Meuse"
+    },
+    {
+      "rank": 38,
+      "name": "QUERNIARD/MARIE",
+      "iv": 130,
+      "pp": 331,
+      "pe": 231640,
+      "club": "du Pays Haut"
+    },
+    {
+      "rank": 39,
+      "name": "TITEUX/MUNIER",
+      "iv": 130,
+      "pp": 259,
+      "pe": 354023,
+      "club": "Bridge Nancy Ville"
+    },
+    {
+      "rank": 40,
+      "name": "BOUDIER/VERMEILLE",
+      "iv": 124,
+      "pp": 213,
+      "pe": 218570,
+      "club": "Bridge Club Spinalien"
+    },
+    {
+      "rank": 41,
+      "name": "GUILLENTZ/MANNS",
+      "iv": 124,
+      "pp": 167,
+      "pe": 317573,
+      "club": "Bridge Club Freyming-Merlebach"
+    },
+    {
+      "rank": 42,
+      "name": "CANTAMAGLIA/MAEDER",
+      "iv": 124,
+      "pp": 74,
+      "pe": 151153,
+      "club": "Bridge Nancy Ville"
+    },
+    {
+      "rank": 43,
+      "name": "DE MONCLIN/CLARIS",
+      "iv": 118,
+      "pp": 182,
+      "pe": 217649,
+      "club": "Comité de Lorraine"
+    },
+    {
+      "rank": 44,
+      "name": "CHIARA/CHIARA",
+      "iv": 118,
+      "pp": 150,
+      "pe": 289052,
+      "club": "Bridge de Commercy"
+    },
+    {
+      "rank": 45,
+      "name": "KLAJNERMAN/CHAMBRION",
+      "iv": 118,
+      "pp": 97,
+      "pe": 231784,
+      "club": "Nancy - Jarville"
+    },
+    {
+      "rank": 46,
+      "name": "MILLON/LEFEVRE",
+      "iv": 118,
+      "pp": 88,
+      "pe": 235688,
+      "club": "Nancy - Jarville"
+    },
+    {
+      "rank": 47,
+      "name": "FERREC/PFLETSCHINGER-RAFAELL",
+      "iv": 114,
+      "pp": 141,
+      "pe": 186861,
+      "club": "club Rollon Gadelle"
+    },
+    {
+      "rank": 48,
+      "name": "THIEBAULT/THIEBAULT",
+      "iv": 108,
+      "pp": 138,
+      "pe": 87136,
+      "club": "Bridge de Briey-Jarny"
+    }
+  ]
+}
